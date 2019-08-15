@@ -1,0 +1,6 @@
+.*
+!.gitignore
+!.mvn/
+!.gitlab-ci.yml
+*.iml
+target/

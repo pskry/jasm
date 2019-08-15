@@ -1,0 +1,29 @@
+image: openjdk:12-jdk-alpine
+
+stages:
+  - build
+  - test
+
+variables:
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  key: "$CI_BUILD_REF_NAME"
+  paths:
+    - ./.m2/repository/
+
+build:
+  stage: build
+  script:
+    - ./mvnw $MAVEN_CLI_OPTS clean install -DskipTests=true
+
+integration-test:
+  stage: test
+  script:
+    - ./mvnw $MAVEN_CLI_OPTS test
+
+static-analysis:
+  stage: test
+  script:
+    - ./mvnw $MAVEN_CLI_OPTS -Panalyze -DskipTests=true verify
