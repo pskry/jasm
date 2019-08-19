@@ -17,14 +17,15 @@
 #
 
 .bytecode 56.0
-.source "no_newline_at_end_of_file.jasm"
-.class public final dk/skrypalle/it/NoNewlineAtEndOfFile
+.source "print_main_args.jasm"
+.class public final dk/skrypalle/it/jasm/PrintMainArgs
 .super java/lang/Object
 
-# prints 'WorksWithoutNewlineAtTheEndOfTheFile' to stdout
+# prints '[arg0, arg1, ...]' to stdout
 .method public static main([Ljava/lang/String;)V
   getstatic java/lang/System.out:Ljava/io/PrintStream;
-  ldc "WorksWithoutNewlineAtTheEndOfTheFile"
+  aload 0
+  invokestatic java/util/Arrays.toString:([Ljava/lang/Object;)Ljava/lang/String;
   invokevirtual java/io/PrintStream.print:(Ljava/lang/String;)V
   return
 .end method

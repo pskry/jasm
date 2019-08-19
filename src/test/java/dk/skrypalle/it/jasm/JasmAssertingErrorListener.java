@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it;
+package dk.skrypalle.it.jasm;
 
 import dk.skrypalle.jasm.err.ErrorListener;
 import org.assertj.core.api.Assertions;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-public class AssertingErrorListener extends ErrorListener {
+public class JasmAssertingErrorListener extends ErrorListener {
 
     @Override
     protected void emitSourceError(String sourceName, int line, int column, String message) {

@@ -18,7 +18,7 @@
 
 .bytecode 56.0
 .source "constructor.jasm"
-.class public final dk/skrypalle/it/Constructor
+.class public final dk/skrypalle/it/jasm/Constructor
 .super java/lang/Object
 
 .method public <init>()V
@@ -36,9 +36,9 @@
 
 # prints '"Hello"' to stdout
 .method public static main([Ljava/lang/String;)V
-  new dk/skrypalle/it/Constructor
+  new dk/skrypalle/it/jasm/Constructor
   dup
-  invokespecial dk/skrypalle/it/Constructor.<init>:()V
-  invokevirtual dk/skrypalle/it/Constructor.print:()V
+  invokespecial dk/skrypalle/it/jasm/Constructor.<init>:()V
+  invokevirtual dk/skrypalle/it/jasm/Constructor.print:()V
   return
 .end method

@@ -17,16 +17,22 @@
 #
 
 .bytecode 56.0
-.source "math_max.jasm"
-.class public final dk/skrypalle/it/MathMax
+.source "constructor.jasm"
+.class public final dk/skrypalle/it/jasm/LocalVars
 .super java/lang/Object
 
-# prints '2' to stdout
+# prints '2310' to stdout
 .method public static main([Ljava/lang/String;)V
+  ldc 2300
+  istore 1
+  ldc 10
+  istore 2
+  iload 1
+  iload 2
+  iadd
+  istore 3
   getstatic java/lang/System.out:Ljava/io/PrintStream;
-  ldc 1
-  ldc 2
-  invokestatic java/lang/Math.max:(II)I
+  iload 3
   invokevirtual java/io/PrintStream.print:(I)V
   return
 .end method

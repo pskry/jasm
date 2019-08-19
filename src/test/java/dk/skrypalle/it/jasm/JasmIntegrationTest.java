@@ -15,20 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it;
+package dk.skrypalle.it.jasm;
 
-import dk.skrypalle.jasm.ClassFile;
+import dk.skrypalle.it.util.TestUtil;
+import dk.skrypalle.jasm.Assembler;
 import dk.skrypalle.jasm.Assemblers;
-import org.objectweb.asm.ClassReader;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
+import static dk.skrypalle.it.jasm.Arranger.assembling;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JasmIntegrationTest {
@@ -36,23 +35,19 @@ public class JasmIntegrationTest {
     @DataProvider
     public static Object[][] provideSourceFileAndExpectedResult() {
         return new Object[][]{
-                {"/constructor.jasm", null, "\"Hello\""},
-                {"/integers.jasm", null, "0\n1\n2\n3\n4\n5\n-1\n-128\n127\n-32768\n32767\n-2147483648\n2147483647\n"},
-                {"/local_vars.jasm", null, "2310"},
-                {"/math_max.jasm", null, "2"},
-                {"/no_newline_at_end_of_file.jasm", null, "WorksWithoutNewlineAtTheEndOfTheFile"},
-                {"/print_main_args.jasm", new String[]{"a", "b", "c", "d"}, "[a, b, c, d]"},
+                assembling("constructor").shouldPrint("\"Hello\""),
+                assembling("integers").shouldPrint("0\n1\n2\n3\n4\n5\n-1\n-128\n127\n-32768\n32767\n-2147483648\n2147483647\n"),
+                assembling("local_vars").shouldPrint("2310"),
+                assembling("math_max").shouldPrint("2"),
+                assembling("no_newline_at_end_of_file").shouldPrint("WorksWithoutNewlineAtTheEndOfTheFile"),
+                assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
         };
     }
 
     @Test(dataProvider = "provideSourceFileAndExpectedResult")
-    public void assemble(String resourceName, String[] mainArgs, String expected) throws Exception {
+    public void assemble(String testName, String[] mainArgs, String expected) throws Exception {
         // arrange
-        var asm = Assemblers.fromFile(
-                getResourcePath(resourceName),
-                new AssertingErrorListener(),
-                true
-        );
+        var asm = getAssembler(testName);
 
         // act
         var classFile = asm.assemble();
@@ -62,27 +57,18 @@ public class JasmIntegrationTest {
                 .as("assembled class-file not expected to be null")
                 .isNotNull();
 
-        var clazz = defineClass(classFile);
+        var clazz = TestUtil.defineClass(classFile);
         var stdout = invokeMainAndCaptureStdOut(clazz, mainArgs);
         assertThat(stdout)
                 .isEqualToNormalizingNewlines(expected);
     }
 
-    private static Path getResourcePath(String resourceName) {
-        try {
-            var uri = JasmIntegrationTest.class.getResource(resourceName).toURI();
-            return Paths.get(uri);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to locate resource file " + resourceName, e);
-        }
-    }
-
-    private static Class<?> defineClass(ClassFile classFile) {
-        var reader = new ClassReader(classFile.getBinaryData());
-        assertThat(classFile.getJvmClassName())
-                .as("Expecting className integrity.")
-                .isEqualTo(reader.getClassName());
-        return new DynamicClassLoader().defineClass(classFile);
+    private static Assembler getAssembler(String testName) {
+        return Assemblers.fromFile(
+                TestUtil.getResourcePath("/dk/skrypalle/it/jasm/" + testName + ".jasm"),
+                new JasmAssertingErrorListener(),
+                true
+        );
     }
 
     private static String invokeMainAndCaptureStdOut(Class<?> clazz, String[] mainArgs) throws Exception {

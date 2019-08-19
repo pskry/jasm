@@ -18,7 +18,7 @@
 
 .bytecode 56.0
 .source "constructor.jasm"
-.class public final dk/skrypalle/it/Integers
+.class public final dk/skrypalle/it/jasm/Integers
 .super java/lang/Object
 
 # prints a bunch of integers to stdout
