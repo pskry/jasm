@@ -35,10 +35,12 @@ public class JasmIntegrationTest {
     @DataProvider
     public static Object[][] provideSourceFileAndExpectedResult() {
         return new Object[][]{
+                assembling("abstract_method").shouldPrint("abstract"),
                 assembling("constructor").shouldPrint("\"Hello\""),
                 assembling("integers").shouldPrint("0\n1\n2\n3\n4\n5\n-1\n-128\n127\n-32768\n32767\n-2147483648\n2147483647\n"),
                 assembling("local_vars").shouldPrint("2310"),
                 assembling("math_max").shouldPrint("2"),
+                assembling("mixed_descriptor").shouldPrint("12OneTwo"),
                 assembling("no_newline_at_end_of_file").shouldPrint("WorksWithoutNewlineAtTheEndOfTheFile"),
                 assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
         };

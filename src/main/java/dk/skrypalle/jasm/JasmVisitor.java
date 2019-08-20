@@ -213,7 +213,10 @@ class JasmVisitor extends JasmBaseVisitor<Object> {
         var descriptor = visitDescriptor(ctx.descriptor());
 
         var instrVisitor = new InstrVisitor(errorListener);
-        instrVisitor.visitInstructionList(ctx.instructionList());
+        var instructionList = ctx.instructionList();
+        if (instructionList != null) {
+            instrVisitor.visitInstructionList(ctx.instructionList());
+        }
 
         defer(cw -> {
             var method = cw.visitMethod(

@@ -18,7 +18,6 @@
 package dk.skrypalle.jasm;
 
 import dk.skrypalle.jasm.err.ErrorListener;
-import dk.skrypalle.jasm.generated.JasmLexer;
 import dk.skrypalle.jasm.generated.JasmParser;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
