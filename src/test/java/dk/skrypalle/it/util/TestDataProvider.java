@@ -28,7 +28,7 @@ public final class TestDataProvider {
 
     private static final String JDK_VERSION = "se12";
 
-    @DataProvider(parallel = true)
+    @DataProvider//(parallel = true)
     public static Object[][] provideJdkClassNames() throws Exception {
         var path = TestUtil.getResourcePath("/jdk/" + JDK_VERSION + ".txt");
         var lines = Files.readString(path).split("\\n");
@@ -39,7 +39,7 @@ public final class TestDataProvider {
 
     @DataProvider(parallel = true)
     public static Object[][] provideJasmSourceFiles() throws IOException {
-        return ResourceLocator.locateResources(".*jasm$").stream()
+        return ResourceLocator.locateResources(".*jasm[/|\\\\][^/|\\\\]+\\.jasm$").stream()
                 .map(path -> new Object[]{Paths.get(path)})
                 .toArray(Object[][]::new);
     }

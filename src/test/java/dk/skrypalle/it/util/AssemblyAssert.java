@@ -17,13 +17,25 @@
  */
 package dk.skrypalle.it.util;
 
+import dk.skrypalle.Utils;
 import dk.skrypalle.jasm.Assembly;
 import org.assertj.core.api.AbstractAssert;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AssemblyAssert extends AbstractAssert<AssemblyAssert, Assembly> {
 
     public AssemblyAssert(Assembly assembly) {
         super(assembly, AssemblyAssert.class);
+    }
+
+    public AssemblyAssert isBinaryEqualTo(byte[] binaryClassFile) {
+        var actualDump = Utils.hexDump(actual.getBinaryData());
+        var expectedDump = Utils.hexDump(binaryClassFile);
+        assertThat(actualDump)
+                .isEqualTo(expectedDump);
+
+        return myself;
     }
 
 }

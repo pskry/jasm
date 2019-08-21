@@ -17,14 +17,9 @@
  */
 package dk.skrypalle.jasm;
 
-import org.apache.commons.io.HexDump;
+import dk.skrypalle.Utils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class Assembly {
 
@@ -70,16 +65,7 @@ public class Assembly {
 
     @Override
     public String toString() {
-        String binToString;
-        try {
-            var out = new ByteArrayOutputStream();
-            HexDump.dump(binaryData, 0, out, 0);
-            binToString = new String(out.toByteArray(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            binToString = Arrays.toString(binaryData);
-        }
-
-        return jvmClassName + '\n' + binToString;
+        return jvmClassName + '\n' + Utils.hexDump(binaryData);
     }
 
 }
