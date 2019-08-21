@@ -17,7 +17,7 @@
 #
 
 .bytecode 56.0
-.source "constructor.jasm"
+.source "integers.jasm"
 .class public final dk/skrypalle/it/jasm/Integers
 .super java/lang/Object
 

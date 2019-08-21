@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.jasm;
 
+import dk.skrypalle.jasm.err.ErrorListener;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonToken;
@@ -34,8 +35,11 @@ class JasmLexer extends dk.skrypalle.jasm.generated.JasmLexer {
 
     private final Queue<Token> tokenStash = new ArrayDeque<>();
 
-    JasmLexer(CharStream input) {
+    JasmLexer(CharStream input, ErrorListener errorListener) {
         super(input);
+
+        removeErrorListeners();
+        addErrorListener(new LexerErrorListenerAdapter(errorListener));
     }
 
     @Override

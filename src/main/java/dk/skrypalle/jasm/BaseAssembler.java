@@ -18,9 +18,7 @@
 package dk.skrypalle.jasm;
 
 import dk.skrypalle.jasm.err.ErrorListener;
-import dk.skrypalle.jasm.generated.JasmParser;
 import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.util.Objects;
 
@@ -42,8 +40,8 @@ abstract class BaseAssembler implements Assembler {
         }
 
         try {
-            var lexer = new JasmLexer(input);
-            var parser = new JasmParser(new CommonTokenStream(lexer));
+            var lexer = new JasmLexer(input, errorListener);
+            var parser = new JasmParser(lexer, errorListener);
 
             var root = parser.jasmFile();
             if (parser.getNumberOfSyntaxErrors() > 0) {

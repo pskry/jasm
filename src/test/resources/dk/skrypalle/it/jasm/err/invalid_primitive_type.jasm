@@ -17,22 +17,14 @@
 #
 
 .bytecode 56.0
-.source "local_vars.jasm"
-.class public final dk/skrypalle/it/jasm/LocalVars
+.source "invalid_primitive_type.jasm"
+.class public final dk/skrypalle/it/jasm/InvalidPrimitive
 .super java/lang/Object
 
-# prints '2310' to stdout
-.method public static main([Ljava/lang/String;)V
-  ldc 2300
-  istore 1
-  ldc 10
-  istore 2
-  iload 1
-  iload 2
-  iadd
-  istore 3
-  getstatic java/lang/System.out:Ljava/io/PrintStream;
-  iload 3
-  invokevirtual java/io/PrintStream.print:(I)V
+.method public static invalidPrimitiveType(Y)V
+  return
+.end method
+
+.method public static invalidArrayType([Y)V
   return
 .end method

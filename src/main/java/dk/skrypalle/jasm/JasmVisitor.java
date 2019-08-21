@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.jasm;
 
+import dk.skrypalle.TypeVisitor;
 import dk.skrypalle.jasm.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmLexer;
@@ -235,7 +236,7 @@ class JasmVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
-        return ctx.getText();
+        return new TypeVisitor(errorListener).visitDescriptor(ctx);
     }
 
     @Override

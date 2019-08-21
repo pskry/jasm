@@ -31,6 +31,8 @@ public abstract class ErrorListener {
         numberOfErrors = new AtomicInteger();
     }
 
+    //region general errors
+
     public void emitInputFileDoesNotExist(Path inputFilePath) {
         failGeneral("File '%s' does not exit.", inputFilePath);
     }
@@ -79,6 +81,16 @@ public abstract class ErrorListener {
         failGeneral(error, "Failed writing assembled class file to '%s'", outputFile);
     }
 
+    //endregion general errors
+
+    public void emitUnknownSymbol(String sourceName, int line, int column, String symbol) {
+        fail(sourceName, line, column, "unknown symbol '%s'", symbol);
+    }
+
+    public void emitInputMismatch(Token position, String expectedSymbols) {
+        fail(position, "input mismatch at '%s' - expected %s", getTokenErrorDisplay(position), expectedSymbols);
+    }
+
     public void emitInvalidClassType(Token position, String className) {
         fail(position, "invalid class type '%s'", className);
     }
@@ -116,6 +128,36 @@ public abstract class ErrorListener {
 
     private void failGeneral(Throwable error, String format, Object... args) {
         emitGeneralError(String.format(format, args), error);
+    }
+
+    private String getTokenErrorDisplay(Token t) {
+        if (t == null) {
+            return "<no token>";
+        }
+        String s = getSymbolText(t);
+        if (s == null) {
+            if (getSymbolType(t) == Token.EOF) {
+                s = "<EOF>";
+            } else {
+                s = "<" + getSymbolType(t) + ">";
+            }
+        }
+        return escapeWSAndQuote(s);
+    }
+
+    private String getSymbolText(Token symbol) {
+        return symbol.getText();
+    }
+
+    private int getSymbolType(Token symbol) {
+        return symbol.getType();
+    }
+
+    private String escapeWSAndQuote(String s) {
+        s = s.replace("\n", "\\n");
+        s = s.replace("\r", "\\r");
+        s = s.replace("\t", "\\t");
+        return "'" + s + "'";
     }
 
     public final int getNumberOfErrors() {

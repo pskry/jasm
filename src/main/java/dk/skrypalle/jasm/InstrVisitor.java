@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.jasm;
 
+import dk.skrypalle.TypeVisitor;
 import dk.skrypalle.jasm.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import org.antlr.v4.runtime.Token;
@@ -25,7 +26,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -190,68 +190,7 @@ class InstrVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
-        var methodDescriptor = ctx.methodDescriptor();
-        if (methodDescriptor != null) {
-            return visitMethodDescriptor(methodDescriptor);
-        }
-        var typeDescriptor = ctx.typeDescriptor();
-        if (typeDescriptor != null) {
-            return visitTypeDescriptor(typeDescriptor);
-        }
-
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public String visitMethodDescriptor(MethodDescriptorContext ctx) {
-        return "(" + visitArgList(ctx.args) + ")" + visit(ctx.returnType);
-    }
-
-    @Override
-    public String visitTypeDescriptor(TypeDescriptorContext ctx) {
-        return (String) visit(ctx.type());
-    }
-
-    @Override
-    public String visitArgList(ArgListContext ctx) {
-        if (ctx == null) {
-            return "";
-        }
-
-        StringBuilder buf = new StringBuilder();
-        ctx.type().stream()
-                .map(this::visit)
-                .forEach(buf::append);
-        return buf.toString();
-    }
-
-    @Override
-    public String visitPrimitiveType(PrimitiveTypeContext ctx) {
-        var types = ctx.getText().toCharArray();
-        var validTypes = Arrays.asList('Z', 'B', 'S', 'I', 'J', 'V');
-        for (int i = 0; i < types.length; i++) {
-            var type = types[i];
-            if (!validTypes.contains(type)) {
-                errorListener.emitInvalidPrimitiveType(ctx.start, i);
-            }
-        }
-        return ctx.getText();
-    }
-
-    @Override
-    public String visitArrayType(ArrayTypeContext ctx) {
-        return "[" + visit(ctx.type());
-    }
-
-    @Override
-    public Object visitClassType(ClassTypeContext ctx) {
-        var fqcnCtx = ctx.fqcn();
-        var fqcn = visitFqcn(fqcnCtx);
-        if (!fqcn.matches("^L[^/]+(/[^/]+)*$")) {
-            var start = fqcnCtx.start;
-            errorListener.emitInvalidClassType(start, fqcn);
-        }
-        return fqcn + ";";
+        return new TypeVisitor(errorListener).visitDescriptor(ctx);
     }
 
     @Override
