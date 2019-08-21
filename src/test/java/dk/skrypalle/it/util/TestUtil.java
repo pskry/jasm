@@ -27,6 +27,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public final class TestUtil {
 
+    public static String toJvmClassName(String className) {
+        return className.replace('.', '/');
+    }
+
+    public static String escapeJvmClassNameForRegex(String jvmClassName) {
+        return jvmClassName.replace("$", "\\$");
+    }
+
     public static Path getResourcePath(String resourceName) {
         try {
             var uri = TestUtil.class.getResource(resourceName).toURI();

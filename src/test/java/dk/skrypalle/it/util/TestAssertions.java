@@ -20,11 +20,16 @@ package dk.skrypalle.it.util;
 import dk.skrypalle.it.jasm.err.JasmRecordingErrorListener;
 import dk.skrypalle.it.jasm.err.JasmRecordingErrorListenerAssert;
 import dk.skrypalle.jasm.Assembly;
+import dk.skrypalle.jdsm.Disassembly;
 
 public final class TestAssertions {
 
     public static AssemblyAssert assertThat(Assembly assembly) {
         return new AssemblyAssert(assembly);
+    }
+
+    public static DisassemblyAssert assertThat(Disassembly disassembly) {
+        return new DisassemblyAssert(disassembly);
     }
 
     public static JasmRecordingErrorListenerAssert

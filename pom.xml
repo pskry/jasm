@@ -153,6 +153,10 @@
                             <id>jasm</id>
                             <mainClass>dk.skrypalle.jasm.cli.Jasm</mainClass>
                         </program>
+                        <program>
+                            <id>jdsm</id>
+                            <mainClass>dk.skrypalle.jdsm.cli.Jdsm</mainClass>
+                        </program>
                     </programs>
                 </configuration>
                 <executions>
