@@ -17,13 +17,13 @@
  */
 package dk.skrypalle.it.util;
 
-import dk.skrypalle.jasm.ClassFile;
+import dk.skrypalle.jasm.Assembly;
 import org.assertj.core.api.AbstractAssert;
 
-public class ClassFileAssert extends AbstractAssert<ClassFileAssert, ClassFile> {
+public class AssemblyAssert extends AbstractAssert<AssemblyAssert, Assembly> {
 
-    public ClassFileAssert(ClassFile classFile) {
-        super(classFile, ClassFileAssert.class);
+    public AssemblyAssert(Assembly assembly) {
+        super(assembly, AssemblyAssert.class);
     }
 
 }

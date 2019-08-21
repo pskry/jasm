@@ -17,13 +17,13 @@
  */
 package dk.skrypalle.it.util;
 
-import dk.skrypalle.jasm.ClassFile;
+import dk.skrypalle.jasm.Assembly;
 
 class DynamicClassLoader extends ClassLoader {
 
-    Class<?> defineClass(ClassFile classFile) {
-        var binaryData = classFile.getBinaryData();
-        var className = classFile.getJvmClassName().replace("/", ".");
+    Class<?> defineClass(Assembly assembly) {
+        var binaryData = assembly.getBinaryData();
+        var className = assembly.getJvmClassName().replace("/", ".");
         return defineClass(className, binaryData, 0, binaryData.length);
     }
 

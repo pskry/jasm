@@ -26,12 +26,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class ClassFile {
+public class Assembly {
 
     private final String jvmClassName;
     private final byte[] binaryData;
 
-    ClassFile(String jvmClassName, byte[] binaryData) {
+    Assembly(String jvmClassName, byte[] binaryData) {
         this.jvmClassName = jvmClassName;
         this.binaryData = binaryData.clone();
     }
@@ -53,7 +53,7 @@ public class ClassFile {
             return false;
         }
 
-        ClassFile other = (ClassFile) obj;
+        Assembly other = (Assembly) obj;
         return new EqualsBuilder()
                 .append(this.jvmClassName, other.jvmClassName)
                 .append(this.binaryData, other.binaryData)

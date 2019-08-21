@@ -45,7 +45,7 @@ class JasmVisitor extends JasmBaseVisitor<Object> {
         deferredActions = new ArrayList<>();
     }
 
-    ClassFile getClassFile() {
+    Assembly getAssembly() {
         if (errorListener.getNumberOfErrors() > 0) {
             return null;
         }
@@ -56,7 +56,7 @@ class JasmVisitor extends JasmBaseVisitor<Object> {
         }
         classWriter.visitEnd();
 
-        return new ClassFile(
+        return new Assembly(
                 className,
                 classWriter.toByteArray()
         );

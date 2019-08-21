@@ -19,6 +19,6 @@ package dk.skrypalle.jasm;
 
 public interface Assembler {
 
-    ClassFile assemble();
+    Assembly assemble();
 
 }

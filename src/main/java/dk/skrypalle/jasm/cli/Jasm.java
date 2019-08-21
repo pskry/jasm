@@ -62,9 +62,9 @@ public class Jasm implements Callable<Integer> {
         }
 
         var asm = Assemblers.fromFile(PWD.relativize(file.toAbsolutePath()).normalize(), errorListener, verbose);
-        var classFile = asm.assemble();
+        var assembly = asm.assemble();
 
-        if (classFile == null) {
+        if (assembly == null) {
             // and error must have occurred and it has been displayed via the error-listener
             return 1;
         }
@@ -73,7 +73,7 @@ public class Jasm implements Callable<Integer> {
                 ? PWD
                 : workingDirectory.toAbsolutePath();
 
-        var outFile = outDir.resolve(classFile.getJvmClassName() + ".class");
+        var outFile = outDir.resolve(assembly.getJvmClassName() + ".class");
         var dirToCreate = outFile.getParent();
         assert dirToCreate != null;
 
@@ -89,7 +89,7 @@ public class Jasm implements Callable<Integer> {
         }
 
         try {
-            Files.write(outFile, classFile.getBinaryData());
+            Files.write(outFile, assembly.getBinaryData());
         } catch (IOException e) {
             if (verbose) {
                 errorListener.emitUnexpectedErrorWhileWritingOutputFile(outFile, e);

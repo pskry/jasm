@@ -33,7 +33,7 @@ abstract class BaseAssembler implements Assembler {
     }
 
     @Override
-    public final ClassFile assemble() {
+    public final Assembly assemble() {
         var input = getInput();
         if (input == null) {
             return null;
@@ -55,7 +55,7 @@ abstract class BaseAssembler implements Assembler {
                 return null;
             }
 
-            return visitor.getClassFile();
+            return visitor.getAssembly();
         } catch (Throwable t) {
             var sourceName = input.getSourceName();
             if (verbose) {

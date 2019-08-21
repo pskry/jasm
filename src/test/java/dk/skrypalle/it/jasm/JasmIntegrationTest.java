@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.it.jasm;
 
+import dk.skrypalle.it.util.TestAssertions;
 import dk.skrypalle.it.util.TestUtil;
 import dk.skrypalle.jasm.Assembler;
 import dk.skrypalle.jasm.Assemblers;
@@ -28,6 +29,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import static dk.skrypalle.it.jasm.Arranger.assembling;
+import static dk.skrypalle.it.util.TestAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JasmIntegrationTest {
@@ -52,14 +54,14 @@ public class JasmIntegrationTest {
         var asm = getAssembler(testName);
 
         // act
-        var classFile = asm.assemble();
+        var assembly = asm.assemble();
 
         // assert
-        assertThat(classFile)
-                .as("assembled class-file not expected to be null")
+        assertThat(assembly)
+                .as("assembly not expected to be null")
                 .isNotNull();
 
-        var clazz = TestUtil.defineClass(classFile);
+        var clazz = TestUtil.defineClass(assembly);
         var stdout = invokeMainAndCaptureStdOut(clazz, mainArgs);
         assertThat(stdout)
                 .isEqualToNormalizingNewlines(expected);

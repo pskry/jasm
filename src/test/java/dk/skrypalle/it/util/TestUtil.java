@@ -17,7 +17,7 @@
  */
 package dk.skrypalle.it.util;
 
-import dk.skrypalle.jasm.ClassFile;
+import dk.skrypalle.jasm.Assembly;
 import org.objectweb.asm.ClassReader;
 
 import java.nio.file.Path;
@@ -36,12 +36,12 @@ public final class TestUtil {
         }
     }
 
-    public static Class<?> defineClass(ClassFile classFile) {
-        var reader = new ClassReader(classFile.getBinaryData());
-        assertThat(classFile.getJvmClassName())
+    public static Class<?> defineClass(Assembly assembly) {
+        var reader = new ClassReader(assembly.getBinaryData());
+        assertThat(assembly.getJvmClassName())
                 .as("Expecting className integrity.")
                 .isEqualTo(reader.getClassName());
-        return new DynamicClassLoader().defineClass(classFile);
+        return new DynamicClassLoader().defineClass(assembly);
     }
 
     private TestUtil() { /* static utility */ }
