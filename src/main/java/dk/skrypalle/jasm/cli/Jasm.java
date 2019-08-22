@@ -61,7 +61,11 @@ public class Jasm implements Callable<Integer> {
             }
         }
 
-        var asm = Assemblers.fromFile(PWD.relativize(file.toAbsolutePath()).normalize(), errorListener, verbose);
+        var asm = Assemblers.fromFile(
+                PWD.relativize(file.toAbsolutePath()).normalize(),
+                errorListener,
+                verbose
+        );
         var assembly = asm.assemble();
 
         if (assembly == null) {

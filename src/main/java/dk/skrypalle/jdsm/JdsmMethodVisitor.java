@@ -25,13 +25,13 @@ public class JdsmMethodVisitor extends MethodVisitor {
 
     private final MethodSpec methodSpec;
 
-    public JdsmMethodVisitor() {
+    JdsmMethodVisitor() {
         super(Opcodes.ASM7);
 
         methodSpec = new MethodSpec();
     }
 
-    public MethodSpec getMethodSpec() {
+    MethodSpec getMethodSpec() {
         return methodSpec;
     }
 
@@ -344,8 +344,19 @@ public class JdsmMethodVisitor extends MethodVisitor {
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        var instruction = String.format("%s %s.%s:%s", parseMethodInsn(opcode), owner, name, descriptor);
+    public void visitMethodInsn(
+            int opcode,
+            String owner,
+            String name,
+            String descriptor,
+            boolean isInterface) {
+        var instruction = String.format(
+                "%s %s.%s:%s",
+                parseMethodInsn(opcode),
+                owner,
+                name,
+                descriptor
+        );
         methodSpec.addInstruction(instruction);
     }
 
@@ -386,7 +397,13 @@ public class JdsmMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
-        var instruction = String.format("%s %s.%s:%s", parseFieldInsn(opcode), owner, name, descriptor);
+        var instruction = String.format(
+                "%s %s.%s:%s",
+                parseFieldInsn(opcode),
+                owner,
+                name,
+                descriptor
+        );
         methodSpec.addInstruction(instruction);
     }
 

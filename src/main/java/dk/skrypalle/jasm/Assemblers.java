@@ -24,19 +24,32 @@ import java.nio.file.Path;
 
 public final class Assemblers {
 
-    public static Assembler fromString(String jasmSourceCode, String sourceName, ErrorListener errorListener, boolean verbose) {
+    public static Assembler fromString(
+            String jasmSourceCode,
+            String sourceName,
+            ErrorListener errorListener,
+            boolean verbose) {
         return new AssemblerFromString(jasmSourceCode, sourceName, errorListener, verbose);
     }
 
-    public static Assembler fromString(String jasmSourceCode, ErrorListener errorListener, boolean verbose) {
+    public static Assembler fromString(
+            String jasmSourceCode,
+            ErrorListener errorListener,
+            boolean verbose) {
         return new AssemblerFromString(jasmSourceCode, "<nil>", errorListener, verbose);
     }
 
-    public static Assembler fromFile(Path jasmSourceFile, ErrorListener errorListener, boolean verbose) {
+    public static Assembler fromFile(
+            Path jasmSourceFile,
+            ErrorListener errorListener,
+            boolean verbose) {
         return new AssemblerFromFile(jasmSourceFile, errorListener, verbose);
     }
 
-    public static Assembler fromFile(File jasmSourceFile, ErrorListener errorListener, boolean verbose) {
+    public static Assembler fromFile(
+            File jasmSourceFile,
+            ErrorListener errorListener,
+            boolean verbose) {
         return new AssemblerFromFile(jasmSourceFile.toPath(), errorListener, verbose);
     }
 

@@ -29,7 +29,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static dk.skrypalle.jasm.generated.JasmParser.*;
+import static dk.skrypalle.jasm.generated.JasmParser.AloadInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.DescriptorContext;
+import static dk.skrypalle.jasm.generated.JasmParser.DupInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.FqcnContext;
+import static dk.skrypalle.jasm.generated.JasmParser.GetStaticInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.IaddInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.IloadInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.InstructionListContext;
+import static dk.skrypalle.jasm.generated.JasmParser.InvokeSpecialInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.InvokeStaticInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.InvokeVirtualInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.IstoreInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.LdcIntInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.LdcStringInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.NewInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.PopInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.ReturnInstrContext;
+import static dk.skrypalle.jasm.generated.JasmParser.StringContext;
 
 class InstrVisitor extends JasmBaseVisitor<Object> {
 

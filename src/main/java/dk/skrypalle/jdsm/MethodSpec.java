@@ -24,14 +24,14 @@ import java.util.List;
 
 import static dk.skrypalle.jdsm.JdsmUtils.isSet;
 
-public class MethodSpec {
+class MethodSpec {
 
     private List<String> accessList;
     private String name;
     private String descriptor;
     private List<String> instructionList;
 
-    public void setAccess(int access) {
+    void setAccess(int access) {
         accessList = parseMethodAccess(access);
     }
 
@@ -79,15 +79,15 @@ public class MethodSpec {
                 : accessSpec;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
-    public void setDescriptor(String descriptor) {
+    void setDescriptor(String descriptor) {
         this.descriptor = descriptor;
     }
 
-    public void addInstruction(String instruction) {
+    void addInstruction(String instruction) {
         if (instructionList == null) {
             instructionList = new ArrayList<>();
         }

@@ -18,7 +18,12 @@
 package dk.skrypalle.jasm;
 
 import dk.skrypalle.jasm.err.ErrorListener;
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.InputMismatchException;
+import org.antlr.v4.runtime.NoViableAltException;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 
 class ParserErrorListenerAdapter extends BaseErrorListener {
 
@@ -29,7 +34,13 @@ class ParserErrorListenerAdapter extends BaseErrorListener {
     }
 
     @Override
-    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+    public void syntaxError(
+            Recognizer<?, ?> recognizer,
+            Object offendingSymbol,
+            int line,
+            int charPositionInLine,
+            String msg,
+            RecognitionException e) {
         if (e instanceof InputMismatchException) {
             emitInputMismatch(e);
         } else if (e instanceof NoViableAltException) {
@@ -40,7 +51,15 @@ class ParserErrorListenerAdapter extends BaseErrorListener {
             var expected = parser.getExpectedTokens().toString(parser.getVocabulary());
             errorListener.emitInputMismatch(token, expected);
         } else {
-            var message = String.format("PARSER :: syntaxError :: recognizer=%s, offSym=%s, line=%d, col=%d, msg=%s, e=%s", recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+            var message = String.format(
+                    "SyntaxError :: recognizer=%s, offSym=%s, line=%d, col=%d, msg=%s, e=%s",
+                    recognizer,
+                    offendingSymbol,
+                    line,
+                    charPositionInLine,
+                    msg,
+                    e
+            );
             throw new UnsupportedOperationException(message);
         }
     }

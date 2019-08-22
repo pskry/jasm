@@ -32,8 +32,8 @@ public final class TestAssertions {
         return new DisassemblyAssert(disassembly);
     }
 
-    public static JasmRecordingErrorListenerAssert
-    assertThat(JasmRecordingErrorListener errorListener) {
+    public static JasmRecordingErrorListenerAssert assertThat(
+            JasmRecordingErrorListener errorListener) {
         return new JasmRecordingErrorListenerAssert(errorListener);
     }
 

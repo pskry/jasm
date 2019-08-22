@@ -25,10 +25,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AssemblyAssert extends AbstractAssert<AssemblyAssert, Assembly> {
 
-    public AssemblyAssert(Assembly assembly) {
+    AssemblyAssert(Assembly assembly) {
         super(assembly, AssemblyAssert.class);
     }
 
+    /**
+     * Asserts that the {@linkplain Assembly} under test has {@linkplain Assembly#getBinaryData()
+     * binary data} byte-by-byte equal to the provided byte array.
+     *
+     * @param binaryClassFile binary class file to test against
+     * @return this assert for method chaining
+     */
     public AssemblyAssert isBinaryEqualTo(byte[] binaryClassFile) {
         var actualDump = Utils.hexDump(actual.getBinaryData());
         var expectedDump = Utils.hexDump(binaryClassFile);

@@ -25,6 +25,16 @@ import java.nio.charset.StandardCharsets;
 
 public final class Utils {
 
+    /**
+     * Dump an array of bytes.
+     *
+     * <p>The output is formatted for human inspection, with a hexadecimal offset followed by the
+     * hexadecimal values of the next 16 bytes of data and the printable ASCII characters (if any)
+     * that those bytes represent printed per each line of output.
+     *
+     * @param data the byte array to be dumped
+     * @return human readable hex-dump
+     */
     public static String hexDump(byte[] data) {
         var out = new ByteArrayOutputStream();
         try {

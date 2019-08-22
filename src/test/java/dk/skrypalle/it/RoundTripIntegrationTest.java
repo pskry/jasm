@@ -64,26 +64,6 @@ public class RoundTripIntegrationTest {
         return assembly;
     }
 
-    private Disassembly disassemble(Assembly assembly) {
-        // arrange
-        var dsm = Disassemblers.fromBinary(
-                assembly.getBinaryData(),
-                assembly.getJvmClassName(),
-                new JdsmAssertingErrorListener(),
-                true
-        );
-
-        // act
-        var disassembly = dsm.disassemble();
-
-        // assert
-        assertThat(disassembly)
-                .as("disassembly not expected to be null")
-                .isNotNull();
-
-        return disassembly;
-    }
-
     private Assembly assemble(Disassembly disassembly) {
         // arrange
         var asm = Assemblers.fromString(
@@ -102,6 +82,26 @@ public class RoundTripIntegrationTest {
                 .isNotNull();
 
         return assembly;
+    }
+
+    private Disassembly disassemble(Assembly assembly) {
+        // arrange
+        var dsm = Disassemblers.fromBinary(
+                assembly.getBinaryData(),
+                assembly.getJvmClassName(),
+                new JdsmAssertingErrorListener(),
+                true
+        );
+
+        // act
+        var disassembly = dsm.disassemble();
+
+        // assert
+        assertThat(disassembly)
+                .as("disassembly not expected to be null")
+                .isNotNull();
+
+        return disassembly;
     }
 
 }

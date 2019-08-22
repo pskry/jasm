@@ -29,7 +29,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static dk.skrypalle.jasm.generated.JasmParser.*;
+import static dk.skrypalle.jasm.generated.JasmParser.AccessSpecContext;
+import static dk.skrypalle.jasm.generated.JasmParser.BytecodeVersionContext;
+import static dk.skrypalle.jasm.generated.JasmParser.DescriptorContext;
+import static dk.skrypalle.jasm.generated.JasmParser.HeaderContext;
+import static dk.skrypalle.jasm.generated.JasmParser.ImplementsSpecContext;
+import static dk.skrypalle.jasm.generated.JasmParser.JasmFileContext;
+import static dk.skrypalle.jasm.generated.JasmParser.MethodSpecContext;
+import static dk.skrypalle.jasm.generated.JasmParser.SourceContext;
+import static dk.skrypalle.jasm.generated.JasmParser.StringContext;
+import static dk.skrypalle.jasm.generated.JasmParser.SuperSpecContext;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
@@ -166,16 +175,16 @@ class JasmVisitor extends JasmBaseVisitor<Object> {
                 return Opcodes.ACC_SUPER;
             case JasmLexer.SYNCHRONIZED:
                 return Opcodes.ACC_SYNCHRONIZED;
-//            case JasmLexer.OPEN:
-//                return Opcodes.ACC_OPEN;
-//            case JasmLexer.TRANSITIVE:
-//                return Opcodes.ACC_TRANSITIVE;
+            //            case JasmLexer.OPEN:
+            //                return Opcodes.ACC_OPEN;
+            //            case JasmLexer.TRANSITIVE:
+            //                return Opcodes.ACC_TRANSITIVE;
             case JasmLexer.VOLATILE:
                 return Opcodes.ACC_VOLATILE;
             case JasmLexer.BRIDGE:
                 return Opcodes.ACC_BRIDGE;
-//            case JasmLexer.STATIC_PHASE:
-//                return Opcodes.ACC_STATIC_PHASE;
+            //            case JasmLexer.STATIC_PHASE:
+            //                return Opcodes.ACC_STATIC_PHASE;
             case JasmLexer.VARARGS:
                 return Opcodes.ACC_VARARGS;
             case JasmLexer.TRANSIENT:
@@ -186,18 +195,18 @@ class JasmVisitor extends JasmBaseVisitor<Object> {
                 return Opcodes.ACC_INTERFACE;
             case JasmLexer.ABSTRACT:
                 return Opcodes.ACC_ABSTRACT;
-//            case JasmLexer.STRICT:
-//                return Opcodes.ACC_STRICT;
-//            case JasmLexer.SYNTHETIC:
-//                return Opcodes.ACC_SYNTHETIC;
+            //            case JasmLexer.STRICT:
+            //                return Opcodes.ACC_STRICT;
+            //            case JasmLexer.SYNTHETIC:
+            //                return Opcodes.ACC_SYNTHETIC;
             case JasmLexer.ANNOTATION:
                 return Opcodes.ACC_ANNOTATION;
             case JasmLexer.ENUM:
                 return Opcodes.ACC_ENUM;
-//            case JasmLexer.MANDATED:
-//                return Opcodes.ACC_MANDATED;
-//            case JasmLexer.MODULE:
-//                return Opcodes.ACC_MODULE;
+            //            case JasmLexer.MANDATED:
+            //                return Opcodes.ACC_MANDATED;
+            //            case JasmLexer.MODULE:
+            //                return Opcodes.ACC_MODULE;
             default:
                 return null;
         }

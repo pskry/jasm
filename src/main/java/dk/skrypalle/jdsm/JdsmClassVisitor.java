@@ -25,18 +25,24 @@ public class JdsmClassVisitor extends ClassVisitor {
 
     private ClassFile classFile;
 
-    public JdsmClassVisitor() {
+    JdsmClassVisitor() {
         super(Opcodes.ASM7);
 
         classFile = new ClassFile();
     }
 
-    public String dumpJasmSourceCode() {
+    String dumpJasmSourceCode() {
         return classFile.toString();
     }
 
     @Override
-    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+    public void visit(
+            int version,
+            int access,
+            String name,
+            String signature,
+            String superName,
+            String[] interfaces) {
         classFile.setVersion(version);
         var classSpec = classFile.getClassSpec();
         classSpec.setAccess(access);
@@ -51,7 +57,12 @@ public class JdsmClassVisitor extends ClassVisitor {
     }
 
     @Override
-    public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+    public MethodVisitor visitMethod(
+            int access,
+            String name,
+            String descriptor,
+            String signature,
+            String[] exceptions) {
         var methodVisitor = new JdsmMethodVisitor();
         var methodSpec = methodVisitor.getMethodSpec();
         methodSpec.setAccess(access);

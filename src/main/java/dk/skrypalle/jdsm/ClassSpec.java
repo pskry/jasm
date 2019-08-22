@@ -25,14 +25,14 @@ import java.util.List;
 
 import static dk.skrypalle.jdsm.JdsmUtils.isSet;
 
-public class ClassSpec {
+class ClassSpec {
 
     private List<String> accessList;
     private String name;
     private String superName;
     private List<String> interfaceList;
 
-    public void setAccess(int access) {
+    void setAccess(int access) {
         accessList = parseClassAccess(access);
     }
 
@@ -74,15 +74,15 @@ public class ClassSpec {
                 : accessSpec;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
-    public void setSuperName(String superName) {
+    void setSuperName(String superName) {
         this.superName = superName;
     }
 
-    public void addInterfaces(String[] interfaceNames) {
+    void addInterfaces(String[] interfaceNames) {
         if (interfaceNames == null || interfaceNames.length == 0) {
             return;
         }

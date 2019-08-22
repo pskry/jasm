@@ -30,10 +30,16 @@ class AssemblerFromString extends BaseAssembler {
     private final String jasmSourceCode;
     private final String sourceName;
 
-    AssemblerFromString(String jasmSourceCode, String sourceName, ErrorListener errorListener, boolean verbose) {
+    AssemblerFromString(
+            String jasmSourceCode,
+            String sourceName,
+            ErrorListener errorListener,
+            boolean verbose) {
         super(errorListener, verbose);
 
-        this.jasmSourceCode = sanitizeInput(Objects.requireNonNull(jasmSourceCode, "jasmSourceCode"));
+        this.jasmSourceCode = sanitizeInput(
+                Objects.requireNonNull(jasmSourceCode, "jasmSourceCode")
+        );
         this.sourceName = sourceName;
     }
 

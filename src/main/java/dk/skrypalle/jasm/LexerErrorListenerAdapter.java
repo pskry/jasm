@@ -34,15 +34,29 @@ class LexerErrorListenerAdapter extends BaseErrorListener {
     }
 
     @Override
-    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+    public void syntaxError(
+            Recognizer<?, ?> recognizer,
+            Object offendingSymbol,
+            int line,
+            int charPositionInLine,
+            String msg,
+            RecognitionException e) {
         if (e instanceof LexerNoViableAltException) {
-            emitSyntaxError(recognizer.getInputStream().getSourceName(), line, charPositionInLine + 1, (LexerNoViableAltException) e);
+            emitSyntaxError(recognizer.getInputStream().getSourceName(),
+                    line,
+                    charPositionInLine + 1,
+                    (LexerNoViableAltException) e
+            );
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    private void emitSyntaxError(String sourceName, int line, int column, LexerNoViableAltException e) {
+    private void emitSyntaxError(
+            String sourceName,
+            int line,
+            int column,
+            LexerNoViableAltException e) {
         String symbol = "";
         var startIndex = e.getStartIndex();
         var inputStream = e.getInputStream();

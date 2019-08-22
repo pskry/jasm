@@ -19,9 +19,17 @@ package dk.skrypalle;
 
 import dk.skrypalle.jasm.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
-import dk.skrypalle.jasm.generated.JasmParser;
 
 import java.util.Arrays;
+
+import static dk.skrypalle.jasm.generated.JasmParser.ArgListContext;
+import static dk.skrypalle.jasm.generated.JasmParser.ArrayTypeContext;
+import static dk.skrypalle.jasm.generated.JasmParser.ClassTypeContext;
+import static dk.skrypalle.jasm.generated.JasmParser.DescriptorContext;
+import static dk.skrypalle.jasm.generated.JasmParser.FqcnContext;
+import static dk.skrypalle.jasm.generated.JasmParser.MethodDescriptorContext;
+import static dk.skrypalle.jasm.generated.JasmParser.PrimitiveTypeContext;
+import static dk.skrypalle.jasm.generated.JasmParser.TypeDescriptorContext;
 
 public class TypeVisitor extends JasmBaseVisitor<Object> {
 
@@ -32,7 +40,7 @@ public class TypeVisitor extends JasmBaseVisitor<Object> {
     }
 
     @Override
-    public String visitDescriptor(JasmParser.DescriptorContext ctx) {
+    public String visitDescriptor(DescriptorContext ctx) {
         var methodDescriptor = ctx.methodDescriptor();
         if (methodDescriptor != null) {
             return visitMethodDescriptor(methodDescriptor);
@@ -46,17 +54,17 @@ public class TypeVisitor extends JasmBaseVisitor<Object> {
     }
 
     @Override
-    public String visitMethodDescriptor(JasmParser.MethodDescriptorContext ctx) {
+    public String visitMethodDescriptor(MethodDescriptorContext ctx) {
         return "(" + visitArgList(ctx.args) + ")" + visit(ctx.returnType);
     }
 
     @Override
-    public String visitTypeDescriptor(JasmParser.TypeDescriptorContext ctx) {
+    public String visitTypeDescriptor(TypeDescriptorContext ctx) {
         return (String) visit(ctx.type());
     }
 
     @Override
-    public String visitArgList(JasmParser.ArgListContext ctx) {
+    public String visitArgList(ArgListContext ctx) {
         if (ctx == null) {
             return "";
         }
@@ -69,9 +77,10 @@ public class TypeVisitor extends JasmBaseVisitor<Object> {
     }
 
     @Override
-    public String visitPrimitiveType(JasmParser.PrimitiveTypeContext ctx) {
+    public String visitPrimitiveType(PrimitiveTypeContext ctx) {
         var types = ctx.getText().toCharArray();
         var validTypes = Arrays.asList('Z', 'B', 'S', 'I', 'J', 'V');
+        // TODO this should be handled by the lexer, not by the semantic analyzer.
         for (int i = 0; i < types.length; i++) {
             var type = types[i];
             if (!validTypes.contains(type)) {
@@ -82,12 +91,12 @@ public class TypeVisitor extends JasmBaseVisitor<Object> {
     }
 
     @Override
-    public String visitArrayType(JasmParser.ArrayTypeContext ctx) {
+    public String visitArrayType(ArrayTypeContext ctx) {
         return "[" + visit(ctx.type());
     }
 
     @Override
-    public Object visitClassType(JasmParser.ClassTypeContext ctx) {
+    public Object visitClassType(ClassTypeContext ctx) {
         var fqcnCtx = ctx.fqcn();
         var fqcn = visitFqcn(fqcnCtx);
         if (!fqcn.matches("^L[^/]+(/[^/]+)*$")) {
@@ -98,7 +107,7 @@ public class TypeVisitor extends JasmBaseVisitor<Object> {
     }
 
     @Override
-    public String visitFqcn(JasmParser.FqcnContext ctx) {
+    public String visitFqcn(FqcnContext ctx) {
         return ctx.getText();
     }
 

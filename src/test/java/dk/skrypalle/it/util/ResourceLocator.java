@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
-public final class ResourceLocator {
+final class ResourceLocator {
 
-    public static Collection<String> locateResources(String regex) throws IOException {
+    static Collection<String> locateResources(String regex) throws IOException {
         var pattern = Pattern.compile(regex);
         var result = new ArrayList<String>();
         var classPath = System.getProperty("java.class.path", ".");
@@ -38,7 +38,8 @@ public final class ResourceLocator {
         return result;
     }
 
-    private static Collection<String> locateResources(String element, Pattern pattern) throws IOException {
+    private static Collection<String> locateResources(String element, Pattern pattern)
+            throws IOException {
         var result = new ArrayList<String>();
         var file = new File(element);
         if (file.isDirectory()) {
@@ -49,7 +50,8 @@ public final class ResourceLocator {
         return result;
     }
 
-    private static Collection<String> getResourcesFromDirectory(File directory, Pattern pattern) throws IOException {
+    private static Collection<String> getResourcesFromDirectory(File directory, Pattern pattern)
+            throws IOException {
         var result = new ArrayList<String>();
         var files = directory.listFiles();
         if (files == null) {
@@ -70,7 +72,8 @@ public final class ResourceLocator {
         return result;
     }
 
-    private static Collection<String> getResourcesFromJarFile(File file, Pattern pattern) throws IOException {
+    private static Collection<String> getResourcesFromJarFile(File file, Pattern pattern)
+            throws IOException {
         var result = new ArrayList<String>();
         try (var zipFile = new ZipFile(file)) {
             var entries = zipFile.entries();

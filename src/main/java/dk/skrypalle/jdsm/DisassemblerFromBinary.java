@@ -25,7 +25,11 @@ class DisassemblerFromBinary extends BaseDisassembler {
     private final byte[] binaryClassFile;
     private final String sourceName;
 
-    DisassemblerFromBinary(byte[] binaryClassFile, String sourceName, ErrorListener errorListener, boolean verbose) {
+    DisassemblerFromBinary(
+            byte[] binaryClassFile,
+            String sourceName,
+            ErrorListener errorListener,
+            boolean verbose) {
         super(errorListener, verbose);
 
         this.binaryClassFile = binaryClassFile;

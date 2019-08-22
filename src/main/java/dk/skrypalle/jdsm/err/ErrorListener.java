@@ -102,6 +102,7 @@ public abstract class ErrorListener {
     }
 
     protected abstract void emitGeneralError(String message);
+
     protected abstract void emitGeneralError(String message, Throwable error);
 
 }

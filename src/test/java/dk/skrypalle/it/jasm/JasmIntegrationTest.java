@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.it.jasm;
 
-import dk.skrypalle.it.util.TestAssertions;
 import dk.skrypalle.it.util.TestUtil;
 import dk.skrypalle.jasm.Assembler;
 import dk.skrypalle.jasm.Assemblers;
@@ -36,6 +35,7 @@ public class JasmIntegrationTest {
 
     @DataProvider
     public static Object[][] provideSourceFileAndExpectedResult() {
+        //checkstyle.off: LineLength - exceeded due to readability of arranger DSL
         return new Object[][]{
                 assembling("abstract_method").shouldPrint("abstract"),
                 assembling("constructor").shouldPrint("\"Hello\""),
@@ -46,6 +46,7 @@ public class JasmIntegrationTest {
                 assembling("no_newline_at_end_of_file").shouldPrint("WorksWithoutNewlineAtTheEndOfTheFile"),
                 assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
         };
+        //checkstyle.on: LineLength
     }
 
     @Test(dataProvider = "provideSourceFileAndExpectedResult")
@@ -75,7 +76,8 @@ public class JasmIntegrationTest {
         );
     }
 
-    private static String invokeMainAndCaptureStdOut(Class<?> clazz, String[] mainArgs) throws Exception {
+    private static String invokeMainAndCaptureStdOut(Class<?> clazz, String[] mainArgs)
+            throws Exception {
         var oldStdout = System.out;
         try {
             var stdout = new ByteArrayOutputStream();

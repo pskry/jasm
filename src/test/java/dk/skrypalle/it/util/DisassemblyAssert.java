@@ -20,6 +20,8 @@ package dk.skrypalle.it.util;
 import dk.skrypalle.jdsm.Disassembly;
 import org.assertj.core.api.AbstractAssert;
 
+import java.util.regex.Pattern;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disassembly> {
@@ -28,6 +30,14 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
         super(disassembly, DisassemblyAssert.class);
     }
 
+    /**
+     * Asserts that the {@linkplain Disassembly} under test has {@linkplain
+     * Disassembly#getJasmSourceCode() jASM source code} equivalent (ignoring comments and newlines)
+     * to the provided jASM source code.
+     *
+     * @param jasmSource jASM source code to test against
+     * @return this assert for method chaining
+     */
     public DisassemblyAssert hasSourceEquivalentTo(String jasmSource) {
         var srcWithoutComments = removeComments(jasmSource);
 
@@ -37,6 +47,14 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
         return myself;
     }
 
+    /**
+     * Asserts that the {@linkplain Disassembly} under test has {@linkplain
+     * Disassembly#getJasmSourceCode() jASM source code} matching the provided {@linkplain Pattern
+     * regEx pattern}.
+     *
+     * @param pattern {@linkplain Pattern regEx pattern} to match against
+     * @return this assert for method chaining
+     */
     public DisassemblyAssert containsSourcePattern(String pattern) {
         assertThat(actual.getJasmSourceCode())
                 .containsPattern(pattern);
@@ -44,6 +62,13 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
         return myself;
     }
 
+    /**
+     * Asserts that the {@linkplain Disassembly} under test has {@linkplain
+     * Disassembly#getJvmClassName() JVM class name} equal to the provided JVM class name.
+     *
+     * @param jvmClassName JVM class name to test against
+     * @return this assert for method chaining
+     */
     public DisassemblyAssert hasJvmClassName(String jvmClassName) {
         assertThat(actual.getJvmClassName())
                 .isEqualTo(jvmClassName);

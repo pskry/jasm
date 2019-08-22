@@ -31,6 +31,7 @@ public class JasmErrorIntegrationTest {
 
     @DataProvider
     public static Object[][] provideSourceFileAndExpectedErrors() {
+        //checkstyle.off: LineLength - exceeded due to readability of arranger DSL
         return new Object[][]{
                 assembling("empty_file")
                         .shouldEmitErrorAt(19, 1).withMessagePattern("input mismatch.*<EOF>")
@@ -62,6 +63,7 @@ public class JasmErrorIntegrationTest {
                         .shouldEmitErrorAt(19, 1).withMessagePattern("unknown symbol.*\\{")
                         .amongOthers()
         };
+        //checkstyle.on: LineLength
     }
 
     @Test(dataProvider = "provideSourceFileAndExpectedErrors")

@@ -23,15 +23,25 @@ import java.nio.file.Path;
 
 public final class Disassemblers {
 
-    public static Disassembler fromClassName(String className, ErrorListener errorListener, boolean verbose) {
+    public static Disassembler fromClassName(
+            String className,
+            ErrorListener errorListener,
+            boolean verbose) {
         return new DisassemblerFromClassName(className, errorListener, verbose);
     }
 
-    public static Disassembler fromBinary(byte[] binaryClassFile, String sourceName, ErrorListener errorListener, boolean verbose) {
+    public static Disassembler fromBinary(
+            byte[] binaryClassFile,
+            String sourceName,
+            ErrorListener errorListener,
+            boolean verbose) {
         return new DisassemblerFromBinary(binaryClassFile, sourceName, errorListener, verbose);
     }
 
-    public static Disassembler fromFile(Path inputClassFile, ErrorListener errorListener, boolean verbose) {
+    public static Disassembler fromFile(
+            Path inputClassFile,
+            ErrorListener errorListener,
+            boolean verbose) {
         return new DisassemblerFromFile(inputClassFile, errorListener, verbose);
     }
 
