@@ -17,27 +17,27 @@
  */
 package dk.skrypalle.jasm.cli;
 
-import dk.skrypalle.jasm.assembler.Assemblers;
-import dk.skrypalle.jasm.assembler.err.ConsoleErrorListener;
+import dk.skrypalle.jasm.disassembler.Disassemblers;
+import dk.skrypalle.jasm.disassembler.err.ConsoleErrorListener;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
-import static picocli.CommandLine.Parameters;
+import static picocli.CommandLine.Option;
 
 @Command(
-        name = "jasm",
+        name = "jdsm",
         mixinStandardHelpOptions = true,
-        version = "jasm 0.1",
-        description = "Assembles .jasm source files to JVM class files."
-)
-public class Jasm implements Callable<Integer> {
+        version = "jdsm 0.1",
+        description = "Disassembles JVM .class files to jASM source files.")
+public class Jdsm implements Callable<Integer> {
 
     private static final Path PWD = Paths.get(".").toAbsolutePath();
 
@@ -61,14 +61,10 @@ public class Jasm implements Callable<Integer> {
             }
         }
 
-        var asm = Assemblers.fromFile(
-                PWD.relativize(file.toAbsolutePath()).normalize(),
-                errorListener,
-                verbose
-        );
-        var assembly = asm.assemble();
+        var dsm = Disassemblers.fromFile(PWD.relativize(file), errorListener, verbose);
+        var jasmSourceCode = dsm.disassemble();
 
-        if (assembly == null) {
+        if (jasmSourceCode == null) {
             // and error must have occurred and it has been displayed via the error-listener
             return 1;
         }
@@ -77,7 +73,7 @@ public class Jasm implements Callable<Integer> {
                 ? PWD
                 : workingDirectory.toAbsolutePath();
 
-        var outFile = outDir.resolve(assembly.getJvmClassName() + ".class");
+        var outFile = outDir.resolve(jasmSourceCode.getJvmClassName() + ".jasm");
         var dirToCreate = outFile.getParent();
         assert dirToCreate != null;
 
@@ -93,7 +89,7 @@ public class Jasm implements Callable<Integer> {
         }
 
         try {
-            Files.write(outFile, assembly.getBinaryData());
+            Files.writeString(outFile, jasmSourceCode.getJasmSourceCode(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             if (verbose) {
                 errorListener.emitUnexpectedErrorWhileWritingOutputFile(outFile, e);
@@ -106,8 +102,8 @@ public class Jasm implements Callable<Integer> {
         return 0;
     }
 
-    public static void main(String... args) {
-        int exitCode = new CommandLine(new Jasm()).execute(args);
+    public static void main(String[] args) {
+        var exitCode = new CommandLine(new Jdsm()).execute(args);
         System.exit(exitCode);
     }
 

@@ -235,7 +235,7 @@
                         </program>
                         <program>
                             <id>jdsm</id>
-                            <mainClass>dk.skrypalle.jdsm.cli.Jdsm</mainClass>
+                            <mainClass>dk.skrypalle.jasm.cli.Jdsm</mainClass>
                         </program>
                     </programs>
                 </configuration>

@@ -17,7 +17,7 @@
  */
 package dk.skrypalle;
 
-import dk.skrypalle.jasm.err.ErrorListener;
+import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 
 import java.util.Arrays;
