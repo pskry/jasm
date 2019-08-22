@@ -56,8 +56,10 @@ The archives have the following structure:
     |-- LICENSE
     |-- README.md
     |-- bin
-    |   |-- jasm        (*nix    runscript)
-    |   `-- jasm.bat    (windows runscript)
+    |   |-- jasm        (assembler    *nix    runscript)
+    |   |-- jasm.bat    (assembler    windows runscript)
+    |   |-- jdsm        (disassembler *nix    runscript)
+    |   `-- jdsm.bat    (disassembler windows runscript)
     `-- lib
         `-- ...         (runtime libraries)
 ```
@@ -100,6 +102,7 @@ $ mv jasm-<version> /opt
 Optionally, you may also want to add a symlink for convenience.
 ```bash
 $ ln -s /opt/jasm-<version>/bin/jasm /usr/bin/jasm
+$ ln -s /opt/jasm-<version>/bin/jdsm /usr/bin/jdsm
 ```
 
 You are all done. You can now use _jASM_ from anywhere by just typing
