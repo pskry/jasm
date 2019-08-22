@@ -17,7 +17,7 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-final class AsmUtils {
+final class AssemblerUtils {
 
     static String sanitizeInput(String jasmSource) {
         var input = jasmSource.replaceAll("\\r?\\n", "\n");
@@ -26,6 +26,6 @@ final class AsmUtils {
                 : input + '\n'; // ensure blank line at the end of the input
     }
 
-    private AsmUtils() { /* static utility */ }
+    private AssemblerUtils() { /* static utility */ }
 
 }

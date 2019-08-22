@@ -27,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class AssemblerFromFile extends BaseAssembler {
+class AssemblerFromFile extends BaseAssembler {
 
     private final Path jasmSourceFile;
 
@@ -56,7 +56,7 @@ public class AssemblerFromFile extends BaseAssembler {
             var jasmSource = Files.readString(jasmSourceFile, StandardCharsets.UTF_8);
 
             return CharStreams.fromString(
-                    AsmUtils.sanitizeInput(jasmSource),
+                    AssemblerUtils.sanitizeInput(jasmSource),
                     jasmSourceFile.toString()
             );
         } catch (IOException e) {

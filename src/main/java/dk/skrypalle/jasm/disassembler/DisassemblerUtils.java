@@ -17,12 +17,12 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
-final class JdsmUtils {
+final class DisassemblerUtils {
 
     static boolean isSet(int bitField, int checkBits) {
         return (bitField & checkBits) != 0;
     }
 
-    private JdsmUtils() { /* static utility */ }
+    private DisassemblerUtils() { /* static utility */ }
 
 }

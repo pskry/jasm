@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.TypeVisitor;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmLexer;
@@ -42,14 +41,14 @@ import static dk.skrypalle.jasm.generated.JasmParser.SuperSpecContext;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
-class JasmVisitor extends JasmBaseVisitor<Object> {
+class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
     private final List<Consumer<ClassWriter>> deferredActions;
 
     private String className;
 
-    JasmVisitor(ErrorListener errorListener) {
+    AssemblerVisitor(ErrorListener errorListener) {
         this.errorListener = errorListener;
         deferredActions = new ArrayList<>();
     }
@@ -222,7 +221,7 @@ class JasmVisitor extends JasmBaseVisitor<Object> {
         int access = visitAccessSpecs(ctx.accessSpec());
         var descriptor = visitDescriptor(ctx.descriptor());
 
-        var instrVisitor = new InstrVisitor(errorListener);
+        var instrVisitor = new InstructionVisitor(errorListener);
         var instructionList = ctx.instructionList();
         if (instructionList != null) {
             instrVisitor.visitInstructionList(ctx.instructionList());

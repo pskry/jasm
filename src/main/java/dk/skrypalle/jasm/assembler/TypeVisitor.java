@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.skrypalle;
+package dk.skrypalle.jasm.assembler;
 
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
@@ -31,11 +31,11 @@ import static dk.skrypalle.jasm.generated.JasmParser.MethodDescriptorContext;
 import static dk.skrypalle.jasm.generated.JasmParser.PrimitiveTypeContext;
 import static dk.skrypalle.jasm.generated.JasmParser.TypeDescriptorContext;
 
-public class TypeVisitor extends JasmBaseVisitor<Object> {
+class TypeVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
 
-    public TypeVisitor(ErrorListener errorListener) {
+    TypeVisitor(ErrorListener errorListener) {
         this.errorListener = errorListener;
     }
 

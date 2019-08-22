@@ -22,14 +22,14 @@ import org.objectweb.asm.Opcodes;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassFile {
+class ClassFile {
 
     private String version;
     private String source;
     private final ClassSpec classSpec;
-    private final List<JdsmMethodVisitor> methodVisitors;
+    private final List<DisassemblerMethodVisitor> methodVisitors;
 
-    public ClassFile() {
+    ClassFile() {
         classSpec = new ClassSpec();
         methodVisitors = new ArrayList<>();
     }
@@ -75,11 +75,11 @@ public class ClassFile {
         this.source = source;
     }
 
-    public ClassSpec getClassSpec() {
+    ClassSpec getClassSpec() {
         return classSpec;
     }
 
-    public void addMethodVisitor(JdsmMethodVisitor methodVisitor) {
+    void addMethodVisitor(DisassemblerMethodVisitor methodVisitor) {
         methodVisitors.add(methodVisitor);
     }
 
@@ -92,7 +92,7 @@ public class ClassFile {
         }
         buf.append(classSpec.toString());
 
-        for (JdsmMethodVisitor methodVisitor : methodVisitors) {
+        for (DisassemblerMethodVisitor methodVisitor : methodVisitors) {
             buf.append('\n');
             var methodSpec = methodVisitor.getMethodSpec();
             buf.append(methodSpec.toString());

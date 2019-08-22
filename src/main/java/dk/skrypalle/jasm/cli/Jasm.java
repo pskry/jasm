@@ -69,7 +69,7 @@ public class Jasm implements Callable<Integer> {
         var assembly = asm.assemble();
 
         if (assembly == null) {
-            // and error must have occurred and it has been displayed via the error-listener
+            // an error must have occurred and it has been displayed via the error-listener
             return 1;
         }
 

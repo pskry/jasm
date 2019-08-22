@@ -36,7 +36,8 @@ import static picocli.CommandLine.Option;
         name = "jdsm",
         mixinStandardHelpOptions = true,
         version = "jdsm 0.1",
-        description = "Disassembles JVM .class files to jASM source files.")
+        description = "Disassembles JVM .class files to jASM source files."
+)
 public class Jdsm implements Callable<Integer> {
 
     private static final Path PWD = Paths.get(".").toAbsolutePath();
@@ -65,7 +66,7 @@ public class Jdsm implements Callable<Integer> {
         var jasmSourceCode = dsm.disassemble();
 
         if (jasmSourceCode == null) {
-            // and error must have occurred and it has been displayed via the error-listener
+            // an error must have occurred and it has been displayed via the error-listener
             return 1;
         }
 

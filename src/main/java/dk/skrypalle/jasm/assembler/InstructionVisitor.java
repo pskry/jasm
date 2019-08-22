@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.TypeVisitor;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import org.antlr.v4.runtime.Token;
@@ -48,12 +47,12 @@ import static dk.skrypalle.jasm.generated.JasmParser.PopInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.ReturnInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.StringContext;
 
-class InstrVisitor extends JasmBaseVisitor<Object> {
+class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
     private final List<Consumer<MethodVisitor>> deferredActions;
 
-    InstrVisitor(ErrorListener errorListener) {
+    InstructionVisitor(ErrorListener errorListener) {
         this.errorListener = errorListener;
         deferredActions = new ArrayList<>();
     }

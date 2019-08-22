@@ -18,28 +18,33 @@
 package dk.skrypalle.jasm.assembler;
 
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import dk.skrypalle.jasm.generated.JasmLexer;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.LexerNoViableAltException;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.misc.Pair;
+import org.antlr.v4.runtime.misc.Utils;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.regex.Pattern;
 
-@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_SUPERCLASS")
-class JasmLexer extends dk.skrypalle.jasm.generated.JasmLexer {
+class AssemblerLexer extends JasmLexer {
 
     private static final Pattern PRIMITIVE_CLASS_PATTERN = Pattern.compile("[ZBSIJV]+L.*$");
 
     private final Queue<Token> tokenStash = new ArrayDeque<>();
 
-    JasmLexer(CharStream input, ErrorListener errorListener) {
+    AssemblerLexer(CharStream input, ErrorListener errorListener) {
         super(input);
 
         removeErrorListeners();
-        addErrorListener(new LexerErrorListenerAdapter(errorListener));
+        addErrorListener(new ErrorListenerAdapter(errorListener));
     }
 
     @Override
@@ -71,6 +76,50 @@ class JasmLexer extends dk.skrypalle.jasm.generated.JasmLexer {
         var source = new Pair<>(tokenSource, inStream);
 
         return new CommonToken(source, token.getType(), token.getChannel(), start, stop);
+    }
+
+    private static class ErrorListenerAdapter extends BaseErrorListener {
+
+        private final ErrorListener errorListener;
+
+        private ErrorListenerAdapter(ErrorListener errorListener) {
+            this.errorListener = errorListener;
+        }
+
+        @Override
+        public void syntaxError(
+                Recognizer<?, ?> recognizer,
+                Object offendingSymbol,
+                int line,
+                int charPositionInLine,
+                String msg,
+                RecognitionException e) {
+            if (e instanceof LexerNoViableAltException) {
+                emitSyntaxError(recognizer.getInputStream().getSourceName(),
+                        line,
+                        charPositionInLine + 1,
+                        (LexerNoViableAltException) e
+                );
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }
+
+        private void emitSyntaxError(
+                String sourceName,
+                int line,
+                int column,
+                LexerNoViableAltException e) {
+            String symbol = "";
+            var startIndex = e.getStartIndex();
+            var inputStream = e.getInputStream();
+            if (startIndex >= 0 && startIndex < inputStream.size()) {
+                symbol = inputStream.getText(Interval.of(startIndex, startIndex));
+                symbol = Utils.escapeWhitespace(symbol, false);
+            }
+            errorListener.emitUnknownSymbol(sourceName, line, column, symbol);
+        }
+
     }
 
 }

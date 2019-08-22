@@ -21,11 +21,11 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class JdsmMethodVisitor extends MethodVisitor {
+class DisassemblerMethodVisitor extends MethodVisitor {
 
     private final MethodSpec methodSpec;
 
-    JdsmMethodVisitor() {
+    DisassemblerMethodVisitor() {
         super(Opcodes.ASM7);
 
         methodSpec = new MethodSpec();

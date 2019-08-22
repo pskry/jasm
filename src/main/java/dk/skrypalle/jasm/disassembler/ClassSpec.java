@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static dk.skrypalle.jasm.disassembler.JdsmUtils.isSet;
+import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.isSet;
 
 class ClassSpec {
 

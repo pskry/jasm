@@ -21,11 +21,11 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class JdsmClassVisitor extends ClassVisitor {
+public class DisassemblerClassVisitor extends ClassVisitor {
 
     private ClassFile classFile;
 
-    JdsmClassVisitor() {
+    DisassemblerClassVisitor() {
         super(Opcodes.ASM7);
 
         classFile = new ClassFile();
@@ -63,7 +63,7 @@ public class JdsmClassVisitor extends ClassVisitor {
             String descriptor,
             String signature,
             String[] exceptions) {
-        var methodVisitor = new JdsmMethodVisitor();
+        var methodVisitor = new DisassemblerMethodVisitor();
         var methodSpec = methodVisitor.getMethodSpec();
         methodSpec.setAccess(access);
         methodSpec.setName(name);

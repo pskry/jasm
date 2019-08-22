@@ -40,15 +40,15 @@ abstract class BaseAssembler implements Assembler {
         }
 
         try {
-            var lexer = new JasmLexer(input, errorListener);
-            var parser = new JasmParser(lexer, errorListener);
+            var lexer = new AssemblerLexer(input, errorListener);
+            var parser = new AssemblerParser(lexer, errorListener);
 
             var root = parser.jasmFile();
             if (parser.getNumberOfSyntaxErrors() > 0) {
                 return null;
             }
 
-            var visitor = new JasmVisitor(errorListener);
+            var visitor = new AssemblerVisitor(errorListener);
             visitor.visit(root);
 
             if (errorListener.getNumberOfErrors() > 0) {

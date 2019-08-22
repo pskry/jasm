@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DisassemblerFromFile extends BaseDisassembler {
+class DisassemblerFromFile extends BaseDisassembler {
 
     private final Path inputFile;
 

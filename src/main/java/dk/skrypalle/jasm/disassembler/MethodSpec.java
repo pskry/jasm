@@ -22,7 +22,7 @@ import org.objectweb.asm.Opcodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dk.skrypalle.jasm.disassembler.JdsmUtils.isSet;
+import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.isSet;
 
 class MethodSpec {
 

@@ -24,7 +24,7 @@ abstract class BaseDisassembler implements Disassembler {
     protected final ErrorListener errorListener;
     protected final boolean verbose;
 
-    protected BaseDisassembler(ErrorListener errorListener, boolean verbose) {
+    BaseDisassembler(ErrorListener errorListener, boolean verbose) {
         this.errorListener = errorListener;
         this.verbose = verbose;
     }
@@ -38,7 +38,7 @@ abstract class BaseDisassembler implements Disassembler {
 
         try {
 
-            var visitor = new JdsmClassVisitor();
+            var visitor = new DisassemblerClassVisitor();
             var reader = input.getInputReader();
             reader.accept(visitor, 0);
 

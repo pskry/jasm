@@ -19,7 +19,7 @@ package dk.skrypalle.jasm.disassembler;
 
 import org.objectweb.asm.ClassReader;
 
-public class DisassemblerInput {
+class DisassemblerInput {
 
     private final ClassReader inputReader;
     private final String sourceName;
@@ -33,7 +33,7 @@ public class DisassemblerInput {
         return inputReader;
     }
 
-    public String getSourceName() {
+    String getSourceName() {
         return sourceName;
     }
 

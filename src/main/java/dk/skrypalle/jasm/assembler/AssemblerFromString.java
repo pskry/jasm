@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.CharStreams;
 
 import java.util.Objects;
 
-import static dk.skrypalle.jasm.assembler.AsmUtils.sanitizeInput;
+import static dk.skrypalle.jasm.assembler.AssemblerUtils.sanitizeInput;
 
 class AssemblerFromString extends BaseAssembler {
 
