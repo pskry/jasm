@@ -48,6 +48,7 @@ public class JasmIntegrationTest {
                 assembling("mixed_descriptor").shouldPrint("12OneTwo"),
                 assembling("no_newline_at_end_of_file").shouldPrint("WorksWithoutNewlineAtTheEndOfTheFile"),
                 assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
+                assembling("static_field").shouldPrint("2310"),
         };
         //checkstyle.on: LineLength
     }

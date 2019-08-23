@@ -36,6 +36,7 @@ public class JdsmIntegrationTest {
     @DataProvider
     public static Object[][] provideTestFileNames() {
         return asObjectArray(
+                "abstract_method",
                 "constructor",
                 "doubles",
                 "floats",
@@ -43,7 +44,9 @@ public class JdsmIntegrationTest {
                 "local_vars",
                 "longs",
                 "math_max",
-                "print_main_args"
+                "mixed_descriptor",
+                "print_main_args",
+                "static_field"
         );
     }
 

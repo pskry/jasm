@@ -18,6 +18,7 @@
 package dk.skrypalle.jasm.disassembler;
 
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -70,6 +71,22 @@ public class DisassemblerClassVisitor extends ClassVisitor {
         methodSpec.setDescriptor(descriptor);
         classFile.addMethodVisitor(methodVisitor);
         return methodVisitor;
+    }
+
+    @Override
+    public FieldVisitor visitField(
+            int access,
+            String name,
+            String descriptor,
+            String signature,
+            Object value) {
+        var fieldVisitor = new DisassemblerFieldVisitor();
+        var fieldSpec = fieldVisitor.getFieldSpec();
+        fieldSpec.setAccess(access);
+        fieldSpec.setName(name);
+        fieldSpec.setDescriptor(descriptor);
+        classFile.addFieldVisitor(fieldVisitor);
+        return fieldVisitor;
     }
 
 }

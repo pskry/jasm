@@ -20,6 +20,8 @@ package dk.skrypalle.jasm.assembler;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmLexer;
+import dk.skrypalle.jasm.generated.JasmParser.FieldSpecContext;
+import dk.skrypalle.jasm.generated.JasmParser.MemberSpecContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.ClassWriter;
@@ -74,8 +76,8 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
     @Override
     public Object visitJasmFile(JasmFileContext ctx) {
         visit(ctx.header());
-        for (MethodSpecContext methodSpec : ctx.methodSpec()) {
-            visitMethodSpec(methodSpec);
+        for (MemberSpecContext memberSpec : ctx.memberSpec()) {
+            visitMemberSpec(memberSpec);
         }
         return null;
     }
@@ -232,8 +234,22 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
     }
 
     @Override
+    public Object visitMemberSpec(MemberSpecContext ctx) {
+        var methodSpec = ctx.methodSpec();
+        if (methodSpec != null) {
+            visitMethodSpec(methodSpec);
+        }
+        var fieldSpec = ctx.fieldSpec();
+        if (fieldSpec != null) {
+            visitFieldSpec(fieldSpec);
+        }
+        return null;
+    }
+
+    @Override
     public Object visitMethodSpec(MethodSpecContext ctx) {
         int access = visitAccessSpecs(ctx.accessSpec());
+        var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.descriptor());
 
         var instrVisitor = new InstructionVisitor(errorListener);
@@ -245,7 +261,7 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         defer(cw -> {
             var method = cw.visitMethod(
                     access,
-                    ctx.name.getText(),
+                    name,
                     descriptor,
                     null,
                     null
@@ -260,6 +276,25 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
         return new TypeVisitor(errorListener).visitDescriptor(ctx);
+    }
+
+    @Override
+    public Object visitFieldSpec(FieldSpecContext ctx) {
+        int access = visitAccessSpecs(ctx.accessSpec());
+        var name = ctx.name.getText();
+        var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typeDescriptor());
+
+        defer(cw -> {
+            var field = cw.visitField(
+                    access,
+                    name,
+                    descriptor,
+                    null,
+                    null
+            );
+            field.visitEnd();
+        });
+        return null;
     }
 
     @Override

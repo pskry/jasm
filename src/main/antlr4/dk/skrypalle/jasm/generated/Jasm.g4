@@ -20,7 +20,7 @@ grammar Jasm;
 jasmFile
     : EOL*
       header
-      (methodSpec? EOL)*
+      (memberSpec? EOL)*
     ;
 
 header
@@ -49,6 +49,11 @@ superSpec
 
 implementsSpec
     : '.implements' name=fqcn
+    ;
+
+memberSpec
+    : methodSpec
+    | fieldSpec
     ;
 
 methodSpec
@@ -211,6 +216,10 @@ instruction
     | 'invokespecial'    owner=fqcn'.'name=methodName':'desc=descriptor #InvokeSpecialInstr
     | 'invokestatic'     owner=fqcn'.'name=methodName':'desc=descriptor #InvokeStaticInstr
     | 'invokeinterface'  owner=fqcn'.'name=methodName':'desc=descriptor #InvokeInterfaceInstr
+    ;
+
+fieldSpec
+    : '.field' accessSpec* name=IDENTIFIER typeDescriptor
     ;
 
 accessSpec

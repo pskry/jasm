@@ -28,10 +28,12 @@ class ClassFile {
     private String source;
     private final ClassSpec classSpec;
     private final List<DisassemblerMethodVisitor> methodVisitors;
+    private final List<DisassemblerFieldVisitor> fieldVisitors;
 
     ClassFile() {
         classSpec = new ClassSpec();
         methodVisitors = new ArrayList<>();
+        fieldVisitors = new ArrayList<>();
     }
 
     public void setVersion(int version) {
@@ -83,6 +85,10 @@ class ClassFile {
         methodVisitors.add(methodVisitor);
     }
 
+    void addFieldVisitor(DisassemblerFieldVisitor fieldVisitor) {
+        fieldVisitors.add(fieldVisitor);
+    }
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
@@ -91,6 +97,12 @@ class ClassFile {
             buf.append(".source \"").append(source).append("\"\n");
         }
         buf.append(classSpec.toString());
+
+        for (DisassemblerFieldVisitor fieldVisitor : fieldVisitors) {
+            buf.append('\n');
+            var fieldSpec = fieldVisitor.getFieldSpec();
+            buf.append(fieldSpec.toString());
+        }
 
         for (DisassemblerMethodVisitor methodVisitor : methodVisitors) {
             buf.append('\n');
