@@ -40,7 +40,7 @@ public class JasmErrorIntegrationTest {
                         .shouldEmitErrorAt(19, 11).withMessagePattern("illegal major bytecode version.*23")
                         .andNothingElse(),
                 assembling("invalid_bytecode_version_minor")
-                        .shouldEmitErrorAt(19, 14).withMessagePattern("illegal minor bytecode version.*12")
+                        .shouldEmitErrorAt(19, 11).withMessagePattern("illegal minor bytecode version.*12")
                         .andNothingElse(),
                 assembling("invalid_class_type")
                         .shouldEmitErrorAt(24, 40).withMessagePattern("invalid class type.*java/lang/String")

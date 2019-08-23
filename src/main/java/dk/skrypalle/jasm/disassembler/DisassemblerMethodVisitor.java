@@ -65,15 +65,15 @@ class DisassemblerMethodVisitor extends MethodVisitor {
             case Opcodes.LCONST_1:
                 return "ldc 1l";
             case Opcodes.FCONST_0:
-                return "ldc 0f";
+                return "ldc 0.0f";
             case Opcodes.FCONST_1:
-                return "ldc 1f";
+                return "ldc 1.0f";
             case Opcodes.FCONST_2:
-                return "ldc 2f";
+                return "ldc 2.0f";
             case Opcodes.DCONST_0:
-                return "ldc 0d";
+                return "ldc 0.0";
             case Opcodes.DCONST_1:
-                return "ldc 1d";
+                return "ldc 1.0";
             case Opcodes.IALOAD:
                 return "iaload";
             case Opcodes.LALOAD:
@@ -315,21 +315,21 @@ class DisassemblerMethodVisitor extends MethodVisitor {
     private String parseArrayType(int type) {
         switch (type) {
             case Opcodes.T_BOOLEAN:
-                return "boolean";
+                return "Z";
             case Opcodes.T_CHAR:
-                return "char";
+                return "C";
             case Opcodes.T_FLOAT:
-                return "float";
+                return "F";
             case Opcodes.T_DOUBLE:
-                return "double";
+                return "D";
             case Opcodes.T_BYTE:
-                return "byte";
+                return "B";
             case Opcodes.T_SHORT:
-                return "short";
+                return "S";
             case Opcodes.T_INT:
-                return "int";
+                return "I";
             case Opcodes.T_LONG:
-                return "long";
+                return "J";
             default:
                 throw new IllegalStateException();
         }
@@ -337,8 +337,15 @@ class DisassemblerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitLdcInsn(Object value) {
-        if (value.getClass() == String.class) {
+        Class<?> valueClass = value.getClass();
+        if (valueClass == String.class) {
             value = "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
+        }
+        if (valueClass == Float.class) {
+            value += "f";
+        }
+        if (valueClass == Long.class) {
+            value += "l";
         }
         methodSpec.addInstruction("ldc " + value);
     }

@@ -32,7 +32,7 @@ header
     ;
 
 bytecodeVersion
-    : '.bytecode' major=INTEGER '.' minor=INTEGER
+    : '.bytecode' ver=DECIMAL
     ;
 
 source
@@ -51,8 +51,6 @@ implementsSpec
     : '.implements' name=fqcn
     ;
 
-//endregion header
-
 methodSpec
     : '.method' accessSpec* name=methodName descriptor EOL+
       instructionList?
@@ -62,6 +60,7 @@ methodSpec
 methodName
     : IDENTIFIER
     | '<init>'
+    | '<clinit>'
     ;
 
 descriptor
@@ -86,23 +85,132 @@ instructionList
     ;
 
 instruction
-    : 'ldc'    val=INTEGER                                           #LdcIntInstr
-    | 'ldc'    val=string                                            #LdcStringInstr
-    | 'istore' val=INTEGER                                           #IstoreInstr
-    | 'aload'  val=INTEGER                                           #AloadInstr
-    | 'iload'  val=INTEGER                                           #IloadInstr
+    : 'ldc'    val=INTEGER                                              #LdcIntInstr
+    | 'ldc'    val=DECIMAL                                              #LdcDecInstr
+    | 'ldc'    val=string                                               #LdcStringInstr
+    | 'ldc'    val=type                                                 #LdcTypeInstr
 
-    | 'new'   typ=fqcn                                               #NewInstr
+    | 'newarray' typ=IDENTIFIER                                         #NewarrayInstr
 
-    | 'iadd'                                                         #IaddInstr
-    | 'dup'                                                          #DupInstr
-    | 'pop'                                                          #PopInstr
-    | 'return'                                                       #ReturnInstr
+    | 'iload'  val=INTEGER                                              #IloadInstr
+    | 'lload'  val=INTEGER                                              #LloadInstr
+    | 'fload'  val=INTEGER                                              #FloadInstr
+    | 'dload'  val=INTEGER                                              #DloadInstr
+    | 'aload'  val=INTEGER                                              #AloadInstr
+    | 'istore' val=INTEGER                                              #IstoreInstr
+    | 'lstore' val=INTEGER                                              #LstoreInstr
+    | 'fstore' val=INTEGER                                              #FstoreInstr
+    | 'dstore' val=INTEGER                                              #DstoreInstr
+    | 'astore' val=INTEGER                                              #AstoreInstr
+    | 'ret'    val=INTEGER                                              #RetInstr
 
-    | 'getstatic'     owner=fqcn'.'name=methodName':'desc=descriptor #GetStaticInstr
-    | 'invokestatic'  owner=fqcn'.'name=methodName':'desc=descriptor #InvokeStaticInstr
-    | 'invokevirtual' owner=fqcn'.'name=methodName':'desc=descriptor #InvokeVirtualInstr
-    | 'invokespecial' owner=fqcn'.'name=methodName':'desc=descriptor #InvokeSpecialInstr
+    | 'new'         typ=fqcn                                            #NewInstr
+    | 'anewarray'   typ=fqcn                                            #AnewarrayInstr
+    | 'checkcast'   typ=fqcn                                            #CheckcastInstr
+    | 'instanceof'  typ=fqcn                                            #InstanceofInstr
+
+    | 'nop'                                                             #NopInstr
+    | 'iaload'                                                          #IaloadInstr
+    | 'laload'                                                          #LaloadInstr
+    | 'faload'                                                          #FaloadInstr
+    | 'daload'                                                          #DaloadInstr
+    | 'aaload'                                                          #AaloadInstr
+    | 'baload'                                                          #BaloadInstr
+    | 'caload'                                                          #CaloadInstr
+    | 'saload'                                                          #SaloadInstr
+    | 'iastore'                                                         #IastoreInstr
+    | 'lastore'                                                         #LastoreInstr
+    | 'fastore'                                                         #FastoreInstr
+    | 'dastore'                                                         #DastoreInstr
+    | 'aastore'                                                         #AastoreInstr
+    | 'bastore'                                                         #BastoreInstr
+    | 'castore'                                                         #CastoreInstr
+    | 'sastore'                                                         #SastoreInstr
+    | 'pop'                                                             #PopInstr
+    | 'pop2'                                                            #Pop2Instr
+    | 'dup'                                                             #DupInstr
+    | 'dup_x1'                                                          #DupX1Instr
+    | 'dup_x2'                                                          #DupX2Instr
+    | 'dup2'                                                            #Dup2Instr
+    | 'dup2_x1'                                                         #Dup2X1Instr
+    | 'dup2_x2'                                                         #Dup2X2Instr
+    | 'swap'                                                            #SwapInstr
+    | 'iadd'                                                            #IaddInstr
+    | 'ladd'                                                            #LaddInstr
+    | 'fadd'                                                            #FaddInstr
+    | 'dadd'                                                            #DaddInstr
+    | 'isub'                                                            #IsubInstr
+    | 'lsub'                                                            #LsubInstr
+    | 'fsub'                                                            #FsubInstr
+    | 'dsub'                                                            #DsubInstr
+    | 'imul'                                                            #ImulInstr
+    | 'lmul'                                                            #LmulInstr
+    | 'fmul'                                                            #FmulInstr
+    | 'dmul'                                                            #DmulInstr
+    | 'idiv'                                                            #IdivInstr
+    | 'ldiv'                                                            #LdivInstr
+    | 'fdiv'                                                            #FdivInstr
+    | 'ddiv'                                                            #DdivInstr
+    | 'irem'                                                            #IremInstr
+    | 'lrem'                                                            #LremInstr
+    | 'frem'                                                            #FremInstr
+    | 'drem'                                                            #DremInstr
+    | 'ineg'                                                            #InegInstr
+    | 'lneg'                                                            #LnegInstr
+    | 'fneg'                                                            #FnegInstr
+    | 'dneg'                                                            #DnegInstr
+    | 'ishl'                                                            #IshlInstr
+    | 'lshl'                                                            #LshlInstr
+    | 'ishr'                                                            #IshrInstr
+    | 'lshr'                                                            #LshrInstr
+    | 'iushr'                                                           #IushrInstr
+    | 'lushr'                                                           #LushrInstr
+    | 'iand'                                                            #IandInstr
+    | 'land'                                                            #LandInstr
+    | 'ior'                                                             #IorInstr
+    | 'lor'                                                             #LorInstr
+    | 'ixor'                                                            #IxorInstr
+    | 'lxor'                                                            #LxorInstr
+    | 'i2l'                                                             #I2lInstr
+    | 'i2f'                                                             #I2fInstr
+    | 'i2d'                                                             #I2dInstr
+    | 'l2i'                                                             #L2iInstr
+    | 'l2f'                                                             #L2fInstr
+    | 'l2d'                                                             #L2dInstr
+    | 'f2i'                                                             #F2iInstr
+    | 'f2l'                                                             #F2lInstr
+    | 'f2d'                                                             #F2dInstr
+    | 'd2i'                                                             #D2iInstr
+    | 'd2l'                                                             #D2lInstr
+    | 'd2f'                                                             #D2fInstr
+    | 'i2b'                                                             #I2bInstr
+    | 'i2c'                                                             #I2cInstr
+    | 'i2s'                                                             #I2sInstr
+    | 'lcmp'                                                            #LcmpInstr
+    | 'fcmpl'                                                           #FcmplInstr
+    | 'fcmpg'                                                           #FcmpgInstr
+    | 'dcmpl'                                                           #DcmplInstr
+    | 'dcmpg'                                                           #DcmpgInstr
+    | 'ireturn'                                                         #IreturnInstr
+    | 'lreturn'                                                         #LreturnInstr
+    | 'freturn'                                                         #FreturnInstr
+    | 'dreturn'                                                         #DreturnInstr
+    | 'areturn'                                                         #AreturnInstr
+    | 'return'                                                          #ReturnInstr
+    | 'arraylength'                                                     #ArrayLengthInstr
+    | 'athrow'                                                          #AthrowInstr
+    | 'monitorenter'                                                    #MonitorenterInstr
+    | 'monitorexit'                                                     #MonitorexitInstr
+
+    | 'getstatic'        owner=fqcn'.'name=methodName':'desc=descriptor #GetStaticInstr
+    | 'putstatic'        owner=fqcn'.'name=methodName':'desc=descriptor #PutStaticInstr
+    | 'getfield'         owner=fqcn'.'name=methodName':'desc=descriptor #GetFieldInstr
+    | 'putfield'         owner=fqcn'.'name=methodName':'desc=descriptor #PutFieldInstr
+
+    | 'invokevirtual'    owner=fqcn'.'name=methodName':'desc=descriptor #InvokeVirtualInstr
+    | 'invokespecial'    owner=fqcn'.'name=methodName':'desc=descriptor #InvokeSpecialInstr
+    | 'invokestatic'     owner=fqcn'.'name=methodName':'desc=descriptor #InvokeStaticInstr
+    | 'invokeinterface'  owner=fqcn'.'name=methodName':'desc=descriptor #InvokeInterfaceInstr
     ;
 
 accessSpec
@@ -140,6 +248,7 @@ string
     ;
 
 INIT         : '<init>'       ;
+STATIC_INIT  : '<clinit>'     ;
 PUBLIC       : 'public'       ;
 PRIVATE      : 'private'      ;
 PROTECTED    : 'protected'    ;
@@ -158,7 +267,8 @@ TRANSIENT    : 'transient'    ;
 VARARGS      : 'varargs'      ;
 
 EOL         : [\r\n] +                 ;
-INTEGER     : '-'?[0-9]+               ;
+INTEGER     : '-'?[0-9]+[l]?           ;
+DECIMAL     : '-'?[0-9]*'.'[0-9]+[f]?  ;
 IDENTIFIER  : [a-zA-Z$_][a-zA-Z0-9$_]* ;
 WHITESPACE  : [ \t]+        -> skip    ;
 COMMENT     : '#' ~ [\r\n]* -> skip    ;

@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 class AssemblerLexer extends JasmLexer {
 
-    private static final Pattern PRIMITIVE_CLASS_PATTERN = Pattern.compile("[ZBSIJV]+L.*$");
+    private static final Pattern PRIMITIVE_CLASS_PATTERN = Pattern.compile("[BSIJFDZCV]+L.*$");
 
     private final Queue<Token> tokenStash = new ArrayDeque<>();
 

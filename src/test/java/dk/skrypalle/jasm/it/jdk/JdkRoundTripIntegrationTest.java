@@ -26,18 +26,39 @@ import dk.skrypalle.jasm.it.assembler.JasmAssertingErrorListener;
 import dk.skrypalle.jasm.it.disassembler.JdsmAssertingErrorListener;
 import dk.skrypalle.jasm.it.util.TestDataProvider;
 import dk.skrypalle.jasm.it.util.TestUtil;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.stream.Stream;
 
 import static dk.skrypalle.jasm.it.util.TestAssertions.assertThat;
 
 public class JdkRoundTripIntegrationTest {
+
+    @DataProvider
+    public static Object[][] provideSpecificJdkClassNames() {
+        // empty for now since we cannot compile the whole JVM instruction set yet.
+        return Stream.of(
+        )
+                .map(className -> new Object[]{className})
+                .toArray(Object[][]::new);
+    }
+
+    @Test(dataProvider = "provideSpecificJdkClassNames")
+    public void roundTrip(String className) throws Exception {
+        runRoundTrip(className);
+    }
 
     @Test(
             dataProviderClass = TestDataProvider.class,
             dataProvider = "provideJdkClassNames",
             enabled = false
     )
-    public void roundTrip(String className) throws Exception {
+    public void roundTripJdkClass(String className) throws Exception {
+        runRoundTrip(className);
+    }
+
+    private void runRoundTrip(String className) throws Exception {
         // disassembly::arrange
         var dsm = getDisassembler(className);
 

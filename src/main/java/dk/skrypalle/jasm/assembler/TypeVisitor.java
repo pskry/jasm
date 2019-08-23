@@ -79,7 +79,7 @@ class TypeVisitor extends JasmBaseVisitor<Object> {
     @Override
     public String visitPrimitiveType(PrimitiveTypeContext ctx) {
         var types = ctx.getText().toCharArray();
-        var validTypes = Arrays.asList('Z', 'B', 'S', 'I', 'J', 'V');
+        var validTypes = Arrays.asList('B', 'S', 'I', 'J', 'F', 'D', 'Z', 'C', 'V');
         // TODO this should be handled by the lexer, not by the semantic analyzer.
         for (int i = 0; i < types.length; i++) {
             var type = types[i];

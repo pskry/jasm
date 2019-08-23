@@ -37,8 +37,11 @@ public class JdsmIntegrationTest {
     public static Object[][] provideTestFileNames() {
         return asObjectArray(
                 "constructor",
+                "doubles",
+                "floats",
                 "integers",
                 "local_vars",
+                "longs",
                 "math_max",
                 "print_main_args"
         );

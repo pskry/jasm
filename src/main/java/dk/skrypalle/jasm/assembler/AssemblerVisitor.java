@@ -20,6 +20,7 @@ package dk.skrypalle.jasm.assembler;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmLexer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -105,11 +106,25 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Integer visitBytecodeVersion(BytecodeVersionContext ctx) {
-        var minor = Integer.decode(ctx.minor.getText());
-        var major = Integer.decode(ctx.major.getText());
+        var text = ctx.ver.getText();
+        Integer major = null;
+        Integer minor = null;
+        if (!StringUtils.isBlank(text)) {
+            var dotIndex = text.indexOf('.');
+            if (dotIndex == -1) {
+                major = Integer.decode(text);
+            } else {
+                major = Integer.decode(text.substring(0, dotIndex));
+                minor = Integer.decode(text.substring(dotIndex + 1));
+            }
+        }
 
-        if (minor != 0) {
-            errorListener.emitIllegalMinorBytecodeVersion(ctx.minor, 0, 0);
+        if (minor == null || minor != 0) {
+            errorListener.emitIllegalMinorBytecodeVersion(ctx.ver, 0, 0);
+            return null;
+        }
+        if (major == null) {
+            errorListener.emitIllegalMajorBytecodeVersion(ctx.ver, 45, 57);
             return null;
         }
         switch (major) {
@@ -140,7 +155,7 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
             case 57:
                 return Opcodes.V13;
             default:
-                errorListener.emitIllegalMajorBytecodeVersion(ctx.major, 45, 57);
+                errorListener.emitIllegalMajorBytecodeVersion(ctx.ver, 45, 57);
                 return null;
         }
     }
