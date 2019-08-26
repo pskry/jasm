@@ -86,7 +86,7 @@ argList
     ;
 
 instructionList
-    : (instruction? EOL)+
+    : ((instruction|labelDef)? EOL)+
     ;
 
 instruction
@@ -216,6 +216,33 @@ instruction
     | 'invokespecial'    owner=fqcn'.'name=methodName':'desc=descriptor #InvokeSpecialInstr
     | 'invokestatic'     owner=fqcn'.'name=methodName':'desc=descriptor #InvokeStaticInstr
     | 'invokeinterface'  owner=fqcn'.'name=methodName':'desc=descriptor #InvokeInterfaceInstr
+
+    | 'ifeq'             dst=label                                      #IfeqInstr
+    | 'ifne'             dst=label                                      #IfneInstr
+    | 'iflt'             dst=label                                      #IfltInstr
+    | 'ifge'             dst=label                                      #IfgeInstr
+    | 'ifgt'             dst=label                                      #IfgtInstr
+    | 'ifle'             dst=label                                      #IfleInstr
+    | 'if_icmpeq'        dst=label                                      #IfIcmpeqInstr
+    | 'if_icmpne'        dst=label                                      #IfIcmpneInstr
+    | 'if_icmplt'        dst=label                                      #IfIcmpltInstr
+    | 'if_icmpge'        dst=label                                      #IfIcmpgeInstr
+    | 'if_icmpgt'        dst=label                                      #IfIcmpgtInstr
+    | 'if_icmple'        dst=label                                      #IfIcmpleInstr
+    | 'if_acmpeq'        dst=label                                      #IfAcmpeqInstr
+    | 'if_acmpne'        dst=label                                      #IfAcmpneInstr
+    | 'goto'             dst=label                                      #GotoInstr
+    | 'jsr'              dst=label                                      #JsrInstr
+    | 'ifnull'           dst=label                                      #IfnullInstr
+    | 'ifnonnull'        dst=label                                      #IfnonnullInstr
+    ;
+
+label
+    : name=IDENTIFIER
+    ;
+
+labelDef
+    : label ':'
     ;
 
 fieldSpec

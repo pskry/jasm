@@ -69,6 +69,7 @@ import dk.skrypalle.jasm.generated.JasmParser.FreturnInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FstoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FsubInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.GetFieldInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.GotoInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.I2bInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.I2cInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.I2dInstrContext;
@@ -79,6 +80,22 @@ import dk.skrypalle.jasm.generated.JasmParser.IaloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IandInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IastoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IdivInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfAcmpeqInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfAcmpneInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfIcmpeqInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfIcmpgeInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfIcmpgtInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfIcmpleInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfIcmpltInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfIcmpneInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfeqInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfgeInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfgtInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfleInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfltInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfneInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfnonnullInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IfnullInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.ImulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.InegInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.InstanceofInstrContext;
@@ -91,9 +108,12 @@ import dk.skrypalle.jasm.generated.JasmParser.IshrInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IsubInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IushrInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IxorInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.JsrInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.L2dInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.L2fInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.L2iInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LabelContext;
+import dk.skrypalle.jasm.generated.JasmParser.LabelDefContext;
 import dk.skrypalle.jasm.generated.JasmParser.LaddInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LaloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LandInstrContext;
@@ -159,15 +179,17 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
     private final List<Consumer<MethodVisitor>> deferredActions;
+    private final LabelTracker labelTracker;
 
     InstructionVisitor(ErrorListener errorListener) {
         this.errorListener = errorListener;
         deferredActions = new ArrayList<>();
+        labelTracker = new LabelTracker();
     }
 
     @Override
     public Void visitInstructionList(InstructionListContext ctx) {
-        ctx.instruction().forEach(this::visit);
+        ctx.children.forEach(this::visit);
         return null;
     }
 
@@ -1085,6 +1107,124 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     //endregion method instructions
 
+    //region jump instructions
+
+    @Override
+    public Object visitIfeqInstr(IfeqInstrContext ctx) {
+        resolveJump(Opcodes.IFEQ, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfneInstr(IfneInstrContext ctx) {
+        resolveJump(Opcodes.IFNE, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfltInstr(IfltInstrContext ctx) {
+        resolveJump(Opcodes.IFLT, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfgeInstr(IfgeInstrContext ctx) {
+        resolveJump(Opcodes.IFGE, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfgtInstr(IfgtInstrContext ctx) {
+        resolveJump(Opcodes.IFGT, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfleInstr(IfleInstrContext ctx) {
+        resolveJump(Opcodes.IFLE, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfIcmpeqInstr(IfIcmpeqInstrContext ctx) {
+        resolveJump(Opcodes.IF_ICMPEQ, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfIcmpneInstr(IfIcmpneInstrContext ctx) {
+        resolveJump(Opcodes.IF_ICMPNE, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfIcmpltInstr(IfIcmpltInstrContext ctx) {
+        resolveJump(Opcodes.IF_ICMPLT, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfIcmpgeInstr(IfIcmpgeInstrContext ctx) {
+        resolveJump(Opcodes.IF_ICMPGE, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfIcmpgtInstr(IfIcmpgtInstrContext ctx) {
+        resolveJump(Opcodes.IF_ICMPGT, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfIcmpleInstr(IfIcmpleInstrContext ctx) {
+        resolveJump(Opcodes.IF_ICMPLE, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfAcmpeqInstr(IfAcmpeqInstrContext ctx) {
+        resolveJump(Opcodes.IF_ACMPEQ, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfAcmpneInstr(IfAcmpneInstrContext ctx) {
+        resolveJump(Opcodes.IF_ACMPNE, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitGotoInstr(GotoInstrContext ctx) {
+        resolveJump(Opcodes.GOTO, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitJsrInstr(JsrInstrContext ctx) {
+        resolveJump(Opcodes.JSR, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfnullInstr(IfnullInstrContext ctx) {
+        resolveJump(Opcodes.IFNULL, ctx.dst);
+        return null;
+    }
+
+    @Override
+    public Object visitIfnonnullInstr(IfnonnullInstrContext ctx) {
+        resolveJump(Opcodes.IFNONNULL, ctx.dst);
+        return null;
+    }
+
+    private void resolveJump(int opcode, LabelContext labelCtx) {
+        var labelName = visitLabel(labelCtx);
+        var promise = labelTracker.getLabel(labelName);
+        defer(m -> m.visitJumpInsn(opcode, promise.resolve()));
+    }
+
+    //endregion jump instructions
+
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
         return new TypeVisitor(errorListener).visitDescriptor(ctx);
@@ -1100,6 +1240,19 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var raw = ctx.getText();
         var reduced = raw.substring(1, raw.length() - 1);
         return StringEscapeUtils.unescapeJava(reduced);
+    }
+
+    @Override
+    public String visitLabel(LabelContext ctx) {
+        return ctx.name.getText();
+    }
+
+    @Override
+    public Object visitLabelDef(LabelDefContext ctx) {
+        var name = visitLabel(ctx.label());
+        var promise = labelTracker.getLabel(name);
+        defer(m -> m.visitLabel(promise.resolve()));
+        return null;
     }
 
     private void defer(Consumer<MethodVisitor> action) {

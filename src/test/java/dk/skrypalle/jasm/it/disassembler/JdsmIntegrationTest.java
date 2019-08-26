@@ -38,15 +38,25 @@ public class JdsmIntegrationTest {
         return asObjectArray(
                 "abstract_method",
                 "constructor",
+                "double_for_loop",
                 "doubles",
                 "floats",
+                "for_loop",
+                "if_int_eq",
+                "if_int_ge",
+                "if_int_gt",
+                "if_int_le",
+                "if_int_lt",
                 "integers",
                 "local_vars",
                 "longs",
                 "math_max",
                 "mixed_descriptor",
+                "overwrite_a0",
+                "overwrite_i0",
                 "print_main_args",
-                "static_field"
+                "static_field",
+                "while_loop"
         );
     }
 

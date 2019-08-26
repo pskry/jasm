@@ -18,6 +18,7 @@
 package dk.skrypalle.jasm.it.util;
 
 import dk.skrypalle.jasm.disassembler.Disassembly;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.AbstractAssert;
 
 import java.util.regex.Pattern;
@@ -80,15 +81,17 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
         var buf = new StringBuilder();
         var normalized = jasmSource.replace("\r\n", "\n");
 
-        for (String line : normalized.split("\\n")) {
-            var chars = line.toCharArray();
-            for (char c : chars) {
-                if (c == '#') {
-                    break;
-                }
-                buf.append(c);
+        for (var line : normalized.split("\\n")) {
+            String toAppend;
+            var commentStart = line.indexOf('#');
+            if (commentStart == -1) {
+                // no comment in line
+                toAppend = line;
+            } else {
+                toAppend = line.substring(0, commentStart);
             }
-            buf.append('\n');
+
+            buf.append(StringUtils.stripEnd(toAppend, null)).append('\n');
         }
         return buf.toString();
     }

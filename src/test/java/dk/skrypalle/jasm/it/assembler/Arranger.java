@@ -17,6 +17,8 @@
  */
 package dk.skrypalle.jasm.it.assembler;
 
+import java.util.stream.Stream;
+
 class Arranger {
 
     static Stage1 assembling(String testName) {
@@ -34,8 +36,11 @@ class Arranger {
             return withArgs().shouldPrint(expectedStdOut);
         }
 
-        Stage2 withArgs(String... args) {
-            return new Stage2(this, args);
+        Stage2 withArgs(Object... args) {
+            var strings = Stream.of(args)
+                    .map(Object::toString)
+                    .toArray(String[]::new);
+            return new Stage2(this, strings);
         }
     }
 

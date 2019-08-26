@@ -18,17 +18,20 @@
 package dk.skrypalle.jasm.disassembler;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 class DisassemblerMethodVisitor extends MethodVisitor {
 
     private final MethodSpec methodSpec;
+    private final LabelTracker labelTracker;
 
     DisassemblerMethodVisitor() {
         super(Opcodes.ASM7);
 
         methodSpec = new MethodSpec();
+        labelTracker = new LabelTracker();
     }
 
     MethodSpec getMethodSpec() {
@@ -380,6 +383,62 @@ class DisassemblerMethodVisitor extends MethodVisitor {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+        var labelName = labelTracker.useLabel(label);
+        var jump = parseJumpInsn(opcode);
+        methodSpec.addInstruction(() -> "  " + jump + " " + labelName.resolve());
+    }
+
+    private String parseJumpInsn(int opcode) {
+        switch (opcode) {
+            case Opcodes.IFEQ:
+                return "ifeq";
+            case Opcodes.IFNE:
+                return "ifne";
+            case Opcodes.IFLT:
+                return "iflt";
+            case Opcodes.IFGE:
+                return "ifge";
+            case Opcodes.IFGT:
+                return "ifgt";
+            case Opcodes.IFLE:
+                return "ifle";
+            case Opcodes.IF_ICMPEQ:
+                return "if_icmpeq";
+            case Opcodes.IF_ICMPNE:
+                return "if_icmpne";
+            case Opcodes.IF_ICMPLT:
+                return "if_icmplt";
+            case Opcodes.IF_ICMPGE:
+                return "if_icmpge";
+            case Opcodes.IF_ICMPGT:
+                return "if_icmpgt";
+            case Opcodes.IF_ICMPLE:
+                return "if_icmple";
+            case Opcodes.IF_ACMPEQ:
+                return "if_acmpeq";
+            case Opcodes.IF_ACMPNE:
+                return "if_acmpne";
+            case Opcodes.GOTO:
+                return "goto";
+            case Opcodes.JSR:
+                return "jsr";
+            case Opcodes.IFNULL:
+                return "ifnull";
+            case Opcodes.IFNONNULL:
+                return "ifnonnull";
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    @Override
+    public void visitLabel(Label label) {
+        var labelName = labelTracker.defineLabel(label);
+        methodSpec.addLabel(labelName);
     }
 
     @Override

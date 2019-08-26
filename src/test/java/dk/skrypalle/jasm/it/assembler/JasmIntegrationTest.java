@@ -39,16 +39,26 @@ public class JasmIntegrationTest {
         return new Object[][]{
                 assembling("abstract_method").shouldPrint("abstract"),
                 assembling("constructor").shouldPrint("\"Hello\""),
+                assembling("double_for_loop").shouldPrint("0\n1\n2\n3\n4\n5\n6\n7\n8\n"),
                 assembling("doubles").shouldPrint("0.0\n1.0\n23.1\n2310.0\n0.231\n"),
                 assembling("floats").shouldPrint("0.0\n1.0\n2.0\n23.1\n2310.0\n0.231\n"),
+                assembling("for_loop").shouldPrint("0\n1\n2\n3\n4\n"),
+                assembling("if_int_eq").shouldPrint("0==0\n1==1\n"),
+                assembling("if_int_ge").shouldPrint("0>=0\n0>=-1\n1>=0\n1>=1\n1>=-1\n"),
+                assembling("if_int_gt").shouldPrint("0>-1\n1>0\n1>-1\n"),
+                assembling("if_int_le").shouldPrint("0<=0\n0<=1\n1<=1\n"),
+                assembling("if_int_lt").shouldPrint("0<1\n"),
                 assembling("integers").shouldPrint("0\n1\n2\n3\n4\n5\n-1\n-128\n127\n-32768\n32767\n-2147483648\n2147483647\n"),
                 assembling("local_vars").shouldPrint("2310"),
                 assembling("longs").shouldPrint("0\n1\n-9223372036854775808\n9223372036854775807\n"),
                 assembling("math_max").shouldPrint("2"),
                 assembling("mixed_descriptor").shouldPrint("12OneTwo"),
                 assembling("no_newline_at_end_of_file").shouldPrint("WorksWithoutNewlineAtTheEndOfTheFile"),
+                assembling("overwrite_a0").withArgs("arg0", "arg1").shouldPrint("[arg0, arg1]\nclass [Ljava.lang.String;\noverwrite_a0\nclass java.lang.String\n"),
+                assembling("overwrite_i0").withArgs("arg0", "arg1").shouldPrint("[arg0, arg1]\nclass [Ljava.lang.String;\n2310\n2310\nclass java.lang.Integer\n"),
                 assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
                 assembling("static_field").shouldPrint("2310"),
+                assembling("while_loop").shouldPrint("0\n1\n2\n3\n4\n"),
         };
         //checkstyle.on: LineLength
     }

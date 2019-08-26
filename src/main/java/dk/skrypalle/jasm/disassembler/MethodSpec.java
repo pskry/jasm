@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
+import dk.skrypalle.jasm.Promise;
 import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ class MethodSpec {
     private List<String> accessList;
     private String name;
     private String descriptor;
-    private List<String> instructionList;
+    private List<Promise<String>> instructions;
 
     void setAccess(int access) {
         accessList = parseMethodAccess(access);
@@ -79,6 +80,10 @@ class MethodSpec {
                 : accessSpec;
     }
 
+    String getName() {
+        return name;
+    }
+
     void setName(String name) {
         this.name = name;
     }
@@ -87,12 +92,24 @@ class MethodSpec {
         this.descriptor = descriptor;
     }
 
+    void addInstruction(Promise<String> instruction) {
+        add(instruction);
+    }
+
     void addInstruction(String instruction) {
-        if (instructionList == null) {
-            instructionList = new ArrayList<>();
+        add(() -> "  " + instruction);
+    }
+
+    void addLabel(String label) {
+        add(() -> label);
+    }
+
+    private void add(Promise<String> instruction) {
+        if (instructions == null) {
+            instructions = new ArrayList<>();
         }
 
-        instructionList.add(instruction);
+        instructions.add(instruction);
     }
 
     @Override
@@ -105,9 +122,10 @@ class MethodSpec {
             }
         }
         buf.append(name).append(descriptor).append('\n');
-        if (instructionList != null) {
-            for (String instruction : instructionList) {
-                buf.append("  ").append(instruction).append('\n');
+        if (instructions != null) {
+            for (var instruction : instructions) {
+                var resolved = instruction.resolve();
+                buf.append(resolved).append("\n");
             }
         }
 
