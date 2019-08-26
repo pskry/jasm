@@ -17,22 +17,45 @@
  */
 package dk.skrypalle.jasm.it.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.testng.annotations.DataProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public final class TestDataProvider {
 
-    private static final String JDK_VERSION = "se12";
+    private static final int[] SUPPORTED_JDK_VERSIONS = {12};
+    private static final Pattern JDK_VERSION_PATTERN = Pattern.compile("(se|se_)?(?<int>[0-9]+)");
 
     @DataProvider(parallel = true)
     public static Object[][] provideJdkClassNames() throws Exception {
-        var path = TestUtil.getResourcePath("/dk/skrypalle/jasm/it/jdk/" + JDK_VERSION + ".txt");
+        var path = TestUtil.getResourcePath(String.format(
+                "/dk/skrypalle/jasm/it/jdk/%s.txt",
+                parseJdkVersion()
+        ));
         var lines = Files.readString(path).split("\\n");
         return Stream.of(lines)
+                .map(StringUtils::trimToNull)
+                .filter(Objects::nonNull)
+                .map(className -> new Object[]{className})
+                .toArray(Object[][]::new);
+    }
+
+    @DataProvider(parallel = true)
+    public static Object[][] provideWorkingJdkClassNames() throws Exception {
+        var path = TestUtil.getResourcePath(String.format(
+                "/dk/skrypalle/jasm/it/jdk/%s_working.txt",
+                parseJdkVersion()
+        ));
+        var lines = Files.readString(path).split("\\n");
+        return Stream.of(lines)
+                .map(StringUtils::trimToNull)
+                .filter(Objects::nonNull)
                 .map(className -> new Object[]{className})
                 .toArray(Object[][]::new);
     }
@@ -42,6 +65,37 @@ public final class TestDataProvider {
         return ResourceLocator.locateResources(".*assembler[/|\\\\][^/|\\\\]+\\.jasm$").stream()
                 .map(path -> new Object[]{Paths.get(path)})
                 .toArray(Object[][]::new);
+    }
+
+    private static String parseJdkVersion() {
+        var defaultValue = String.format("se%d", SUPPORTED_JDK_VERSIONS[0]);
+        var propertyValue = System.getProperty("testJdkVersion", defaultValue);
+
+        var matcher = JDK_VERSION_PATTERN.matcher(propertyValue);
+        if (!matcher.matches()) {
+            throw unsupportedJdkVersion(propertyValue);
+        }
+
+        try {
+
+            var intVal = Integer.decode(matcher.group("int"));
+            for (int supportedJdkVersion : SUPPORTED_JDK_VERSIONS) {
+                if (supportedJdkVersion == intVal) {
+                    return String.format("se%d", intVal);
+                }
+            }
+
+            throw unsupportedJdkVersion(propertyValue);
+        } catch (Throwable t) {
+            throw unsupportedJdkVersion(propertyValue);
+        }
+    }
+
+    private static IllegalArgumentException unsupportedJdkVersion(String propertyValue) {
+        return new IllegalArgumentException(String.format(
+                "jdk version %s is not supported",
+                propertyValue
+        ));
     }
 
     private TestDataProvider() { /* static utility */ }

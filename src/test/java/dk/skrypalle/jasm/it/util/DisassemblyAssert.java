@@ -77,6 +77,18 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
         return myself;
     }
 
+    @Override
+    public DisassemblyAssert isEqualTo(Object expected) {
+        if (expected.getClass() == Disassembly.class) {
+            var expectedDisassembly = (Disassembly) expected;
+            hasJvmClassName(expectedDisassembly.getJvmClassName());
+            hasSourceEquivalentTo(expectedDisassembly.getJasmSourceCode());
+            return myself;
+        }
+
+        return super.isEqualTo(expected);
+    }
+
     private String removeComments(String jasmSource) {
         var buf = new StringBuilder();
         var normalized = jasmSource.replace("\r\n", "\n");

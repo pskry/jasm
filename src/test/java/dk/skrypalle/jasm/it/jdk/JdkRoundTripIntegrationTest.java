@@ -17,13 +17,13 @@
  */
 package dk.skrypalle.jasm.it.jdk;
 
-import dk.skrypalle.jasm.assembler.Assembler;
 import dk.skrypalle.jasm.assembler.Assemblers;
-import dk.skrypalle.jasm.disassembler.Disassembler;
+import dk.skrypalle.jasm.assembler.Assembly;
 import dk.skrypalle.jasm.disassembler.Disassemblers;
 import dk.skrypalle.jasm.disassembler.Disassembly;
 import dk.skrypalle.jasm.it.assembler.JasmAssertingErrorListener;
 import dk.skrypalle.jasm.it.disassembler.JdsmAssertingErrorListener;
+import dk.skrypalle.jasm.it.util.TestAssertions;
 import dk.skrypalle.jasm.it.util.TestDataProvider;
 import dk.skrypalle.jasm.it.util.TestUtil;
 import org.testng.annotations.DataProvider;
@@ -37,7 +37,6 @@ public class JdkRoundTripIntegrationTest {
 
     @DataProvider
     public static Object[][] provideSpecificJdkClassNames() {
-        // empty for now since we cannot compile the whole JVM instruction set yet.
         return Stream.of(
         )
                 .map(className -> new Object[]{className})
@@ -45,7 +44,15 @@ public class JdkRoundTripIntegrationTest {
     }
 
     @Test(dataProvider = "provideSpecificJdkClassNames")
-    public void roundTrip(String className) throws Exception {
+    public void roundTrip(String className) {
+        runRoundTrip(className);
+    }
+
+    @Test(
+            dataProviderClass = TestDataProvider.class,
+            dataProvider = "provideWorkingJdkClassNames"
+    )
+    public void roundTripWorkingJdkClass(String className) {
         runRoundTrip(className);
     }
 
@@ -54,18 +61,31 @@ public class JdkRoundTripIntegrationTest {
             dataProvider = "provideJdkClassNames",
             enabled = false
     )
-    public void roundTripJdkClass(String className) throws Exception {
+    public void roundTripJdkClass(String className) {
         runRoundTrip(className);
     }
 
-    private void runRoundTrip(String className) throws Exception {
-        // disassembly::arrange
-        var dsm = getDisassembler(className);
+    private void runRoundTrip(String className) {
+        var disassembly = disassemble(className);
+        var assembly = assemble(disassembly);
+        var roundTripDisassembly = disassemble(assembly);
 
-        // disassembly::act
+        TestAssertions.assertThat(roundTripDisassembly)
+                .isEqualTo(disassembly);
+    }
+
+    private Disassembly disassemble(String className) {
+        // arrange
+        var dsm = Disassemblers.fromClassName(
+                className,
+                new JdsmAssertingErrorListener(),
+                true
+        );
+
+        // act
         var disassembly = dsm.disassemble();
 
-        // disassembly::assert
+        // assert
         var jvmClassName = TestUtil.toJvmClassName(className);
         var regexSafeJvmClassName = TestUtil.escapeJvmClassNameForRegex(jvmClassName);
         assertThat(disassembly)
@@ -73,38 +93,50 @@ public class JdkRoundTripIntegrationTest {
                 .hasJvmClassName(jvmClassName)
                 .containsSourcePattern("\\.class.*" + regexSafeJvmClassName + "\\n");
 
-        // assembly::arrange
-        var asm = getAssembler(disassembly);
-
-        // assembly::act
-        var assembly = asm.assemble();
-
-        // assembly::assert
-        assertThat(assembly)
-                .as("assembly not expected to be null")
-                .isNotNull();
-
-        // assert
-        var actualBinaryClassFile = TestUtil.readClass(className);
-        assertThat(assembly)
-                .isBinaryEqualTo(actualBinaryClassFile);
+        return disassembly;
     }
 
-    private Disassembler getDisassembler(String className) {
-        return Disassemblers.fromClassName(
-                className,
+    private Disassembly disassemble(Assembly assembly) {
+        // arrange
+        var dsm = Disassemblers.fromBinary(
+                assembly.getBinaryData(),
+                assembly.getJvmClassName(),
                 new JdsmAssertingErrorListener(),
                 true
         );
+
+        // act
+        var disassembly = dsm.disassemble();
+
+        // assert
+        var jvmClassName = assembly.getJvmClassName();
+        var regexSafeJvmClassName = TestUtil.escapeJvmClassNameForRegex(jvmClassName);
+        assertThat(disassembly)
+                .isNotNull()
+                .hasJvmClassName(jvmClassName)
+                .containsSourcePattern("\\.class.*" + regexSafeJvmClassName + "\\n");
+
+        return disassembly;
     }
 
-    private Assembler getAssembler(Disassembly disassembly) {
-        return Assemblers.fromString(
+    private Assembly assemble(Disassembly disassembly) {
+        // arrange
+        var asm = Assemblers.fromString(
                 disassembly.getJasmSourceCode(),
                 disassembly.getJvmClassName(),
                 new JasmAssertingErrorListener(),
                 true
         );
+
+        // act
+        var assembly = asm.assemble();
+
+        // assert
+        assertThat(assembly)
+                .as("assembly not expected to be null")
+                .isNotNull();
+
+        return assembly;
     }
 
 }
