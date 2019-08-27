@@ -100,8 +100,8 @@ class MethodSpec {
         add(() -> "  " + instruction);
     }
 
-    void addLabel(String label) {
-        add(() -> label);
+    void addLabel(Promise<String> label) {
+        add(label);
     }
 
     private void add(Promise<String> instruction) {
@@ -125,7 +125,9 @@ class MethodSpec {
         if (instructions != null) {
             for (var instruction : instructions) {
                 var resolved = instruction.resolve();
-                buf.append(resolved).append("\n");
+                if (resolved != null) {
+                    buf.append(resolved).append("\n");
+                }
             }
         }
 

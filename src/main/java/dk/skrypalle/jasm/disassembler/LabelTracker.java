@@ -17,71 +17,68 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
-import dk.skrypalle.jasm.LabelUtils;
 import dk.skrypalle.jasm.Promise;
 import org.objectweb.asm.Label;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 class LabelTracker {
 
-    private final Map<Integer, String> labelDefs;
-    private final Map<Integer, String> labelNames;
+    private final List<Label> definedLabels;
+    private final List<Label> usedLabels;
 
     LabelTracker() {
-        labelDefs = new HashMap<>();
-        labelNames = new HashMap<>();
+        definedLabels = new ArrayList<>();
+        usedLabels = new ArrayList<>();
     }
 
     Promise<String> useLabel(Label label) {
-        var id = System.identityHashCode(label);
-        return () -> labelNames.get(id);
+        if (!usedLabels.contains(label)) {
+            usedLabels.add(label);
+        }
+
+        return () -> {
+            int labelNumber = getLabelNumber(label);
+            if (labelNumber == -1) {
+                throw new IllegalStateException("use of undefined label");
+            }
+            return refLabel(labelNumber);
+        };
     }
 
-    String defineLabel(Label label) {
-        var id = System.identityHashCode(label);
-        var labelName = labelDefs.get(id);
-        if (labelName == null) {
-            var num = labelDefs.size();
-            labelName = String.format(
-                    "label_%d:%s",
-                    num,
-                    flagsToString(label)
-            );
-            labelDefs.put(id, labelName);
-            labelNames.put(id, String.format("label_%d", num));
+    Promise<String> defineLabel(Label label) {
+        if (!definedLabels.contains(label)) {
+            definedLabels.add(label);
         }
 
-        return labelName;
+        return () -> {
+            int labelNumber = getLabelNumber(label);
+            return labelNumber >= 0
+                    ? defLabel(labelNumber)
+                    : null;
+        };
     }
 
-    private String flagsToString(Label label) {
-        if (!LabelUtils.isLabelUtilAvailable()) {
-            return "";
+    private int getLabelNumber(Label label) {
+        var i = 0;
+        for (Label definedLabel : definedLabels) {
+            if (usedLabels.contains(definedLabel)) {
+                if (definedLabel == label) {
+                    return i;
+                }
+                i++;
+            }
         }
+        return -1;
+    }
 
-        var flagNames = new ArrayList<String>();
-        if (LabelUtils.isDebug(label)) {
-            flagNames.add("debug");
-        }
-        if (LabelUtils.isJumpTarget(label)) {
-            flagNames.add("jump_target");
-        }
-        if (LabelUtils.isResolved(label)) {
-            flagNames.add("resolved");
-        }
-        if (LabelUtils.isReachable(label)) {
-            flagNames.add("reachable");
-        }
+    private static String refLabel(int number) {
+        return String.format("label_%d", number);
+    }
 
-        if (flagNames.isEmpty()) {
-            return "";
-        }
-
-        var flags = String.join(", ", flagNames);
-        return String.format(" # flags: %s (0x%04x)", flags, LabelUtils.getFlags(label));
+    private static String defLabel(int number) {
+        return String.format("label_%d:", number);
     }
 
 }

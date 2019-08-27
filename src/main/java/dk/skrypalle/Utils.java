@@ -44,48 +44,4 @@ public final class Utils {
         return new String(out.toByteArray(), StandardCharsets.UTF_8);
     }
 
-    /**
-     * Accesses a given instance field via reflection.
-     *
-     * <p>If any problem occurred during the operation, the method returns {@code null}.
-     *
-     * @param owner     the owner of the field to access
-     * @param fieldName the name of the field to read
-     * @param <T>       the type of the field to read
-     * @return the field value, null if any error
-     */
-    public static <T> T readField(Object owner, String fieldName) {
-        try {
-            var field = owner.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            var t = (T) field.get(owner);
-            return t;
-        } catch (Throwable t) {
-            return null;
-        }
-    }
-
-    /**
-     * Accesses a given static field via reflection.
-     *
-     * <p>If any problem occurred during the operation, the method returns {@code null}.
-     *
-     * @param ownerClass the owner class of the field to access
-     * @param fieldName  the name of the field to read
-     * @param <T>        the type of the field to read
-     * @return the field value, null if any error
-     */
-    public static <T> T readField(Class<?> ownerClass, String fieldName) {
-        try {
-            var field = ownerClass.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            var t = (T) field.get(null);
-            return t;
-        } catch (Throwable t) {
-            return null;
-        }
-    }
-
 }

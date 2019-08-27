@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
-import dk.skrypalle.jasm.LabelUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -438,10 +437,6 @@ class DisassemblerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitLabel(Label label) {
-        if (LabelUtils.isLabelUtilAvailable() && LabelUtils.isDebug(label)) {
-            return;
-        }
-
         var labelName = labelTracker.defineLabel(label);
         methodSpec.addLabel(labelName);
     }
