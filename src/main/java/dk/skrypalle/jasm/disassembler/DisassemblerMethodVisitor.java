@@ -488,4 +488,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         }
     }
 
+    @Override
+    public void visitIincInsn(int var, int increment) {
+        methodSpec.addInstruction(String.format("iinc %d %d", var, increment));
+    }
+
 }

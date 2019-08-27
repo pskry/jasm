@@ -1200,7 +1200,6 @@ java.util.concurrent.ThreadPoolExecutor$DiscardPolicy
 java.util.concurrent.TimeoutException
 java.util.concurrent.TransferQueue
 java.util.concurrent.atomic.AtomicInteger
-java.util.concurrent.atomic.AtomicInteger
 java.util.concurrent.atomic.AtomicIntegerFieldUpdater
 java.util.concurrent.atomic.AtomicLong
 java.util.concurrent.atomic.AtomicLongFieldUpdater
@@ -1335,6 +1334,7 @@ javax.imageio.spi.ServiceRegistry$Filter
 javax.imageio.stream.IIOByteBuffer
 javax.imageio.stream.ImageInputStream
 javax.imageio.stream.ImageOutputStream
+javax.imageio.stream.ImageOutputStreamImpl
 javax.lang.model.UnknownEntityException
 javax.lang.model.element.AnnotationMirror
 javax.lang.model.element.AnnotationValue
@@ -1830,6 +1830,7 @@ javax.swing.JTable$DropLocation
 javax.swing.JToggleButton$ToggleButtonModel
 javax.swing.JTree$DropLocation
 javax.swing.JTree$EmptySelectionModel
+javax.swing.LayoutFocusTraversalPolicy
 javax.swing.ListModel
 javax.swing.ListSelectionModel
 javax.swing.MenuElement

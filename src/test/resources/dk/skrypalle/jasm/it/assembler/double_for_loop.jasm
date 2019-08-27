@@ -42,16 +42,10 @@ label_1:
   iload 2
   iadd  # i*3 + j
   invokevirtual java/io/PrintStream.println:(I)V
-  iload 2
-  ldc 1
-  iadd
-  istore 2
+  iinc 2 1
   goto label_1
 label_2:
-  iload 1
-  ldc 1
-  iadd
-  istore 1
+  iinc 1 1
   goto label_0
 label_3:
   return

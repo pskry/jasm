@@ -32,10 +32,7 @@ label_0:
   getstatic java/lang/System.out:Ljava/io/PrintStream;
   iload 1
   invokevirtual java/io/PrintStream.println:(I)V
-  iload 1
-  ldc 1
-  iadd
-  istore 1
+  iinc 1 1
   goto label_0
 label_1:
   return

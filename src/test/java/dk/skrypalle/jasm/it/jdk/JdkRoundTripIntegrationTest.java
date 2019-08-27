@@ -29,11 +29,64 @@ import dk.skrypalle.jasm.it.util.TestUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dk.skrypalle.jasm.it.util.TestAssertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class JdkRoundTripIntegrationTest {
+
+    @Test
+    public void updateWorkingJdkClassesIfNoRegression() throws Exception {
+        var allJdkClasses = Stream.of(TestDataProvider.provideJdkClassNames())
+                .map(array -> array[0])
+                .map(Object::toString)
+                .sorted()
+                .collect(Collectors.toList());
+
+        var newWorkingJdkClasses = new ArrayList<String>();
+        for (String jdkClass : allJdkClasses) {
+            try {
+
+                runRoundTrip(jdkClass);
+                newWorkingJdkClasses.add(jdkClass);
+
+            } catch (Throwable t) {
+                // ignore
+            }
+        }
+
+        var sortedNewWorkingJdkClasses = newWorkingJdkClasses.stream()
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+
+        var previouslyWorkingJdkClasses = Stream.of(TestDataProvider.provideWorkingJdkClassNames())
+                .map(array -> array[0])
+                .map(Object::toString)
+                .sorted()
+                .collect(Collectors.toList());
+
+        for (String previouslyWorkingJdkClass : previouslyWorkingJdkClasses) {
+            if (!newWorkingJdkClasses.contains(previouslyWorkingJdkClass)) {
+                // we have broken something.
+                fail(
+                        "previously working jdk class %s is now broken",
+                        previouslyWorkingJdkClass
+                );
+            }
+        }
+
+        Files.write(
+                Paths.get("src/test/resources/dk/skrypalle/jasm/it/jdk/se12_working.txt"),
+                sortedNewWorkingJdkClasses
+        );
+    }
 
     @DataProvider
     public static Object[][] provideSpecificJdkClassNames() {

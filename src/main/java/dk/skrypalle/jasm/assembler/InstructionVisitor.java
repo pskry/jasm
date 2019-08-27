@@ -96,6 +96,7 @@ import dk.skrypalle.jasm.generated.JasmParser.IfltInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IfneInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IfnonnullInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IfnullInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.IincInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.ImulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.InegInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.InstanceofInstrContext;
@@ -1224,6 +1225,15 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     }
 
     //endregion jump instructions
+
+
+    @Override
+    public Object visitIincInstr(IincInstrContext ctx) {
+        int var = Integer.decode(ctx.var.getText());
+        int inc = Integer.decode(ctx.inc.getText());
+        defer(m -> m.visitIincInsn(var, inc));
+        return null;
+    }
 
     @Override
     public String visitDescriptor(DescriptorContext ctx) {

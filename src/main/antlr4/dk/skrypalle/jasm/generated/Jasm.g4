@@ -235,6 +235,8 @@ instruction
     | 'jsr'              dst=label                                      #JsrInstr
     | 'ifnull'           dst=label                                      #IfnullInstr
     | 'ifnonnull'        dst=label                                      #IfnonnullInstr
+
+    | 'iinc'             var=INTEGER inc=INTEGER                        #IincInstr
     ;
 
 label
