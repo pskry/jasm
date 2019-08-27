@@ -86,7 +86,7 @@ argList
     ;
 
 instructionList
-    : ((instruction|labelDef)? EOL)+
+    : ((instruction|labelDef|lookupSwitch)? EOL)+
     ;
 
 instruction
@@ -245,6 +245,21 @@ label
 
 labelDef
     : label ':'
+    ;
+
+lookupSwitch
+    : 'lookupswitch' EOL+
+      (lookupTarget? EOL)*
+      defaultTarget EOL+
+      'endswitch'
+    ;
+
+lookupTarget
+    : val=INTEGER ':' dst=label
+    ;
+
+defaultTarget
+    : 'default' ':' dst=label
     ;
 
 fieldSpec

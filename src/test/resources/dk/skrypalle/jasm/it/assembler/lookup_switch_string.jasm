@@ -1,0 +1,75 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright © 2018 Peter Skrypalle
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+.bytecode 56.0
+.source "lookup_switch_int.jasm"
+.class public final dk/skrypalle/jasm/it/assembler/LookupSwitchString
+.super java/lang/Object
+
+# prints 'a\nb\n' to stdout
+.method public static main([Ljava/lang/String;)V
+  ldc "a"
+  invokestatic dk/skrypalle/jasm/it/assembler/LookupSwitchString.doSwitch:(Ljava/lang/String;)V
+  ldc "b"
+  invokestatic dk/skrypalle/jasm/it/assembler/LookupSwitchString.doSwitch:(Ljava/lang/String;)V
+  ldc "c"
+  invokestatic dk/skrypalle/jasm/it/assembler/LookupSwitchString.doSwitch:(Ljava/lang/String;)V
+  return
+.end method
+
+.method private static doSwitch(Ljava/lang/String;)V
+  aload 0
+  astore 1
+  ldc -1
+  istore 2
+  aload 1
+  invokevirtual java/lang/String.hashCode:()I
+  lookupswitch
+         97: label_0
+         98: label_1
+    default: label_2
+  endswitch
+label_0:
+  aload 1
+  ldc "a"
+  invokevirtual java/lang/String.equals:(Ljava/lang/Object;)Z
+  ifeq label_2
+  ldc 0
+  istore 2
+  goto label_2
+label_1:
+  aload 1
+  ldc "b"
+  invokevirtual java/lang/String.equals:(Ljava/lang/Object;)Z
+  ifeq label_2
+  ldc 1
+  istore 2
+label_2:
+  iload 2
+  lookupswitch
+          0: label_3
+          1: label_3
+    default: label_4
+  endswitch
+label_3:
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  aload 0
+  invokevirtual java/io/PrintStream.println:(Ljava/lang/String;)V
+label_4:
+  return
+.end method

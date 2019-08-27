@@ -50,6 +50,8 @@ public class JdsmIntegrationTest {
                 "integers",
                 "local_vars",
                 "longs",
+                "lookup_switch_int",
+                "lookup_switch_string",
                 "math_max",
                 "mixed_descriptor",
                 "overwrite_a0",

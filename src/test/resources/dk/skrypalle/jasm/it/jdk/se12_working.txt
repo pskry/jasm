@@ -429,6 +429,7 @@ java.awt.dnd.DropTargetListener
 java.awt.dnd.InvalidDnDOperationException
 java.awt.event.AWTEventListener
 java.awt.event.AWTEventListenerProxy
+java.awt.event.ActionEvent
 java.awt.event.ActionListener
 java.awt.event.AdjustmentListener
 java.awt.event.ComponentAdapter
@@ -449,6 +450,8 @@ java.awt.event.MouseListener
 java.awt.event.MouseMotionAdapter
 java.awt.event.MouseMotionListener
 java.awt.event.MouseWheelListener
+java.awt.event.PaintEvent
+java.awt.event.TextEvent
 java.awt.event.TextListener
 java.awt.event.WindowAdapter
 java.awt.event.WindowFocusListener
@@ -1021,6 +1024,7 @@ java.security.interfaces.XECKey
 java.security.interfaces.XECPrivateKey
 java.security.interfaces.XECPublicKey
 java.security.spec.AlgorithmParameterSpec
+java.security.spec.DSAGenParameterSpec
 java.security.spec.DSAParameterSpec
 java.security.spec.DSAPrivateKeySpec
 java.security.spec.DSAPublicKeySpec
@@ -2072,6 +2076,7 @@ javax.swing.text.AttributeSet$ParagraphAttribute
 javax.swing.text.BadLocationException
 javax.swing.text.Caret
 javax.swing.text.ChangedCharSetException
+javax.swing.text.ComponentView
 javax.swing.text.DefaultEditorKit$BeepAction
 javax.swing.text.DefaultEditorKit$CopyAction
 javax.swing.text.DefaultEditorKit$CutAction
@@ -2089,6 +2094,7 @@ javax.swing.text.Element
 javax.swing.text.Highlighter
 javax.swing.text.Highlighter$Highlight
 javax.swing.text.Highlighter$HighlightPainter
+javax.swing.text.IconView
 javax.swing.text.JTextComponent$DropLocation
 javax.swing.text.JTextComponent$KeyBinding
 javax.swing.text.Keymap
@@ -2119,6 +2125,7 @@ javax.swing.text.html.HTML$UnknownTag
 javax.swing.text.html.HTMLDocument$Iterator
 javax.swing.text.html.HTMLEditorKit$Parser
 javax.swing.text.html.HTMLEditorKit$ParserCallback
+javax.swing.text.html.ListView
 javax.swing.text.html.Option
 javax.swing.text.html.ParagraphView
 javax.swing.text.html.parser.DTDConstants

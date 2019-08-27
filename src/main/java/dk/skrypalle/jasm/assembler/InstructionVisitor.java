@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.jasm.assembler;
 
+import dk.skrypalle.jasm.Promise;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmParser.AaloadInstrContext;
@@ -40,6 +41,7 @@ import dk.skrypalle.jasm.generated.JasmParser.DastoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.DcmpgInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.DcmplInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.DdivInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.DefaultTargetContext;
 import dk.skrypalle.jasm.generated.JasmParser.DloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.DmulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.DnegInstrContext;
@@ -126,6 +128,8 @@ import dk.skrypalle.jasm.generated.JasmParser.LdivInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LmulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LnegInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LookupSwitchContext;
+import dk.skrypalle.jasm.generated.JasmParser.LookupTargetContext;
 import dk.skrypalle.jasm.generated.JasmParser.LorInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LremInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LreturnInstrContext;
@@ -148,6 +152,7 @@ import dk.skrypalle.jasm.generated.JasmParser.SastoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.SwapInstrContext;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.text.StringEscapeUtils;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -156,6 +161,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static dk.skrypalle.jasm.generated.JasmParser.AloadInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.DescriptorContext;
@@ -1226,13 +1232,48 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     //endregion jump instructions
 
-
     @Override
     public Object visitIincInstr(IincInstrContext ctx) {
         int var = Integer.decode(ctx.var.getText());
         int inc = Integer.decode(ctx.inc.getText());
         defer(m -> m.visitIincInsn(var, inc));
         return null;
+    }
+
+    @Override
+    public Void visitLookupSwitch(LookupSwitchContext ctx) {
+        var targets = ctx.lookupTarget().stream()
+                .map(this::visitLookupTarget)
+                .collect(Collectors.toList());
+        var defaultDst = visitDefaultTarget(ctx.defaultTarget());
+
+        defer(m -> {
+            var keys = targets.stream()
+                    .mapToInt(LookupSwitchTarget::getKey)
+                    .toArray();
+            var labels = targets.stream()
+                    .map(LookupSwitchTarget::getLabelPromise)
+                    .map(Promise::resolve)
+                    .toArray(Label[]::new);
+
+            m.visitLookupSwitchInsn(defaultDst.resolve(), keys, labels);
+        });
+
+        return null;
+    }
+
+    @Override
+    public LookupSwitchTarget visitLookupTarget(LookupTargetContext ctx) {
+        var val = Integer.decode(ctx.val.getText());
+        var labelName = visitLabel(ctx.dst);
+        var labelPromise = labelTracker.getLabel(labelName);
+        return new LookupSwitchTarget(val, labelPromise);
+    }
+
+    @Override
+    public Promise<Label> visitDefaultTarget(DefaultTargetContext ctx) {
+        var labelName = visitLabel(ctx.dst);
+        return labelTracker.getLabel(labelName);
     }
 
     @Override

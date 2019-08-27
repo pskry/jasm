@@ -493,4 +493,44 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         methodSpec.addInstruction(String.format("iinc %d %d", var, increment));
     }
 
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+        methodSpec.addInstruction("lookupswitch");
+        var maxKeyLength = findMaxLookupKeyLength(keys);
+
+        for (int i = 0; i < keys.length; i++) {
+            int index = i;
+            methodSpec.addInstruction(() -> String.format(
+                    "    %s: %s",
+                    indentLookupKey(maxKeyLength, keys[index]),
+                    labelTracker.useLabel(labels[index]).resolve()
+            ));
+        }
+        methodSpec.addInstruction(() -> String.format(
+                "    %s: %s",
+                indentDefaultLookupKey(maxKeyLength),
+                labelTracker.useLabel(dflt).resolve()
+        ));
+        methodSpec.addInstruction("endswitch");
+    }
+
+    private int findMaxLookupKeyLength(int[] keys) {
+        var maxKeyLength = "default".length();
+        for (int key : keys) {
+            var length = Integer.toString(key).length();
+            if (length > maxKeyLength) {
+                maxKeyLength = length;
+            }
+        }
+        return maxKeyLength;
+    }
+
+    private String indentLookupKey(int maxKeyLength, int key) {
+        return String.format("%" + maxKeyLength + "d", key);
+    }
+
+    private String indentDefaultLookupKey(int maxKeyLength) {
+        return String.format("%" + maxKeyLength + "s", "default");
+    }
+
 }
