@@ -150,6 +150,7 @@ import dk.skrypalle.jasm.generated.JasmParser.RetInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.SaloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.SastoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.SwapInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.TableSwitchContext;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.Label;
@@ -1274,6 +1275,47 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     public Promise<Label> visitDefaultTarget(DefaultTargetContext ctx) {
         var labelName = visitLabel(ctx.dst);
         return labelTracker.getLabel(labelName);
+    }
+
+    @Override
+    public Object visitTableSwitch(TableSwitchContext ctx) {
+        var targets = ctx.lookupTarget().stream()
+                .map(this::visitLookupTarget)
+                .collect(Collectors.toList());
+        var defaultDst = visitDefaultTarget(ctx.defaultTarget());
+
+        var keys = targets.stream()
+                .mapToInt(LookupSwitchTarget::getKey)
+                .toArray();
+        var min = min(keys);
+        var max = max(keys);
+
+        defer(m -> {
+            var labels = targets.stream()
+                    .map(LookupSwitchTarget::getLabelPromise)
+                    .map(Promise::resolve)
+                    .toArray(Label[]::new);
+
+            m.visitTableSwitchInsn(min, max, defaultDst.resolve(), labels);
+        });
+
+        return null;
+    }
+
+    private static int min(int[] keys) {
+        if (keys.length == 0) {
+            throw new IllegalStateException();
+        }
+
+        return keys[0];
+    }
+
+    private static int max(int[] keys) {
+        if (keys.length == 0) {
+            throw new IllegalStateException();
+        }
+
+        return keys[keys.length - 1];
     }
 
     @Override

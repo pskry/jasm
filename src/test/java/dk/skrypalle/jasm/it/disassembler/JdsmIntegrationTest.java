@@ -58,6 +58,7 @@ public class JdsmIntegrationTest {
                 "overwrite_i0",
                 "print_main_args",
                 "static_field",
+                "table_switch",
                 "while_loop"
         );
     }

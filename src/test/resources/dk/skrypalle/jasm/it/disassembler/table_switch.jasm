@@ -1,0 +1,66 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright © 2018 Peter Skrypalle
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+.bytecode 56.0
+.source "table_switch.jasm"
+.class public final dk/skrypalle/jasm/it/disassembler/TableSwitch
+.super java/lang/Object
+
+# prints 'zero\none\ntwo\n' to stdout
+.method public static main([Ljava/lang/String;)V
+  ldc -1
+  invokestatic dk/skrypalle/jasm/it/disassembler/TableSwitch.doSwitch:(I)V
+  ldc 0
+  invokestatic dk/skrypalle/jasm/it/disassembler/TableSwitch.doSwitch:(I)V
+  ldc 1
+  invokestatic dk/skrypalle/jasm/it/disassembler/TableSwitch.doSwitch:(I)V
+  ldc 2
+  invokestatic dk/skrypalle/jasm/it/disassembler/TableSwitch.doSwitch:(I)V
+  ldc 100
+  invokestatic dk/skrypalle/jasm/it/disassembler/TableSwitch.doSwitch:(I)V
+  ldc 200
+  invokestatic dk/skrypalle/jasm/it/disassembler/TableSwitch.doSwitch:(I)V
+  return
+.end method
+
+.method private static doSwitch(I)V
+  iload 0
+  tableswitch
+          0: label_0
+          1: label_1
+          2: label_2
+    default: label_3
+  endswitch
+label_0:
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  ldc "zero"
+  invokevirtual java/io/PrintStream.println:(Ljava/lang/String;)V
+  goto label_3
+label_1:
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  ldc "one"
+  invokevirtual java/io/PrintStream.println:(Ljava/lang/String;)V
+  goto label_3
+label_2:
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  ldc "two"
+  invokevirtual java/io/PrintStream.println:(Ljava/lang/String;)V
+  goto label_3
+label_3:
+  return
+.end method

@@ -514,6 +514,30 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         methodSpec.addInstruction("endswitch");
     }
 
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+        var maxKeyLength = Math.max("default".length(), Integer.toString(max).length());
+
+        methodSpec.addInstruction("tableswitch");
+        var j = 0;
+        for (int i = min; i <= max; i++) {
+            var key = i;
+            var labelIndex = j;
+            methodSpec.addInstruction(() -> String.format(
+                    "    %s: %s",
+                    indentLookupKey(maxKeyLength, key),
+                    labelTracker.useLabel(labels[labelIndex]).resolve()
+            ));
+            j++;
+        }
+        methodSpec.addInstruction(() -> String.format(
+                "    %s: %s",
+                indentDefaultLookupKey(maxKeyLength),
+                labelTracker.useLabel(dflt).resolve()
+        ));
+        methodSpec.addInstruction("endswitch");
+    }
+
     private int findMaxLookupKeyLength(int[] keys) {
         var maxKeyLength = "default".length();
         for (int key : keys) {

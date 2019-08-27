@@ -86,7 +86,7 @@ argList
     ;
 
 instructionList
-    : ((instruction|labelDef|lookupSwitch)? EOL)+
+    : ((instruction|labelDef|lookupSwitch|tableSwitch)? EOL)+
     ;
 
 instruction
@@ -260,6 +260,13 @@ lookupTarget
 
 defaultTarget
     : 'default' ':' dst=label
+    ;
+
+tableSwitch
+    : 'tableswitch' EOL+
+      (lookupTarget? EOL)*
+      defaultTarget EOL+
+      'endswitch'
     ;
 
 fieldSpec

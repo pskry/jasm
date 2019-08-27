@@ -60,6 +60,7 @@ public class JasmIntegrationTest {
                 assembling("overwrite_i0").withArgs("arg0", "arg1").shouldPrint("[arg0, arg1]\nclass [Ljava.lang.String;\n2310\n2310\nclass java.lang.Integer\n"),
                 assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
                 assembling("static_field").shouldPrint("2310"),
+                assembling("table_switch").shouldPrint("zero\none\ntwo\n"),
                 assembling("while_loop").shouldPrint("0\n1\n2\n3\n4\n"),
         };
         //checkstyle.on: LineLength

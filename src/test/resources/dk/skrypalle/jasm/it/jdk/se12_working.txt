@@ -666,6 +666,7 @@ java.lang.constant.Constable
 java.lang.constant.ConstantDesc
 java.lang.constant.ConstantDescs
 java.lang.constant.DirectMethodHandleDesc
+java.lang.constant.MethodHandleDesc
 java.lang.instrument.ClassDefinition
 java.lang.instrument.IllegalClassFormatException
 java.lang.instrument.Instrumentation
@@ -1143,6 +1144,7 @@ java.util.InputMismatchException
 java.util.IntSummaryStatistics
 java.util.Iterator
 java.util.LinkedHashSet
+java.util.List
 java.util.ListIterator
 java.util.Locale$LanguageRange
 java.util.LongSummaryStatistics
@@ -1159,6 +1161,7 @@ java.util.Queue
 java.util.RandomAccess
 java.util.ServiceConfigurationError
 java.util.ServiceLoader$Provider
+java.util.Set
 java.util.SortedMap
 java.util.SortedSet
 java.util.Spliterator
@@ -1519,12 +1522,14 @@ javax.naming.directory.InvalidAttributeValueException
 javax.naming.directory.InvalidAttributesException
 javax.naming.directory.InvalidSearchControlsException
 javax.naming.directory.InvalidSearchFilterException
+javax.naming.directory.ModificationItem
 javax.naming.directory.NoSuchAttributeException
 javax.naming.directory.SchemaViolationException
 javax.naming.directory.SearchResult
 javax.naming.event.EventContext
 javax.naming.event.EventDirContext
 javax.naming.event.NamespaceChangeListener
+javax.naming.event.NamingEvent
 javax.naming.event.NamingExceptionEvent
 javax.naming.event.NamingListener
 javax.naming.event.ObjectChangeListener
@@ -1686,6 +1691,7 @@ javax.security.auth.Refreshable
 javax.security.auth.callback.Callback
 javax.security.auth.callback.CallbackHandler
 javax.security.auth.callback.ChoiceCallback
+javax.security.auth.callback.ConfirmationCallback
 javax.security.auth.callback.LanguageCallback
 javax.security.auth.callback.NameCallback
 javax.security.auth.callback.TextInputCallback
@@ -2118,6 +2124,7 @@ javax.swing.text.StyledEditorKit$FontFamilyAction
 javax.swing.text.StyledEditorKit$ItalicAction
 javax.swing.text.StyledEditorKit$UnderlineAction
 javax.swing.text.TabExpander
+javax.swing.text.TabStop
 javax.swing.text.TabableView
 javax.swing.text.TextAction
 javax.swing.text.ViewFactory
