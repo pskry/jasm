@@ -17,7 +17,7 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.Utils;
+import dk.skrypalle.jasm.Utils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

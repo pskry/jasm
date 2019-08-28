@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.skrypalle;
+package dk.skrypalle.jasm;
 
 import org.apache.commons.io.HexDump;
 

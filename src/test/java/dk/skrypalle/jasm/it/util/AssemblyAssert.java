@@ -17,7 +17,7 @@
  */
 package dk.skrypalle.jasm.it.util;
 
-import dk.skrypalle.Utils;
+import dk.skrypalle.jasm.Utils;
 import dk.skrypalle.jasm.assembler.Assembly;
 import org.assertj.core.api.AbstractAssert;
 
