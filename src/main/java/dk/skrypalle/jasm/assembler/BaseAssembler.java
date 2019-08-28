@@ -19,8 +19,12 @@ package dk.skrypalle.jasm.assembler;
 
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import org.antlr.v4.runtime.CharStream;
+import org.objectweb.asm.ClassWriter;
 
 import java.util.Objects;
+
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 abstract class BaseAssembler implements Assembler {
 
@@ -48,14 +52,20 @@ abstract class BaseAssembler implements Assembler {
                 return null;
             }
 
-            var visitor = new AssemblerVisitor(errorListener);
-            visitor.visit(root);
+            // pass 1: semantic analysis
+            new AssemblerVisitor(errorListener, NoOpClassVisitor.INSTANCE)
+                    .visit(root);
 
             if (errorListener.getNumberOfErrors() > 0) {
                 return null;
             }
 
-            return visitor.getAssembly();
+            // pass 2: code generation analysis
+            var classWriter = new ClassWriter(COMPUTE_MAXS | COMPUTE_FRAMES);
+            var visitor = new AssemblerVisitor(errorListener, classWriter);
+            visitor.visit(root);
+
+            return new Assembly(visitor.getClassName(), classWriter.toByteArray());
         } catch (Throwable t) {
             var sourceName = input.getSourceName();
             if (verbose) {

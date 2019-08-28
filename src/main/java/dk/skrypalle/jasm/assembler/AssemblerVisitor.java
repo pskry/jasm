@@ -24,12 +24,10 @@ import dk.skrypalle.jasm.generated.JasmParser.FieldSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.MemberSpecContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static dk.skrypalle.jasm.generated.JasmParser.AccessSpecContext;
 import static dk.skrypalle.jasm.generated.JasmParser.BytecodeVersionContext;
@@ -41,36 +39,21 @@ import static dk.skrypalle.jasm.generated.JasmParser.MethodSpecContext;
 import static dk.skrypalle.jasm.generated.JasmParser.SourceContext;
 import static dk.skrypalle.jasm.generated.JasmParser.StringContext;
 import static dk.skrypalle.jasm.generated.JasmParser.SuperSpecContext;
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
-    private final List<Consumer<ClassWriter>> deferredActions;
+    private final ClassVisitor classVisitor;
 
     private String className;
 
-    AssemblerVisitor(ErrorListener errorListener) {
+    AssemblerVisitor(ErrorListener errorListener, ClassVisitor classVisitor) {
         this.errorListener = errorListener;
-        deferredActions = new ArrayList<>();
+        this.classVisitor = classVisitor;
     }
 
-    Assembly getAssembly() {
-        if (errorListener.getNumberOfErrors() > 0) {
-            return null;
-        }
-
-        var classWriter = new ClassWriter(COMPUTE_MAXS | COMPUTE_FRAMES);
-        for (Consumer<ClassWriter> action : deferredActions) {
-            action.accept(classWriter);
-        }
-        classWriter.visitEnd();
-
-        return new Assembly(
-                className,
-                classWriter.toByteArray()
-        );
+    String getClassName() {
+        return className;
     }
 
     @Override
@@ -94,14 +77,14 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
                 .toArray(String[]::new);
 
         className = classSpec.name.getText();
-        defer(cw -> cw.visit(
+        classVisitor.visit(
                 version,
                 access,
                 className,
                 null,
                 superName,
                 interfaces
-        ));
+        );
 
         return null;
     }
@@ -123,11 +106,11 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
         if (minor == null || minor != 0) {
             errorListener.emitIllegalMinorBytecodeVersion(ctx.ver, 0, 0);
-            return null;
+            return Opcodes.V12;
         }
         if (major == null) {
             errorListener.emitIllegalMajorBytecodeVersion(ctx.ver, 45, 57);
-            return null;
+            return Opcodes.V12;
         }
         switch (major) {
             case 45:
@@ -158,14 +141,14 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
                 return Opcodes.V13;
             default:
                 errorListener.emitIllegalMajorBytecodeVersion(ctx.ver, 45, 57);
-                return null;
+                return Opcodes.V12;
         }
     }
 
     @Override
     public Object visitSource(SourceContext ctx) {
         var sourceName = visitString(ctx.sourceFile);
-        defer(cw -> cw.visitSource(sourceName, null));
+        classVisitor.visitSource(sourceName, null);
         return null;
     }
 
@@ -252,23 +235,21 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.descriptor());
 
-        var instrVisitor = new InstructionVisitor(errorListener);
+        var method = classVisitor.visitMethod(
+                access,
+                name,
+                descriptor,
+                null,
+                null
+        );
+
+        var instrVisitor = new InstructionVisitor(errorListener, method);
         var instructionList = ctx.instructionList();
         if (instructionList != null) {
             instrVisitor.visitInstructionList(ctx.instructionList());
         }
 
-        defer(cw -> {
-            var method = cw.visitMethod(
-                    access,
-                    name,
-                    descriptor,
-                    null,
-                    null
-            );
-            instrVisitor.consumeActions(method);
-            method.visitMaxs(0, 0);
-        });
+        method.visitMaxs(0, 0);
 
         return null;
     }
@@ -284,16 +265,15 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         var name = ctx.name.getText();
         var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typeDescriptor());
 
-        defer(cw -> {
-            var field = cw.visitField(
-                    access,
-                    name,
-                    descriptor,
-                    null,
-                    null
-            );
-            field.visitEnd();
-        });
+        var field = classVisitor.visitField(
+                access,
+                name,
+                descriptor,
+                null,
+                null
+        );
+        field.visitEnd();
+
         return null;
     }
 
@@ -326,10 +306,6 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
             access |= visitAccessSpec(spec);
         }
         return access;
-    }
-
-    private void defer(Consumer<ClassWriter> action) {
-        deferredActions.add(action);
     }
 
 }

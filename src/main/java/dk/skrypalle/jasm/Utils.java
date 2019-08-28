@@ -18,12 +18,15 @@
 package dk.skrypalle.jasm;
 
 import org.apache.commons.io.HexDump;
+import org.objectweb.asm.Opcodes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public final class Utils {
+
+    public static final int ASM_VERSION = Opcodes.ASM7;
 
     /**
      * Dump an array of bytes.

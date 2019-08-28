@@ -17,17 +17,17 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
+import dk.skrypalle.jasm.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 public class DisassemblerClassVisitor extends ClassVisitor {
 
     private ClassFile classFile;
 
     DisassemblerClassVisitor() {
-        super(Opcodes.ASM7);
+        super(Utils.ASM_VERSION);
 
         classFile = new ClassFile();
     }

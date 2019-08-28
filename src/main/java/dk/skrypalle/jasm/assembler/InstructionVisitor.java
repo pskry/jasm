@@ -159,10 +159,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dk.skrypalle.jasm.generated.JasmParser.AloadInstrContext;
@@ -187,12 +184,12 @@ import static dk.skrypalle.jasm.generated.JasmParser.StringContext;
 class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
-    private final List<Consumer<MethodVisitor>> deferredActions;
+    private final MethodVisitor methodVisitor;
     private final LabelTracker labelTracker;
 
-    InstructionVisitor(ErrorListener errorListener) {
+    InstructionVisitor(ErrorListener errorListener, MethodVisitor methodVisitor) {
         this.errorListener = errorListener;
-        deferredActions = new ArrayList<>();
+        this.methodVisitor = methodVisitor;
         labelTracker = new LabelTracker();
     }
 
@@ -216,26 +213,26 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     private void ldcLong(String text) {
         var value = Long.decode(text.substring(0, text.length() - 1));
         if (value == 0L) {
-            defer(m -> m.visitInsn(Opcodes.LCONST_0));
+            methodVisitor.visitInsn(Opcodes.LCONST_0);
         } else if (value == 1L) {
-            defer(m -> m.visitInsn(Opcodes.LCONST_1));
+            methodVisitor.visitInsn(Opcodes.LCONST_1);
         } else {
-            defer(m -> m.visitLdcInsn(value));
+            methodVisitor.visitLdcInsn(value);
         }
     }
 
     private void ldcInt(String text) {
         var value = Integer.decode(text);
         if (value >= 0 && value <= 5) {
-            defer(m -> m.visitInsn(Opcodes.ICONST_0 + value));
+            methodVisitor.visitInsn(Opcodes.ICONST_0 + value);
         } else if (value == -1) {
-            defer(m -> m.visitInsn(Opcodes.ICONST_M1));
+            methodVisitor.visitInsn(Opcodes.ICONST_M1);
         } else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
-            defer(m -> m.visitIntInsn(Opcodes.BIPUSH, value));
+            methodVisitor.visitIntInsn(Opcodes.BIPUSH, value);
         } else if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
-            defer(m -> m.visitIntInsn(Opcodes.SIPUSH, value));
+            methodVisitor.visitIntInsn(Opcodes.SIPUSH, value);
         } else {
-            defer(m -> m.visitLdcInsn(value));
+            methodVisitor.visitLdcInsn(value);
         }
     }
 
@@ -253,31 +250,31 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     private void ldcFloat(String text) {
         var value = Float.valueOf(text);
         if (Objects.equals(value, 0.0f)) {
-            defer(m -> m.visitInsn(Opcodes.FCONST_0));
+            methodVisitor.visitInsn(Opcodes.FCONST_0);
         } else if (Objects.equals(value, 1.0f)) {
-            defer(m -> m.visitInsn(Opcodes.FCONST_1));
+            methodVisitor.visitInsn(Opcodes.FCONST_1);
         } else if (Objects.equals(value, 2.0f)) {
-            defer(m -> m.visitInsn(Opcodes.FCONST_2));
+            methodVisitor.visitInsn(Opcodes.FCONST_2);
         } else {
-            defer(m -> m.visitLdcInsn(value));
+            methodVisitor.visitLdcInsn(value);
         }
     }
 
     private void ldcDouble(String text) {
         var value = Double.valueOf(text);
         if (Objects.equals(value, 0.0)) {
-            defer(m -> m.visitInsn(Opcodes.DCONST_0));
+            methodVisitor.visitInsn(Opcodes.DCONST_0);
         } else if (Objects.equals(value, 1.0)) {
-            defer(m -> m.visitInsn(Opcodes.DCONST_1));
+            methodVisitor.visitInsn(Opcodes.DCONST_1);
         } else {
-            defer(m -> m.visitLdcInsn(value));
+            methodVisitor.visitLdcInsn(value);
         }
     }
 
     @Override
     public Void visitLdcStringInstr(LdcStringInstrContext ctx) {
         var value = visitString(ctx.val);
-        defer(m -> m.visitLdcInsn(value));
+        methodVisitor.visitLdcInsn(value);
         return null;
     }
 
@@ -285,7 +282,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     public Object visitLdcTypeInstr(LdcTypeInstrContext ctx) {
         var value = (String) new TypeVisitor(errorListener).visit(ctx.val);
         var type = Type.getType(value);
-        defer(m -> m.visitLdcInsn(type));
+        methodVisitor.visitLdcInsn(type);
         return null;
     }
 
@@ -323,7 +320,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
                 throw new IllegalStateException();
         }
 
-        defer(m -> m.visitIntInsn(Opcodes.NEWARRAY, type));
+        methodVisitor.visitIntInsn(Opcodes.NEWARRAY, type);
         return null;
     }
 
@@ -399,7 +396,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     private void varInstr(int opcode, Token token) {
         var value = Integer.decode(token.getText());
-        defer(m -> m.visitVarInsn(opcode, value));
+        methodVisitor.visitVarInsn(opcode, value);
     }
 
     //endregion var instructions
@@ -409,28 +406,28 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     @Override
     public Void visitNewInstr(NewInstrContext ctx) {
         var type = visitFqcn(ctx.typ);
-        defer(m -> m.visitTypeInsn(Opcodes.NEW, type));
+        methodVisitor.visitTypeInsn(Opcodes.NEW, type);
         return null;
     }
 
     @Override
     public Object visitAnewarrayInstr(AnewarrayInstrContext ctx) {
         var type = visitFqcn(ctx.typ);
-        defer(m -> m.visitTypeInsn(Opcodes.ANEWARRAY, type));
+        methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, type);
         return null;
     }
 
     @Override
     public Object visitCheckcastInstr(CheckcastInstrContext ctx) {
         var type = visitFqcn(ctx.typ);
-        defer(m -> m.visitTypeInsn(Opcodes.CHECKCAST, type));
+        methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, type);
         return null;
     }
 
     @Override
     public Object visitInstanceofInstr(InstanceofInstrContext ctx) {
         var type = visitFqcn(ctx.typ);
-        defer(m -> m.visitTypeInsn(Opcodes.INSTANCEOF, type));
+        methodVisitor.visitTypeInsn(Opcodes.INSTANCEOF, type);
         return null;
     }
 
@@ -440,553 +437,553 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitNopInstr(NopInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.NOP));
+        methodVisitor.visitInsn(Opcodes.NOP);
         return null;
     }
 
     @Override
     public Object visitIaloadInstr(IaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IALOAD));
+        methodVisitor.visitInsn(Opcodes.IALOAD);
         return null;
     }
 
     @Override
     public Object visitLaloadInstr(LaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LALOAD));
+        methodVisitor.visitInsn(Opcodes.LALOAD);
         return null;
     }
 
     @Override
     public Object visitFaloadInstr(FaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FALOAD));
+        methodVisitor.visitInsn(Opcodes.FALOAD);
         return null;
     }
 
     @Override
     public Object visitDaloadInstr(DaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DALOAD));
+        methodVisitor.visitInsn(Opcodes.DALOAD);
         return null;
     }
 
     @Override
     public Object visitAaloadInstr(AaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.AALOAD));
+        methodVisitor.visitInsn(Opcodes.AALOAD);
         return null;
     }
 
     @Override
     public Object visitBaloadInstr(BaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.BALOAD));
+        methodVisitor.visitInsn(Opcodes.BALOAD);
         return null;
     }
 
     @Override
     public Object visitCaloadInstr(CaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.CALOAD));
+        methodVisitor.visitInsn(Opcodes.CALOAD);
         return null;
     }
 
     @Override
     public Object visitSaloadInstr(SaloadInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.SALOAD));
+        methodVisitor.visitInsn(Opcodes.SALOAD);
         return null;
     }
 
     @Override
     public Object visitIastoreInstr(IastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IASTORE));
+        methodVisitor.visitInsn(Opcodes.IASTORE);
         return null;
     }
 
     @Override
     public Object visitLastoreInstr(LastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LASTORE));
+        methodVisitor.visitInsn(Opcodes.LASTORE);
         return null;
     }
 
     @Override
     public Object visitFastoreInstr(FastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FASTORE));
+        methodVisitor.visitInsn(Opcodes.FASTORE);
         return null;
     }
 
     @Override
     public Object visitDastoreInstr(DastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DASTORE));
+        methodVisitor.visitInsn(Opcodes.DASTORE);
         return null;
     }
 
     @Override
     public Object visitAastoreInstr(AastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.AASTORE));
+        methodVisitor.visitInsn(Opcodes.AASTORE);
         return null;
     }
 
     @Override
     public Object visitBastoreInstr(BastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.BASTORE));
+        methodVisitor.visitInsn(Opcodes.BASTORE);
         return null;
     }
 
     @Override
     public Object visitCastoreInstr(CastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.CASTORE));
+        methodVisitor.visitInsn(Opcodes.CASTORE);
         return null;
     }
 
     @Override
     public Object visitSastoreInstr(SastoreInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.SASTORE));
+        methodVisitor.visitInsn(Opcodes.SASTORE);
         return null;
     }
 
     @Override
     public Void visitPopInstr(PopInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.POP));
+        methodVisitor.visitInsn(Opcodes.POP);
         return null;
     }
 
     @Override
     public Object visitPop2Instr(Pop2InstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.POP2));
+        methodVisitor.visitInsn(Opcodes.POP2);
         return null;
     }
 
     @Override
     public Void visitDupInstr(DupInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DUP));
+        methodVisitor.visitInsn(Opcodes.DUP);
         return null;
     }
 
     @Override
     public Object visitDupX1Instr(DupX1InstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DUP_X1));
+        methodVisitor.visitInsn(Opcodes.DUP_X1);
         return null;
     }
 
     @Override
     public Object visitDupX2Instr(DupX2InstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DUP_X2));
+        methodVisitor.visitInsn(Opcodes.DUP_X2);
         return null;
     }
 
     @Override
     public Object visitDup2Instr(Dup2InstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DUP2));
+        methodVisitor.visitInsn(Opcodes.DUP2);
         return null;
     }
 
     @Override
     public Object visitDup2X1Instr(Dup2X1InstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DUP2_X1));
+        methodVisitor.visitInsn(Opcodes.DUP2_X1);
         return null;
     }
 
     @Override
     public Object visitDup2X2Instr(Dup2X2InstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DUP2_X2));
+        methodVisitor.visitInsn(Opcodes.DUP2_X2);
         return null;
     }
 
     @Override
     public Object visitSwapInstr(SwapInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.SWAP));
+        methodVisitor.visitInsn(Opcodes.SWAP);
         return null;
     }
 
     @Override
     public Void visitIaddInstr(IaddInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IADD));
+        methodVisitor.visitInsn(Opcodes.IADD);
         return null;
     }
 
     @Override
     public Object visitLaddInstr(LaddInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LADD));
+        methodVisitor.visitInsn(Opcodes.LADD);
         return null;
     }
 
     @Override
     public Object visitFaddInstr(FaddInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FADD));
+        methodVisitor.visitInsn(Opcodes.FADD);
         return null;
     }
 
     @Override
     public Object visitDaddInstr(DaddInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DADD));
+        methodVisitor.visitInsn(Opcodes.DADD);
         return null;
     }
 
     @Override
     public Object visitIsubInstr(IsubInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.ISUB));
+        methodVisitor.visitInsn(Opcodes.ISUB);
         return null;
     }
 
     @Override
     public Object visitLsubInstr(LsubInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LSUB));
+        methodVisitor.visitInsn(Opcodes.LSUB);
         return null;
     }
 
     @Override
     public Object visitFsubInstr(FsubInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FSUB));
+        methodVisitor.visitInsn(Opcodes.FSUB);
         return null;
     }
 
     @Override
     public Object visitDsubInstr(DsubInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DSUB));
+        methodVisitor.visitInsn(Opcodes.DSUB);
         return null;
     }
 
     @Override
     public Object visitImulInstr(ImulInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IMUL));
+        methodVisitor.visitInsn(Opcodes.IMUL);
         return null;
     }
 
     @Override
     public Object visitLmulInstr(LmulInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LMUL));
+        methodVisitor.visitInsn(Opcodes.LMUL);
         return null;
     }
 
     @Override
     public Object visitFmulInstr(FmulInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FMUL));
+        methodVisitor.visitInsn(Opcodes.FMUL);
         return null;
     }
 
     @Override
     public Object visitDmulInstr(DmulInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DMUL));
+        methodVisitor.visitInsn(Opcodes.DMUL);
         return null;
     }
 
     @Override
     public Object visitIdivInstr(IdivInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IDIV));
+        methodVisitor.visitInsn(Opcodes.IDIV);
         return null;
     }
 
     @Override
     public Object visitLdivInstr(LdivInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LDIV));
+        methodVisitor.visitInsn(Opcodes.LDIV);
         return null;
     }
 
     @Override
     public Object visitFdivInstr(FdivInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FDIV));
+        methodVisitor.visitInsn(Opcodes.FDIV);
         return null;
     }
 
     @Override
     public Object visitDdivInstr(DdivInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DDIV));
+        methodVisitor.visitInsn(Opcodes.DDIV);
         return null;
     }
 
     @Override
     public Object visitIremInstr(IremInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IREM));
+        methodVisitor.visitInsn(Opcodes.IREM);
         return null;
     }
 
     @Override
     public Object visitLremInstr(LremInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LREM));
+        methodVisitor.visitInsn(Opcodes.LREM);
         return null;
     }
 
     @Override
     public Object visitFremInstr(FremInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FREM));
+        methodVisitor.visitInsn(Opcodes.FREM);
         return null;
     }
 
     @Override
     public Object visitDremInstr(DremInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DREM));
+        methodVisitor.visitInsn(Opcodes.DREM);
         return null;
     }
 
     @Override
     public Object visitInegInstr(InegInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.INEG));
+        methodVisitor.visitInsn(Opcodes.INEG);
         return null;
     }
 
     @Override
     public Object visitLnegInstr(LnegInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LNEG));
+        methodVisitor.visitInsn(Opcodes.LNEG);
         return null;
     }
 
     @Override
     public Object visitFnegInstr(FnegInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FNEG));
+        methodVisitor.visitInsn(Opcodes.FNEG);
         return null;
     }
 
     @Override
     public Object visitDnegInstr(DnegInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DNEG));
+        methodVisitor.visitInsn(Opcodes.DNEG);
         return null;
     }
 
     @Override
     public Object visitIshlInstr(IshlInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.ISHL));
+        methodVisitor.visitInsn(Opcodes.ISHL);
         return null;
     }
 
     @Override
     public Object visitLshlInstr(LshlInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LSHL));
+        methodVisitor.visitInsn(Opcodes.LSHL);
         return null;
     }
 
     @Override
     public Object visitIshrInstr(IshrInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.ISHR));
+        methodVisitor.visitInsn(Opcodes.ISHR);
         return null;
     }
 
     @Override
     public Object visitLshrInstr(LshrInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LSHR));
+        methodVisitor.visitInsn(Opcodes.LSHR);
         return null;
     }
 
     @Override
     public Object visitIushrInstr(IushrInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IUSHR));
+        methodVisitor.visitInsn(Opcodes.IUSHR);
         return null;
     }
 
     @Override
     public Object visitLushrInstr(LushrInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LUSHR));
+        methodVisitor.visitInsn(Opcodes.LUSHR);
         return null;
     }
 
     @Override
     public Object visitIandInstr(IandInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IAND));
+        methodVisitor.visitInsn(Opcodes.IAND);
         return null;
     }
 
     @Override
     public Object visitLandInstr(LandInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LAND));
+        methodVisitor.visitInsn(Opcodes.LAND);
         return null;
     }
 
     @Override
     public Object visitIorInstr(IorInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IOR));
+        methodVisitor.visitInsn(Opcodes.IOR);
         return null;
     }
 
     @Override
     public Object visitLorInstr(LorInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LOR));
+        methodVisitor.visitInsn(Opcodes.LOR);
         return null;
     }
 
     @Override
     public Object visitIxorInstr(IxorInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IXOR));
+        methodVisitor.visitInsn(Opcodes.IXOR);
         return null;
     }
 
     @Override
     public Object visitLxorInstr(LxorInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LXOR));
+        methodVisitor.visitInsn(Opcodes.LXOR);
         return null;
     }
 
     @Override
     public Object visitI2lInstr(I2lInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.I2L));
+        methodVisitor.visitInsn(Opcodes.I2L);
         return null;
     }
 
     @Override
     public Object visitI2fInstr(I2fInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.I2F));
+        methodVisitor.visitInsn(Opcodes.I2F);
         return null;
     }
 
     @Override
     public Object visitI2dInstr(I2dInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.I2D));
+        methodVisitor.visitInsn(Opcodes.I2D);
         return null;
     }
 
     @Override
     public Object visitL2iInstr(L2iInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.L2I));
+        methodVisitor.visitInsn(Opcodes.L2I);
         return null;
     }
 
     @Override
     public Object visitL2fInstr(L2fInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.L2F));
+        methodVisitor.visitInsn(Opcodes.L2F);
         return null;
     }
 
     @Override
     public Object visitL2dInstr(L2dInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.L2D));
+        methodVisitor.visitInsn(Opcodes.L2D);
         return null;
     }
 
     @Override
     public Object visitF2iInstr(F2iInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.F2I));
+        methodVisitor.visitInsn(Opcodes.F2I);
         return null;
     }
 
     @Override
     public Object visitF2lInstr(F2lInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.F2L));
+        methodVisitor.visitInsn(Opcodes.F2L);
         return null;
     }
 
     @Override
     public Object visitF2dInstr(F2dInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.F2D));
+        methodVisitor.visitInsn(Opcodes.F2D);
         return null;
     }
 
     @Override
     public Object visitD2iInstr(D2iInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.D2I));
+        methodVisitor.visitInsn(Opcodes.D2I);
         return null;
     }
 
     @Override
     public Object visitD2lInstr(D2lInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.D2L));
+        methodVisitor.visitInsn(Opcodes.D2L);
         return null;
     }
 
     @Override
     public Object visitD2fInstr(D2fInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.D2F));
+        methodVisitor.visitInsn(Opcodes.D2F);
         return null;
     }
 
     @Override
     public Object visitI2bInstr(I2bInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.I2B));
+        methodVisitor.visitInsn(Opcodes.I2B);
         return null;
     }
 
     @Override
     public Object visitI2cInstr(I2cInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.I2C));
+        methodVisitor.visitInsn(Opcodes.I2C);
         return null;
     }
 
     @Override
     public Object visitI2sInstr(I2sInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.I2S));
+        methodVisitor.visitInsn(Opcodes.I2S);
         return null;
     }
 
     @Override
     public Object visitLcmpInstr(LcmpInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LCMP));
+        methodVisitor.visitInsn(Opcodes.LCMP);
         return null;
     }
 
     @Override
     public Object visitFcmplInstr(FcmplInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FCMPL));
+        methodVisitor.visitInsn(Opcodes.FCMPL);
         return null;
     }
 
     @Override
     public Object visitFcmpgInstr(FcmpgInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FCMPG));
+        methodVisitor.visitInsn(Opcodes.FCMPG);
         return null;
     }
 
     @Override
     public Object visitDcmplInstr(DcmplInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DCMPL));
+        methodVisitor.visitInsn(Opcodes.DCMPL);
         return null;
     }
 
     @Override
     public Object visitDcmpgInstr(DcmpgInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DCMPG));
+        methodVisitor.visitInsn(Opcodes.DCMPG);
         return null;
     }
 
     @Override
     public Void visitIreturnInstr(IreturnInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.IRETURN));
+        methodVisitor.visitInsn(Opcodes.IRETURN);
         return null;
     }
 
     @Override
     public Void visitLreturnInstr(LreturnInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.LRETURN));
+        methodVisitor.visitInsn(Opcodes.LRETURN);
         return null;
     }
 
     @Override
     public Void visitFreturnInstr(FreturnInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.FRETURN));
+        methodVisitor.visitInsn(Opcodes.FRETURN);
         return null;
     }
 
     @Override
     public Void visitDreturnInstr(DreturnInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.DRETURN));
+        methodVisitor.visitInsn(Opcodes.DRETURN);
         return null;
     }
 
     @Override
     public Void visitAreturnInstr(AreturnInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.ARETURN));
+        methodVisitor.visitInsn(Opcodes.ARETURN);
         return null;
     }
 
     @Override
     public Void visitReturnInstr(ReturnInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.RETURN));
+        methodVisitor.visitInsn(Opcodes.RETURN);
         return null;
     }
 
     @Override
     public Void visitArrayLengthInstr(ArrayLengthInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.ARRAYLENGTH));
+        methodVisitor.visitInsn(Opcodes.ARRAYLENGTH);
         return null;
     }
 
     @Override
     public Object visitAthrowInstr(AthrowInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.ATHROW));
+        methodVisitor.visitInsn(Opcodes.ATHROW);
         return null;
     }
 
     @Override
     public Object visitMonitorenterInstr(MonitorenterInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.MONITORENTER));
+        methodVisitor.visitInsn(Opcodes.MONITORENTER);
         return null;
     }
 
     @Override
     public Object visitMonitorexitInstr(MonitorexitInstrContext ctx) {
-        defer(m -> m.visitInsn(Opcodes.MONITOREXIT));
+        methodVisitor.visitInsn(Opcodes.MONITOREXIT);
         return null;
     }
 
@@ -999,12 +996,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitFieldInsn(
+        methodVisitor.visitFieldInsn(
                 Opcodes.GETSTATIC,
                 owner,
                 name,
                 descriptor
-        ));
+        );
         return null;
     }
 
@@ -1013,12 +1010,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitFieldInsn(
+        methodVisitor.visitFieldInsn(
                 Opcodes.PUTSTATIC,
                 owner,
                 name,
                 descriptor
-        ));
+        );
         return null;
     }
 
@@ -1027,12 +1024,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitFieldInsn(
+        methodVisitor.visitFieldInsn(
                 Opcodes.GETFIELD,
                 owner,
                 name,
                 descriptor
-        ));
+        );
         return null;
     }
 
@@ -1041,12 +1038,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitFieldInsn(
+        methodVisitor.visitFieldInsn(
                 Opcodes.PUTFIELD,
                 owner,
                 name,
                 descriptor
-        ));
+        );
         return null;
     }
 
@@ -1059,13 +1056,13 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitMethodInsn(
+        methodVisitor.visitMethodInsn(
                 Opcodes.INVOKEVIRTUAL,
                 owner,
                 name,
                 descriptor,
                 false
-        ));
+        );
         return null;
     }
 
@@ -1074,13 +1071,13 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitMethodInsn(
+        methodVisitor.visitMethodInsn(
                 Opcodes.INVOKESPECIAL,
                 owner,
                 name,
                 descriptor,
                 false
-        ));
+        );
         return null;
     }
 
@@ -1089,13 +1086,13 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitMethodInsn(
+        methodVisitor.visitMethodInsn(
                 Opcodes.INVOKESTATIC,
                 owner,
                 name,
                 descriptor,
                 false
-        ));
+        );
         return null;
     }
 
@@ -1104,13 +1101,13 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var owner = ctx.owner.getText();
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
-        defer(m -> m.visitMethodInsn(
+        methodVisitor.visitMethodInsn(
                 Opcodes.INVOKEINTERFACE,
                 owner,
                 name,
                 descriptor,
                 true
-        ));
+        );
         return null;
     }
 
@@ -1229,7 +1226,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     private void resolveJump(int opcode, LabelContext labelCtx) {
         var labelName = visitLabel(labelCtx);
         var promise = labelTracker.getLabel(labelName);
-        defer(m -> m.visitJumpInsn(opcode, promise.resolve()));
+        methodVisitor.visitJumpInsn(opcode, promise.resolve());
     }
 
     //endregion jump instructions
@@ -1238,7 +1235,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     public Object visitIincInstr(IincInstrContext ctx) {
         int var = Integer.decode(ctx.var.getText());
         int inc = Integer.decode(ctx.inc.getText());
-        defer(m -> m.visitIincInsn(var, inc));
+        methodVisitor.visitIincInsn(var, inc);
         return null;
     }
 
@@ -1249,17 +1246,15 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
                 .collect(Collectors.toList());
         var defaultDst = visitDefaultTarget(ctx.defaultTarget());
 
-        defer(m -> {
-            var keys = targets.stream()
-                    .mapToInt(LookupSwitchTarget::getKey)
-                    .toArray();
-            var labels = targets.stream()
-                    .map(LookupSwitchTarget::getLabelPromise)
-                    .map(Promise::resolve)
-                    .toArray(Label[]::new);
+        var keys = targets.stream()
+                .mapToInt(LookupSwitchTarget::getKey)
+                .toArray();
+        var labels = targets.stream()
+                .map(LookupSwitchTarget::getLabelPromise)
+                .map(Promise::resolve)
+                .toArray(Label[]::new);
 
-            m.visitLookupSwitchInsn(defaultDst.resolve(), keys, labels);
-        });
+        methodVisitor.visitLookupSwitchInsn(defaultDst.resolve(), keys, labels);
 
         return null;
     }
@@ -1291,14 +1286,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var min = min(keys);
         var max = max(keys);
 
-        defer(m -> {
-            var labels = targets.stream()
-                    .map(LookupSwitchTarget::getLabelPromise)
-                    .map(Promise::resolve)
-                    .toArray(Label[]::new);
+        var labels = targets.stream()
+                .map(LookupSwitchTarget::getLabelPromise)
+                .map(Promise::resolve)
+                .toArray(Label[]::new);
 
-            m.visitTableSwitchInsn(min, max, defaultDst.resolve(), labels);
-        });
+        methodVisitor.visitTableSwitchInsn(min, max, defaultDst.resolve(), labels);
 
         return null;
     }
@@ -1323,7 +1316,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     public Object visitMultianewarrayInstr(MultianewarrayInstrContext ctx) {
         var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typ);
         var dim = Integer.decode(ctx.dim.getText());
-        defer(m -> m.visitMultiANewArrayInsn(descriptor, dim));
+        methodVisitor.visitMultiANewArrayInsn(descriptor, dim);
 
         return null;
     }
@@ -1354,18 +1347,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     public Object visitLabelDef(LabelDefContext ctx) {
         var name = visitLabel(ctx.label());
         var promise = labelTracker.getLabel(name);
-        defer(m -> m.visitLabel(promise.resolve()));
+        methodVisitor.visitLabel(promise.resolve());
         return null;
-    }
-
-    private void defer(Consumer<MethodVisitor> action) {
-        deferredActions.add(action);
-    }
-
-    void consumeActions(MethodVisitor method) {
-        for (Consumer<MethodVisitor> action : deferredActions) {
-            action.accept(method);
-        }
     }
 
 }

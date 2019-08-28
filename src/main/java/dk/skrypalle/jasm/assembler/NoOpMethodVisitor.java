@@ -15,23 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dk.skrypalle.jasm.disassembler;
+package dk.skrypalle.jasm.assembler;
 
 import dk.skrypalle.jasm.Utils;
-import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
 
-class DisassemblerFieldVisitor extends FieldVisitor {
+class NoOpMethodVisitor extends MethodVisitor {
 
-    private final FieldSpec fieldSpec;
+    static final MethodVisitor INSTANCE = new NoOpMethodVisitor();
 
-    DisassemblerFieldVisitor() {
+    private NoOpMethodVisitor() {
         super(Utils.ASM_VERSION);
-
-        fieldSpec = new FieldSpec();
-    }
-
-    FieldSpec getFieldSpec() {
-        return fieldSpec;
     }
 
 }
