@@ -17,7 +17,7 @@
 #
 
 .bytecode 56.0
-.source "lookup_switch_int.jasm"
+.source "lookup_switch_string.jasm"
 .class public final dk/skrypalle/jasm/it/assembler/LookupSwitchString
 .super java/lang/Object
 

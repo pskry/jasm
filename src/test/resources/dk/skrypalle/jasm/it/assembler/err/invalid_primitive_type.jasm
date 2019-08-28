@@ -18,7 +18,7 @@
 
 .bytecode 56.0
 .source "invalid_primitive_type.jasm"
-.class public final dk/skrypalle/jasm/it/assembler/err/InvalidPrimitive
+.class public final dk/skrypalle/jasm/it/assembler/err/InvalidPrimitiveType
 .super java/lang/Object
 
 .method public static invalidPrimitiveType(Y)V
