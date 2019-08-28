@@ -37,7 +37,10 @@ public class JdsmIntegrationTest {
     public static Object[][] provideTestFileNames() {
         return asObjectArray(
                 "abstract_method",
+                "array_loop_int",
+                "array_loop_string",
                 "constructor",
+                "double_array_loop_int",
                 "double_for_loop",
                 "doubles",
                 "floats",

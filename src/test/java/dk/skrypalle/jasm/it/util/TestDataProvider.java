@@ -61,6 +61,13 @@ public final class TestDataProvider {
     }
 
     @DataProvider(parallel = true)
+    public static Object[][] provideAllJasmSourceFiles() throws IOException {
+        return ResourceLocator.locateResources(".*\\.jasm$").stream()
+                .map(path -> new Object[]{Paths.get(path)})
+                .toArray(Object[][]::new);
+    }
+
+    @DataProvider(parallel = true)
     public static Object[][] provideJasmSourceFiles() throws IOException {
         return ResourceLocator.locateResources(".*assembler[/|\\\\][^/|\\\\]+\\.jasm$").stream()
                 .map(path -> new Object[]{Paths.get(path)})

@@ -103,7 +103,8 @@ public class JdkRoundTripIntegrationTest {
 
     @Test(
             dataProviderClass = TestDataProvider.class,
-            dataProvider = "provideWorkingJdkClassNames"
+            dataProvider = "provideWorkingJdkClassNames",
+            dependsOnMethods = "updateWorkingJdkClassesIfNoRegression"
     )
     public void roundTripWorkingJdkClass(String className) {
         runRoundTrip(className);

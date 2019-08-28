@@ -557,4 +557,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         return String.format("%" + maxKeyLength + "s", "default");
     }
 
+    @Override
+    public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
+        methodSpec.addInstruction(String.format("multianewarray %s %d", descriptor, numDimensions));
+    }
+
 }

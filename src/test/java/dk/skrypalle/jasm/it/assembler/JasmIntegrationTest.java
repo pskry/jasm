@@ -38,7 +38,10 @@ public class JasmIntegrationTest {
         //checkstyle.off: LineLength - exceeded due to readability of arranger DSL
         return new Object[][]{
                 assembling("abstract_method").shouldPrint("abstract"),
+                assembling("array_loop_int").shouldPrint("4\n3\n2\n1\n0\n"),
+                assembling("array_loop_string").shouldPrint("e\nd\nc\nb\na\n"),
                 assembling("constructor").shouldPrint("\"Hello\""),
+                assembling("double_array_loop_int").shouldPrint("01\n23\n"),
                 assembling("double_for_loop").shouldPrint("0\n1\n2\n3\n4\n5\n6\n7\n8\n"),
                 assembling("doubles").shouldPrint("0.0\n1.0\n23.1\n2310.0\n0.231\n"),
                 assembling("floats").shouldPrint("0.0\n1.0\n2.0\n23.1\n2310.0\n0.231\n"),

@@ -141,6 +141,7 @@ import dk.skrypalle.jasm.generated.JasmParser.LushrInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LxorInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.MonitorenterInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.MonitorexitInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.MultianewarrayInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.NewarrayInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.NopInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.Pop2InstrContext;
@@ -1316,6 +1317,15 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         }
 
         return keys[keys.length - 1];
+    }
+
+    @Override
+    public Object visitMultianewarrayInstr(MultianewarrayInstrContext ctx) {
+        var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typ);
+        var dim = Integer.decode(ctx.dim.getText());
+        defer(m -> m.visitMultiANewArrayInsn(descriptor, dim));
+
+        return null;
     }
 
     @Override

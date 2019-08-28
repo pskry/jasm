@@ -114,6 +114,8 @@ instruction
     | 'checkcast'   typ=fqcn                                            #CheckcastInstr
     | 'instanceof'  typ=fqcn                                            #InstanceofInstr
 
+    | 'multianewarray' typ=typeDescriptor dim=INTEGER                   #MultianewarrayInstr
+
     | 'nop'                                                             #NopInstr
     | 'iaload'                                                          #IaloadInstr
     | 'laload'                                                          #LaloadInstr
