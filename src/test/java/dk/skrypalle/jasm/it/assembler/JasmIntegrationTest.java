@@ -58,12 +58,14 @@ public class JasmIntegrationTest {
                 assembling("lookup_switch_string").shouldPrint("a\nb\n"),
                 assembling("math_max").shouldPrint("2"),
                 assembling("mixed_descriptor").shouldPrint("12OneTwo"),
+                assembling("nested_try_catch_parse_int").shouldPrint("1\nCannot parse '0xff' to int\n2310\n255\n"),
                 assembling("no_newline_at_end_of_file").shouldPrint("WorksWithoutNewlineAtTheEndOfTheFile"),
                 assembling("overwrite_a0").withArgs("arg0", "arg1").shouldPrint("[arg0, arg1]\nclass [Ljava.lang.String;\noverwrite_a0\nclass java.lang.String\n"),
                 assembling("overwrite_i0").withArgs("arg0", "arg1").shouldPrint("[arg0, arg1]\nclass [Ljava.lang.String;\n2310\n2310\nclass java.lang.Integer\n"),
                 assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
                 assembling("static_field").shouldPrint("2310"),
                 assembling("table_switch").shouldPrint("zero\none\ntwo\n"),
+                assembling("try_catch_parse_int").shouldPrint("1\nCannot parse 'bye' to int\n2310\nCannot parse 'hello' to int\n"),
                 assembling("while_loop").shouldPrint("0\n1\n2\n3\n4\n"),
         };
         //checkstyle.on: LineLength

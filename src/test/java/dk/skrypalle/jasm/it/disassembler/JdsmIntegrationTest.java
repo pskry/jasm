@@ -57,11 +57,13 @@ public class JdsmIntegrationTest {
                 "lookup_switch_string",
                 "math_max",
                 "mixed_descriptor",
+                "nested_try_catch_parse_int",
                 "overwrite_a0",
                 "overwrite_i0",
                 "print_main_args",
                 "static_field",
                 "table_switch",
+                "try_catch_parse_int",
                 "while_loop"
         );
     }

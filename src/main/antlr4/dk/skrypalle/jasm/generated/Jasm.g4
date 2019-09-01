@@ -58,8 +58,13 @@ memberSpec
 
 methodSpec
     : '.method' accessSpec* name=methodName descriptor EOL+
+      (exceptionSpec? EOL)*
       instructionList?
       '.end method'
+    ;
+
+exceptionSpec
+    : '.exception' start=label end=label handler=label typ=fqcn
     ;
 
 methodName
@@ -88,6 +93,15 @@ argList
 instructionList
     : ((instruction|labelDef|lookupSwitch|tableSwitch)? EOL)+
     ;
+
+
+//// //    //  //////  //////// ////////  //     //  //////  //////// ////  ///////  //    //  //////
+ //  ///   // //    //    //    //     // //     // //    //    //     //  //     // ///   // //    //
+ //  ////  // //          //    //     // //     // //          //     //  //     // ////  // //
+ //  // // //  //////     //    ////////  //     // //          //     //  //     // // // //  //////
+ //  //  ////       //    //    //   //   //     // //          //     //  //     // //  ////       //
+ //  //   /// //    //    //    //    //  //     // //    //    //     //  //     // //   /// //    //
+//// //    //  //////     //    //     //  ///////   //////     //    ////  ///////  //    //  //////
 
 instruction
     : 'ldc'    val=INTEGER                                              #LdcIntInstr
@@ -309,29 +323,244 @@ string
     : STRING
     ;
 
-INIT         : '<init>'       ;
-STATIC_INIT  : '<clinit>'     ;
-PUBLIC       : 'public'       ;
-PRIVATE      : 'private'      ;
-PROTECTED    : 'protected'    ;
-STATIC       : 'static'       ;
-FINAL        : 'final'        ;
-SYNCHRONIZED : 'synchronized' ;
-NATIVE       : 'native'       ;
-SUPER        : 'super'        ;
-INTERFACE    : 'interface'    ;
-ABSTRACT     : 'abstract'     ;
-ANNOTATION   : 'annotation'   ;
-ENUM         : 'enum'         ;
-BRIDGE       : 'bridge'       ;
-VOLATILE     : 'volatile'     ;
-TRANSIENT    : 'transient'    ;
-VARARGS      : 'varargs'      ;
 
-EOL         : [\r\n] +                 ;
-INTEGER     : '-'?[0-9]+[l]?           ;
-DECIMAL     : '-'?[0-9]*'.'[0-9]+[f]?  ;
-IDENTIFIER  : [a-zA-Z$_][a-zA-Z0-9$_]* ;
-WHITESPACE  : [ \t]+        -> skip    ;
-COMMENT     : '#' ~ [\r\n]* -> skip    ;
-STRING      : '"' ~[\r\n]* '"'         ;
+////////  ///////  //    // //////// //    //  //////
+   //    //     // //   //  //       ///   // //    //
+   //    //     // //  //   //       ////  // //
+   //    //     // /////    //////   // // //  //////
+   //    //     // //  //   //       //  ////       //
+   //    //     // //   //  //       //   /// //    //
+   //     ///////  //    // //////// //    //  //////
+
+
+   //   //                         //    //
+   //   //                         //    //
+   //                              //
+ ////  ///   / ///   ///    ////  ////  ///   // //   ///    ////
+// //   //   ///    // //  //      //    //   // //  // //  //
+// //   //   //     /////  //      //    //   // //  /////   ///
+// //   //   //     //     //      //    //    ///   //        //
+ ////  ////  //      ///    ////    //  ////    /     ///   ////
+
+BYTECODE_DIRECTIVE    : '.bytecode'              ;
+SOURCE_DIRECTIVE      : '.source'                ;
+CLASS_DIRECTIVE       : '.class'                 ;
+SUPER_DIRECTIVE       : '.super'                 ;
+IMPLEMENTS_DIRECTIVE  : '.implements'            ;
+METHOD_DIRECTIVE      : '.method'                ;
+END_METHOD_DIRECTIVE  : '.end method'            ;
+FIELD_DIRECTIVE       : '.field'                 ;
+EXCEPTION_DIRECTIVE   : '.exception'             ;
+
+ //                  //                         //    //
+ //                  //                         //    //
+                     //                         //
+///   / //    ////  ////  / ///  // //   ////  ////  ///    ///   / //    ////
+ //   // //  //      //   ///    // //  //      //    //   // //  // //  //
+ //   // //   ///    //   //     // //  //      //    //   // //  // //   ///
+ //   // //     //   //   //     // //  //      //    //   // //  // //     //
+////  // //  ////     //  //      // /   ////    //  ////   ///   // //  ////
+
+LDC_INSTR             : 'ldc'                    ;
+NEWARRAY_INSTR        : 'newarray'               ;
+ILOAD_INSTR           : 'iload'                  ;
+LLOAD_INSTR           : 'lload'                  ;
+FLOAD_INSTR           : 'fload'                  ;
+DLOAD_INSTR           : 'dload'                  ;
+ALOAD_INSTR           : 'aload'                  ;
+ISTORE_INSTR          : 'istore'                 ;
+LSTORE_INSTR          : 'lstore'                 ;
+FSTORE_INSTR          : 'fstore'                 ;
+DSTORE_INSTR          : 'dstore'                 ;
+ASTORE_INSTR          : 'astore'                 ;
+RET_INSTR             : 'ret'                    ;
+NEW_INSTR             : 'new'                    ;
+ANEWARRAY_INSTR       : 'anewarray'              ;
+CHECKCAST_INSTR       : 'checkcast'              ;
+INSTANCEOF_INSTR      : 'instanceof'             ;
+MULTIANEWARRAY_INSTR  : 'multianewarray'         ;
+NOP_INSTR             : 'nop'                    ;
+IALOAD_INSTR          : 'iaload'                 ;
+LALOAD_INSTR          : 'laload'                 ;
+FALOAD_INSTR          : 'faload'                 ;
+DALOAD_INSTR          : 'daload'                 ;
+AALOAD_INSTR          : 'aaload'                 ;
+BALOAD_INSTR          : 'baload'                 ;
+CALOAD_INSTR          : 'caload'                 ;
+SALOAD_INSTR          : 'saload'                 ;
+IASTORE_INSTR         : 'iastore'                ;
+LASTORE_INSTR         : 'lastore'                ;
+FASTORE_INSTR         : 'fastore'                ;
+DASTORE_INSTR         : 'dastore'                ;
+AASTORE_INSTR         : 'aastore'                ;
+BASTORE_INSTR         : 'bastore'                ;
+CASTORE_INSTR         : 'castore'                ;
+SASTORE_INSTR         : 'sastore'                ;
+POP_INSTR             : 'pop'                    ;
+POP2_INSTR            : 'pop2'                   ;
+DUP_INSTR             : 'dup'                    ;
+DUP_X1_INSTR          : 'dup_x1'                 ;
+DUP_X2_INSTR          : 'dup_x2'                 ;
+DUP2_INSTR            : 'dup2'                   ;
+DUP2_X1_INSTR         : 'dup2_x1'                ;
+DUP2_X2_INSTR         : 'dup2_x2'                ;
+SWAP_INSTR            : 'swap'                   ;
+IADD_INSTR            : 'iadd'                   ;
+LADD_INSTR            : 'ladd'                   ;
+FADD_INSTR            : 'fadd'                   ;
+DADD_INSTR            : 'dadd'                   ;
+ISUB_INSTR            : 'isub'                   ;
+LSUB_INSTR            : 'lsub'                   ;
+FSUB_INSTR            : 'fsub'                   ;
+DSUB_INSTR            : 'dsub'                   ;
+IMUL_INSTR            : 'imul'                   ;
+LMUL_INSTR            : 'lmul'                   ;
+FMUL_INSTR            : 'fmul'                   ;
+DMUL_INSTR            : 'dmul'                   ;
+IDIV_INSTR            : 'idiv'                   ;
+LDIV_INSTR            : 'ldiv'                   ;
+FDIV_INSTR            : 'fdiv'                   ;
+DDIV_INSTR            : 'ddiv'                   ;
+IREM_INSTR            : 'irem'                   ;
+LREM_INSTR            : 'lrem'                   ;
+FREM_INSTR            : 'frem'                   ;
+DREM_INSTR            : 'drem'                   ;
+INEG_INSTR            : 'ineg'                   ;
+LNEG_INSTR            : 'lneg'                   ;
+FNEG_INSTR            : 'fneg'                   ;
+DNEG_INSTR            : 'dneg'                   ;
+ISHL_INSTR            : 'ishl'                   ;
+LSHL_INSTR            : 'lshl'                   ;
+ISHR_INSTR            : 'ishr'                   ;
+LSHR_INSTR            : 'lshr'                   ;
+IUSHR_INSTR           : 'iushr'                  ;
+LUSHR_INSTR           : 'lushr'                  ;
+IAND_INSTR            : 'iand'                   ;
+LAND_INSTR            : 'land'                   ;
+IOR_INSTR             : 'ior'                    ;
+LOR_INSTR             : 'lor'                    ;
+IXOR_INSTR            : 'ixor'                   ;
+LXOR_INSTR            : 'lxor'                   ;
+I2L_INSTR             : 'i2l'                    ;
+I2F_INSTR             : 'i2f'                    ;
+I2D_INSTR             : 'i2d'                    ;
+L2I_INSTR             : 'l2i'                    ;
+L2F_INSTR             : 'l2f'                    ;
+L2D_INSTR             : 'l2d'                    ;
+F2I_INSTR             : 'f2i'                    ;
+F2L_INSTR             : 'f2l'                    ;
+F2D_INSTR             : 'f2d'                    ;
+D2I_INSTR             : 'd2i'                    ;
+D2L_INSTR             : 'd2l'                    ;
+D2F_INSTR             : 'd2f'                    ;
+I2B_INSTR             : 'i2b'                    ;
+I2C_INSTR             : 'i2c'                    ;
+I2S_INSTR             : 'i2s'                    ;
+LCMP_INSTR            : 'lcmp'                   ;
+FCMPL_INSTR           : 'fcmpl'                  ;
+FCMPG_INSTR           : 'fcmpg'                  ;
+DCMPL_INSTR           : 'dcmpl'                  ;
+DCMPG_INSTR           : 'dcmpg'                  ;
+IRETURN_INSTR         : 'ireturn'                ;
+LRETURN_INSTR         : 'lreturn'                ;
+FRETURN_INSTR         : 'freturn'                ;
+DRETURN_INSTR         : 'dreturn'                ;
+ARETURN_INSTR         : 'areturn'                ;
+RETURN_INSTR          : 'return'                 ;
+ARRAYLENGTH_INSTR     : 'arraylength'            ;
+ATHROW_INSTR          : 'athrow'                 ;
+MONITORENTER_INSTR    : 'monitorenter'           ;
+MONITOREXIT_INSTR     : 'monitorexit'            ;
+GETSTATIC_INSTR       : 'getstatic'              ;
+PUTSTATIC_INSTR       : 'putstatic'              ;
+GETFIELD_INSTR        : 'getfield'               ;
+PUTFIELD_INSTR        : 'putfield'               ;
+INVOKEVIRTUAL_INSTR   : 'invokevirtual'          ;
+INVOKESPECIAL_INSTR   : 'invokespecial'          ;
+INVOKESTATIC_INSTR    : 'invokestatic'           ;
+INVOKEINTERFACE_INSTR : 'invokeinterface'        ;
+IFEQ_INSTR            : 'ifeq'                   ;
+IFNE_INSTR            : 'ifne'                   ;
+IFLT_INSTR            : 'iflt'                   ;
+IFGE_INSTR            : 'ifge'                   ;
+IFGT_INSTR            : 'ifgt'                   ;
+IFLE_INSTR            : 'ifle'                   ;
+IF_ICMPEQ_INSTR       : 'if_icmpeq'              ;
+IF_ICMPNE_INSTR       : 'if_icmpne'              ;
+IF_ICMPLT_INSTR       : 'if_icmplt'              ;
+IF_ICMPGE_INSTR       : 'if_icmpge'              ;
+IF_ICMPGT_INSTR       : 'if_icmpgt'              ;
+IF_ICMPLE_INSTR       : 'if_icmple'              ;
+IF_ACMPEQ_INSTR       : 'if_acmpeq'              ;
+IF_ACMPNE_INSTR       : 'if_acmpne'              ;
+GOTO_INSTR            : 'goto'                   ;
+JSR_INSTR             : 'jsr'                    ;
+IFNULL_INSTR          : 'ifnull'                 ;
+IFNONNULL_INSTR       : 'ifnonnull'              ;
+IINC_INSTR            : 'iinc'                   ;
+
+LOOKUPSWITCH_INSTR    : 'lookupswitch'           ;
+TABLESWITCH_INSTR     : 'tableswitch'            ;
+ENDSWITCH_INSTR       : 'endswitch'              ;
+DEFAULT_INSTR         : 'default'                ;
+
+                             //                  //    //
+                             //                  //    //
+                             //                  //
+////   // //  / //    ////  ////  // //   ////  ////  ///    ///   / //
+// //  // //  // //  //      //   // //  // //   //    //   // //  // //
+// //  // //  // //  //      //   // //  // //   //    //   // //  // //
+// //  // //  // //  //      //   // //  // //   //    //   // //  // //
+////    // /  // //   ////    //   // /   // /    //  ////   ///   // //
+//
+//
+
+DOT                   : '.'                      ;
+L_PAREN               : '('                      ;
+R_PAREN               : ')'                      ;
+COLON                 : ':'                      ;
+SEMICOLON             : ';'                      ;
+L_BRACKET             : '['                      ;
+SLASH                 : '/'                      ;
+
+ ////   ////   ////   ///    ////   ////   ///   / ///   ////
+// //  //     //     // //  //     //     // //  ///    //
+// //  //     //     /////   ///    ///   // //  //      ///
+// //  //     //     //        //     //  // //  //        //
+ // /   ////   ////   ///   ////   ////    ///   //     ////
+
+INIT                  : '<init>'                 ;
+STATIC_INIT           : '<clinit>'               ;
+PUBLIC                : 'public'                 ;
+PRIVATE               : 'private'                ;
+PROTECTED             : 'protected'              ;
+STATIC                : 'static'                 ;
+FINAL                 : 'final'                  ;
+SYNCHRONIZED          : 'synchronized'           ;
+NATIVE                : 'native'                 ;
+SUPER                 : 'super'                  ;
+INTERFACE             : 'interface'              ;
+ABSTRACT              : 'abstract'               ;
+ANNOTATION            : 'annotation'             ;
+ENUM                  : 'enum'                   ;
+BRIDGE                : 'bridge'                 ;
+VOLATILE              : 'volatile'               ;
+TRANSIENT             : 'transient'              ;
+VARARGS               : 'varargs'                ;
+
+ //          //                                        ///
+ //          //                                         //
+ //          //                                         //
+////   ///   // //   ///   / //          / ///  // //   //    ///    ////
+ //   // //  ////   // //  // //         ///    // //   //   // //  //
+ //   // //  ///    /////  // //         //     // //   //   /////   ///
+ //   // //  ////   //     // //         //     // //   //   //        //
+  //   ///   // //   ///   // //         //      // /  ////   ///   ////
+
+EOL                   : [\r\n] +                 ;
+INTEGER               : '-'?[0-9]+[l]?           ;
+DECIMAL               : '-'?[0-9]*'.'[0-9]+[f]?  ;
+IDENTIFIER            : [a-zA-Z$_][a-zA-Z0-9$_]* ;
+WHITESPACE            : [ \t]+        -> skip    ;
+COMMENT               : '#' ~[\r\n]*  -> skip    ;
+STRING                : '"' ~[\r\n]* '"'         ;

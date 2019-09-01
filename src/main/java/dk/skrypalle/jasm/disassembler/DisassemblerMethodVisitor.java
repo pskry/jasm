@@ -563,4 +563,19 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         methodSpec.addInstruction(String.format("multianewarray %s %d", descriptor, numDimensions));
     }
 
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+        var startPromise = labelTracker.useLabel(start);
+        var endPromise = labelTracker.useLabel(end);
+        var handlerPromise = labelTracker.useLabel(handler);
+
+        methodSpec.addDirective(() -> String.format(
+                ".exception %s %s %s %s",
+                startPromise.resolve(),
+                endPromise.resolve(),
+                handlerPromise.resolve(),
+                type
+        ));
+    }
+
 }

@@ -187,10 +187,13 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     private final MethodVisitor methodVisitor;
     private final LabelTracker labelTracker;
 
-    InstructionVisitor(ErrorListener errorListener, MethodVisitor methodVisitor) {
+    InstructionVisitor(
+            ErrorListener errorListener,
+            MethodVisitor methodVisitor,
+            LabelTracker labelTracker) {
         this.errorListener = errorListener;
         this.methodVisitor = methodVisitor;
-        labelTracker = new LabelTracker();
+        this.labelTracker = labelTracker;
     }
 
     @Override

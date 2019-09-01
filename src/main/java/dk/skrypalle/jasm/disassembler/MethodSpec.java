@@ -30,6 +30,7 @@ class MethodSpec {
     private List<String> accessList;
     private String name;
     private String descriptor;
+    private List<Promise<String>> directives;
     private List<Promise<String>> instructions;
 
     void setAccess(int access) {
@@ -92,6 +93,14 @@ class MethodSpec {
         this.descriptor = descriptor;
     }
 
+    void addDirective(Promise<String> directive) {
+        if (directives == null) {
+            directives = new ArrayList<>();
+        }
+
+        directives.add(directive);
+    }
+
     void addInstruction(Promise<String> instruction) {
         add(instruction);
     }
@@ -122,6 +131,16 @@ class MethodSpec {
             }
         }
         buf.append(name).append(descriptor).append('\n');
+
+        if (directives != null) {
+            for (Promise<String> directive : directives) {
+                var resolved = directive.resolve();
+                if (resolved != null) {
+                    buf.append(resolved).append("\n");
+                }
+            }
+        }
+
         if (instructions != null) {
             for (var instruction : instructions) {
                 var resolved = instruction.resolve();

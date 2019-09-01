@@ -30,15 +30,54 @@ import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.misc.Utils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class AssemblerLexer extends JasmLexer {
 
     private static final Pattern PRIMITIVE_CLASS_PATTERN = Pattern.compile("[BSIJFDZCV]+L.*$");
+    private static final int FIRST_INSTR;
+    private static final int LAST_INSTR;
+    private static final int FIRST_DIRECTIVE;
+    private static final int LAST_DIRECTIVE;
+
+    static {
+        var tokenTypeFields = Stream.of(JasmLexer.class.getDeclaredFields())
+                .filter(f -> f.getType() == int.class)
+                .collect(Collectors.toList());
+
+        int firstInstr = -1;
+        int lastInstr = -1;
+        int firstDirective = -1;
+        int lastDirective = -1;
+
+        for (var field : tokenTypeFields) {
+            if (field.getName().endsWith("_INSTR")) {
+                lastInstr = readStaticInt(field);
+                if (firstInstr == -1) {
+                    firstInstr = lastInstr;
+                }
+            } else if (field.getName().endsWith("_DIRECTIVE")) {
+                lastDirective = readStaticInt(field);
+                if (firstDirective == -1) {
+                    firstDirective = lastDirective;
+                }
+            }
+        }
+
+        FIRST_INSTR = firstInstr;
+        LAST_INSTR = lastInstr;
+        FIRST_DIRECTIVE = firstDirective;
+        LAST_DIRECTIVE = lastDirective;
+    }
 
     private final Queue<Token> tokenStash = new ArrayDeque<>();
+
+    private boolean isFirstTokenInLine = true;
 
     AssemblerLexer(CharStream input, ErrorListener errorListener) {
         super(input);
@@ -50,32 +89,94 @@ class AssemblerLexer extends JasmLexer {
     @Override
     public Token nextToken() {
         var next = next();
+        if (!isFirstTokenInLine) {
+            if (isDirective(next)) {
+                next = splitDotAndStash(next);
+            }
+
+            if (isInstruction(next)) {
+                // we'll allow this token to be an identifier
+                next = toIdentifier(next);
+            }
+        }
+
+        isFirstTokenInLine = next.getType() == EOL;
+        return next;
+    }
+
+    private Token next() {
+        var next = pollOrNext();
         if (PRIMITIVE_CLASS_PATTERN.matcher(next.getText()).matches()) {
             return splitAndStash(next);
         }
         return next;
     }
 
-    private Token next() {
+    private Token pollOrNext() {
         var next = tokenStash.poll();
         return next == null
                 ? super.nextToken()
                 : next;
     }
 
+    private Token toIdentifier(Token token) {
+        var currentPos = getCharPositionInLine();
+        setCharPositionInLine(token.getCharPositionInLine());
+        var id = split(token, IDENTIFIER, token.getStartIndex(), token.getStopIndex());
+        setCharPositionInLine(currentPos);
+        return id;
+    }
+
+    private Token splitDotAndStash(Token token) {
+        var currentPosInLine = getCharPositionInLine();
+        setCharPositionInLine(token.getCharPositionInLine());
+        var split = split(token, DOT, token.getStartIndex(), token.getStartIndex());
+        setCharPositionInLine(token.getCharPositionInLine() + 1);
+        var stash = split(token, IDENTIFIER, token.getStartIndex() + 1, token.getStopIndex());
+        setCharPositionInLine(currentPosInLine);
+        tokenStash.add(stash);
+        return split;
+    }
+
     private Token splitAndStash(Token token) {
+        var currentPosInLine = getCharPositionInLine();
+        setCharPositionInLine(token.getCharPositionInLine());
         var split = split(token, token.getStartIndex(), token.getStartIndex());
+        setCharPositionInLine(token.getCharPositionInLine() + 1);
         var stash = split(token, token.getStartIndex() + 1, token.getStopIndex());
+        setCharPositionInLine(currentPosInLine);
         tokenStash.add(stash);
         return split;
     }
 
     private Token split(Token token, int start, int stop) {
+        return split(token, token.getType(), start, stop);
+    }
+
+    private Token split(Token token, int type, int start, int stop) {
         var tokenSource = token.getTokenSource();
         var inStream = token.getInputStream();
         var source = new Pair<>(tokenSource, inStream);
 
-        return new CommonToken(source, token.getType(), token.getChannel(), start, stop);
+        return new CommonToken(source, type, token.getChannel(), start, stop);
+    }
+
+    private static boolean isInstruction(Token token) {
+        var type = token.getType();
+        return type >= FIRST_INSTR && type <= LAST_INSTR;
+    }
+
+    private static boolean isDirective(Token token) {
+        var type = token.getType();
+        return type >= FIRST_DIRECTIVE && type <= LAST_DIRECTIVE;
+    }
+
+    private static int readStaticInt(Field field) {
+        try {
+            return (int) field.get(null);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private static class ErrorListenerAdapter extends BaseErrorListener {

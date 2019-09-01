@@ -20,8 +20,6 @@ package dk.skrypalle.jasm.it.util;
 import dk.skrypalle.jasm.assembler.Assembly;
 import org.objectweb.asm.ClassReader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -29,36 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public final class TestUtil {
 
-    private static final int INPUT_STREAM_DATA_CHUNK_SIZE = 4096;
-
     public static String toJvmClassName(String className) {
         return className.replace('.', '/');
     }
 
     public static String escapeJvmClassNameForRegex(String jvmClassName) {
         return jvmClassName.replace("$", "\\$");
-    }
-
-    public static byte[] readClass(String className) throws IOException {
-        var classFileName = toJvmClassName(className) + ".class";
-        var in = ClassLoader.getSystemClassLoader().getResourceAsStream(classFileName);
-        if (in == null) {
-            var message = String.format(
-                    "Could not load class '%s' - File %s not found",
-                    className,
-                    classFileName
-            );
-            throw new IOException(message);
-        }
-        try (in; var out = new ByteArrayOutputStream()) {
-            var data = new byte[INPUT_STREAM_DATA_CHUNK_SIZE];
-            int bytesRead;
-            while ((bytesRead = in.read(data, 0, data.length)) != -1) {
-                out.write(data, 0, bytesRead);
-            }
-            out.flush();
-            return out.toByteArray();
-        }
     }
 
     public static Path getResourcePath(String resourceName) {
