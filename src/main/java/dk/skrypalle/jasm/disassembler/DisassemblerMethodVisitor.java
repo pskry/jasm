@@ -25,14 +25,14 @@ import org.objectweb.asm.Opcodes;
 
 class DisassemblerMethodVisitor extends MethodVisitor {
 
-    private final MethodSpec methodSpec;
     private final LabelTracker labelTracker;
+    private final MethodSpec methodSpec;
 
-    DisassemblerMethodVisitor() {
+    DisassemblerMethodVisitor(LabelTracker labelTracker) {
         super(Utils.ASM_VERSION);
 
+        this.labelTracker = labelTracker;
         methodSpec = new MethodSpec();
-        labelTracker = new LabelTracker();
     }
 
     MethodSpec getMethodSpec() {
@@ -388,9 +388,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitJumpInsn(int opcode, Label label) {
-        var labelName = labelTracker.useLabel(label);
+        var labelName = labelTracker.refLabel();
         var jump = parseJumpInsn(opcode);
-        methodSpec.addInstruction(() -> "  " + jump + " " + labelName.resolve());
+        methodSpec.addInstruction(jump + " " + labelName);
     }
 
     private String parseJumpInsn(int opcode) {
@@ -438,8 +438,10 @@ class DisassemblerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitLabel(Label label) {
-        var labelName = labelTracker.defineLabel(label);
-        methodSpec.addLabel(labelName);
+        var labelName = labelTracker.defLabel();
+        if (labelName != null) {
+            methodSpec.addLabel(labelName);
+        }
     }
 
     @Override
@@ -499,18 +501,17 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         methodSpec.addInstruction("lookupswitch");
         var maxKeyLength = findMaxLookupKeyLength(keys);
 
-        for (int i = 0; i < keys.length; i++) {
-            int index = i;
-            methodSpec.addInstruction(() -> String.format(
-                    "    %s: %s",
-                    indentLookupKey(maxKeyLength, keys[index]),
-                    labelTracker.useLabel(labels[index]).resolve()
+        for (int key : keys) {
+            methodSpec.addInstruction(String.format(
+                    "  %s: %s",
+                    indentLookupKey(maxKeyLength, key),
+                    labelTracker.refLabel()
             ));
         }
-        methodSpec.addInstruction(() -> String.format(
-                "    %s: %s",
+        methodSpec.addInstruction(String.format(
+                "  %s: %s",
                 indentDefaultLookupKey(maxKeyLength),
-                labelTracker.useLabel(dflt).resolve()
+                labelTracker.refLabel()
         ));
         methodSpec.addInstruction("endswitch");
     }
@@ -520,21 +521,17 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         var maxKeyLength = Math.max("default".length(), Integer.toString(max).length());
 
         methodSpec.addInstruction("tableswitch");
-        var j = 0;
         for (int i = min; i <= max; i++) {
-            var key = i;
-            var labelIndex = j;
-            methodSpec.addInstruction(() -> String.format(
-                    "    %s: %s",
-                    indentLookupKey(maxKeyLength, key),
-                    labelTracker.useLabel(labels[labelIndex]).resolve()
+            methodSpec.addInstruction(String.format(
+                    "  %s: %s",
+                    indentLookupKey(maxKeyLength, i),
+                    labelTracker.refLabel()
             ));
-            j++;
         }
-        methodSpec.addInstruction(() -> String.format(
-                "    %s: %s",
+        methodSpec.addInstruction(String.format(
+                "  %s: %s",
                 indentDefaultLookupKey(maxKeyLength),
-                labelTracker.useLabel(dflt).resolve()
+                labelTracker.refLabel()
         ));
         methodSpec.addInstruction("endswitch");
     }
@@ -565,22 +562,22 @@ class DisassemblerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-        var startPromise = labelTracker.useLabel(start);
-        var endPromise = labelTracker.useLabel(end);
-        var handlerPromise = labelTracker.useLabel(handler);
+        var startName = labelTracker.refLabel();
+        var endName = labelTracker.refLabel();
+        var handlerName = labelTracker.refLabel();
 
-        methodSpec.addDirective(() -> String.format(
+        methodSpec.addDirective(String.format(
                 ".exception %s %s %s %s",
-                startPromise.resolve(),
-                endPromise.resolve(),
-                handlerPromise.resolve(),
+                startName,
+                endName,
+                handlerName,
                 type
         ));
     }
 
     @Override
     public void visitLineNumber(int line, Label start) {
-        methodSpec.addInstruction(() -> ".line " + line);
+        methodSpec.addInlineDirective(".line " + line);
     }
 
 }

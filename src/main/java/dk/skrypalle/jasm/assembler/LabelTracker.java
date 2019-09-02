@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.jasm.Promise;
 import org.objectweb.asm.Label;
 
 import java.util.HashMap;
@@ -31,8 +30,8 @@ class LabelTracker {
         labelsByName = new HashMap<>();
     }
 
-    Promise<Label> getLabel(String name) {
-        return () -> resolveLabel(name);
+    Label getLabel(String name) {
+        return resolveLabel(name);
     }
 
     private Label resolveLabel(String name) {

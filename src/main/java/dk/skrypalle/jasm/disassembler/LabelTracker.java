@@ -17,68 +17,95 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
-import dk.skrypalle.jasm.Promise;
 import org.objectweb.asm.Label;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.stream.Collectors;
 
 class LabelTracker {
 
-    private final List<Label> definedLabels;
-    private final List<Label> usedLabels;
+    private final Deque<Record> records;
+
+    private enum RecordType {
+        DEF, REF
+    }
+
+    private static class Record {
+
+        private final Label label;
+        private final RecordType type;
+        private boolean referenced;
+        private int slot = -1;
+        private Record ref;
+
+        private Record(Label label, RecordType type) {
+            this.label = label;
+            this.type = type;
+        }
+
+        private boolean isDef() {
+            return type == RecordType.DEF;
+        }
+
+        private boolean isRef() {
+            return type == RecordType.REF;
+        }
+    }
 
     LabelTracker() {
-        definedLabels = new ArrayList<>();
-        usedLabels = new ArrayList<>();
+        records = new ArrayDeque<>();
     }
 
-    Promise<String> useLabel(Label label) {
-        if (!usedLabels.contains(label)) {
-            usedLabels.add(label);
-        }
-
-        return () -> {
-            int labelNumber = getLabelNumber(label);
-            if (labelNumber == -1) {
-                throw new IllegalStateException("use of undefined label");
-            }
-            return refLabel(labelNumber);
-        };
+    void recordLabelDef(Label label) {
+        records.add(new Record(label, RecordType.DEF));
     }
 
-    Promise<String> defineLabel(Label label) {
-        if (!definedLabels.contains(label)) {
-            definedLabels.add(label);
-        }
-
-        return () -> {
-            int labelNumber = getLabelNumber(label);
-            return labelNumber >= 0
-                    ? defLabel(labelNumber)
-                    : null;
-        };
+    void recordLabelRef(Label label) {
+        records.add(new Record(label, RecordType.REF));
     }
 
-    private int getLabelNumber(Label label) {
-        var i = 0;
-        for (Label definedLabel : definedLabels) {
-            if (usedLabels.contains(definedLabel)) {
-                if (definedLabel == label) {
-                    return i;
+    void link() {
+        var recordedRefs = records.stream()
+                .filter(Record::isRef)
+                .collect(Collectors.toList());
+
+        for (var ref : recordedRefs) {
+            for (Record record : records) {
+                if (record.isDef() && record.label == ref.label) {
+                    record.referenced = true;
+                    ref.ref = record;
                 }
-                i++;
             }
         }
-        return -1;
+
+        // assign slots to referenced records
+        int slot = 0;
+        for (Record record : records) {
+            if (record.isDef() && record.referenced) {
+                record.slot = slot;
+                slot++;
+            }
+        }
     }
 
-    private static String refLabel(int number) {
-        return String.format("label_%d", number);
+    String refLabel() {
+        var record = records.poll();
+        if (record == null || !record.isRef()) {
+            throw new IllegalStateException();
+        }
+        return String.format("label_%d", record.ref.slot);
     }
 
-    private static String defLabel(int number) {
-        return String.format("label_%d:", number);
+    String defLabel() {
+        var record = records.poll();
+        if (record == null || !record.isDef()) {
+            throw new IllegalStateException();
+        }
+        if (!record.referenced) {
+            return null;
+        }
+        return String.format("label_%d:", record.slot);
     }
 
 }

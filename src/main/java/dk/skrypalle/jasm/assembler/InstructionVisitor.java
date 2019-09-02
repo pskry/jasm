@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.jasm.Promise;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmParser.AaloadInstrContext;
@@ -1229,8 +1228,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     private void resolveJump(int opcode, LabelContext labelCtx) {
         var labelName = visitLabel(labelCtx);
-        var promise = labelTracker.getLabel(labelName);
-        methodVisitor.visitJumpInsn(opcode, promise.resolve());
+        var target = labelTracker.getLabel(labelName);
+        methodVisitor.visitJumpInsn(opcode, target);
     }
 
     //endregion jump instructions
@@ -1248,17 +1247,16 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var targets = ctx.lookupTarget().stream()
                 .map(this::visitLookupTarget)
                 .collect(Collectors.toList());
-        var defaultDst = visitDefaultTarget(ctx.defaultTarget());
+        var defaultTarget = visitDefaultTarget(ctx.defaultTarget());
 
         var keys = targets.stream()
                 .mapToInt(LookupSwitchTarget::getKey)
                 .toArray();
         var labels = targets.stream()
-                .map(LookupSwitchTarget::getLabelPromise)
-                .map(Promise::resolve)
+                .map(LookupSwitchTarget::getLabel)
                 .toArray(Label[]::new);
 
-        methodVisitor.visitLookupSwitchInsn(defaultDst.resolve(), keys, labels);
+        methodVisitor.visitLookupSwitchInsn(defaultTarget, keys, labels);
 
         return null;
     }
@@ -1267,12 +1265,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     public LookupSwitchTarget visitLookupTarget(LookupTargetContext ctx) {
         var val = Integer.decode(ctx.val.getText());
         var labelName = visitLabel(ctx.dst);
-        var labelPromise = labelTracker.getLabel(labelName);
-        return new LookupSwitchTarget(val, labelPromise);
+        var target = labelTracker.getLabel(labelName);
+        return new LookupSwitchTarget(val, target);
     }
 
     @Override
-    public Promise<Label> visitDefaultTarget(DefaultTargetContext ctx) {
+    public Label visitDefaultTarget(DefaultTargetContext ctx) {
         var labelName = visitLabel(ctx.dst);
         return labelTracker.getLabel(labelName);
     }
@@ -1282,7 +1280,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var targets = ctx.lookupTarget().stream()
                 .map(this::visitLookupTarget)
                 .collect(Collectors.toList());
-        var defaultDst = visitDefaultTarget(ctx.defaultTarget());
+        var defaultTarget = visitDefaultTarget(ctx.defaultTarget());
 
         var keys = targets.stream()
                 .mapToInt(LookupSwitchTarget::getKey)
@@ -1291,11 +1289,10 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var max = max(keys);
 
         var labels = targets.stream()
-                .map(LookupSwitchTarget::getLabelPromise)
-                .map(Promise::resolve)
+                .map(LookupSwitchTarget::getLabel)
                 .toArray(Label[]::new);
 
-        methodVisitor.visitTableSwitchInsn(min, max, defaultDst.resolve(), labels);
+        methodVisitor.visitTableSwitchInsn(min, max, defaultTarget, labels);
 
         return null;
     }
@@ -1350,8 +1347,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     @Override
     public Object visitLabelDef(LabelDefContext ctx) {
         var name = visitLabel(ctx.label());
-        var promise = labelTracker.getLabel(name);
-        methodVisitor.visitLabel(promise.resolve());
+        var label = labelTracker.getLabel(name);
+        methodVisitor.visitLabel(label);
         return null;
     }
 

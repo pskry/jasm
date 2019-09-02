@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
-import dk.skrypalle.jasm.Promise;
 import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
@@ -30,8 +29,8 @@ class MethodSpec {
     private List<String> accessList;
     private String name;
     private String descriptor;
-    private List<Promise<String>> directives;
-    private List<Promise<String>> instructions;
+    private List<String> directives;
+    private List<String> instructions;
 
     void setAccess(int access) {
         accessList = parseMethodAccess(access);
@@ -93,7 +92,11 @@ class MethodSpec {
         this.descriptor = descriptor;
     }
 
-    void addDirective(Promise<String> directive) {
+    void addDirective(String directive) {
+        if (directive == null) {
+            return;
+        }
+
         if (directives == null) {
             directives = new ArrayList<>();
         }
@@ -101,19 +104,23 @@ class MethodSpec {
         directives.add(directive);
     }
 
-    void addInstruction(Promise<String> instruction) {
-        add(instruction);
+    void addInlineDirective(String directive) {
+        add(directive);
     }
 
     void addInstruction(String instruction) {
-        add(() -> "  " + instruction);
+        add("  " + instruction);
     }
 
-    void addLabel(Promise<String> label) {
+    void addLabel(String label) {
         add(label);
     }
 
-    private void add(Promise<String> instruction) {
+    private void add(String instruction) {
+        if (instruction == null) {
+            return;
+        }
+
         if (instructions == null) {
             instructions = new ArrayList<>();
         }
@@ -133,20 +140,14 @@ class MethodSpec {
         buf.append(name).append(descriptor).append('\n');
 
         if (directives != null) {
-            for (Promise<String> directive : directives) {
-                var resolved = directive.resolve();
-                if (resolved != null) {
-                    buf.append(resolved).append("\n");
-                }
+            for (var directive : directives) {
+                buf.append(directive).append("\n");
             }
         }
 
         if (instructions != null) {
             for (var instruction : instructions) {
-                var resolved = instruction.resolve();
-                if (resolved != null) {
-                    buf.append(resolved).append("\n");
-                }
+                buf.append(instruction).append("\n");
             }
         }
 

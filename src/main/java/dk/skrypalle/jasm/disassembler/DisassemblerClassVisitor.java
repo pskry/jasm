@@ -24,11 +24,13 @@ import org.objectweb.asm.MethodVisitor;
 
 public class DisassemblerClassVisitor extends ClassVisitor {
 
-    private ClassFile classFile;
+    private final LabelTrackerMap labelTrackerMap;
+    private final ClassFile classFile;
 
-    DisassemblerClassVisitor() {
+    DisassemblerClassVisitor(LabelTrackerMap labelTrackerMap) {
         super(Utils.ASM_VERSION);
 
+        this.labelTrackerMap = labelTrackerMap;
         classFile = new ClassFile();
     }
 
@@ -64,7 +66,14 @@ public class DisassemblerClassVisitor extends ClassVisitor {
             String descriptor,
             String signature,
             String[] exceptions) {
-        var methodVisitor = new DisassemblerMethodVisitor();
+        var labelTracker = labelTrackerMap.getLabelTrackerForMethod(
+                access,
+                name,
+                descriptor,
+                signature,
+                exceptions);
+
+        var methodVisitor = new DisassemblerMethodVisitor(labelTracker);
         var methodSpec = methodVisitor.getMethodSpec();
         methodSpec.setAccess(access);
         methodSpec.setName(name);

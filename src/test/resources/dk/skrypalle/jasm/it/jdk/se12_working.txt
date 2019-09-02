@@ -457,8 +457,10 @@ java.awt.event.InputMethodListener
 java.awt.event.ItemEvent
 java.awt.event.ItemListener
 java.awt.event.KeyAdapter
+java.awt.event.KeyEvent
 java.awt.event.KeyListener
 java.awt.event.MouseAdapter
+java.awt.event.MouseEvent
 java.awt.event.MouseListener
 java.awt.event.MouseMotionAdapter
 java.awt.event.MouseMotionListener
@@ -489,6 +491,7 @@ java.awt.geom.Dimension2D
 java.awt.geom.Ellipse2D
 java.awt.geom.Ellipse2D$Double
 java.awt.geom.Ellipse2D$Float
+java.awt.geom.FlatteningPathIterator
 java.awt.geom.IllegalPathStateException
 java.awt.geom.Line2D$Double
 java.awt.geom.Line2D$Float
@@ -1215,6 +1218,7 @@ java.util.Observer
 java.util.OptionalInt
 java.util.OptionalLong
 java.util.PrimitiveIterator
+java.util.PropertyPermission
 java.util.Queue
 java.util.RandomAccess
 java.util.ServiceConfigurationError
@@ -1783,6 +1787,7 @@ javax.security.auth.callback.NameCallback
 javax.security.auth.callback.TextInputCallback
 javax.security.auth.callback.TextOutputCallback
 javax.security.auth.callback.UnsupportedCallbackException
+javax.security.auth.kerberos.ServicePermission
 javax.security.auth.login.AccountException
 javax.security.auth.login.AccountExpiredException
 javax.security.auth.login.AccountLockedException
@@ -1893,6 +1898,7 @@ javax.sql.rowset.JoinRowSet
 javax.sql.rowset.Joinable
 javax.sql.rowset.Predicate
 javax.sql.rowset.RowSetFactory
+javax.sql.rowset.RowSetMetaDataImpl
 javax.sql.rowset.RowSetWarning
 javax.sql.rowset.WebRowSet
 javax.sql.rowset.serial.SerialException
@@ -2066,6 +2072,7 @@ javax.swing.plaf.basic.BasicComboBoxRenderer$UIResource
 javax.swing.plaf.basic.BasicEditorPaneUI
 javax.swing.plaf.basic.BasicFormattedTextFieldUI
 javax.swing.plaf.basic.BasicIconFactory
+javax.swing.plaf.basic.BasicOptionPaneUI$ButtonAreaLayout
 javax.swing.plaf.basic.BasicPanelUI
 javax.swing.plaf.basic.BasicPasswordFieldUI
 javax.swing.plaf.basic.BasicPopupMenuSeparatorUI
@@ -2082,6 +2089,7 @@ javax.swing.plaf.metal.MetalBorders$Flush3DBorder
 javax.swing.plaf.metal.MetalBorders$InternalFrameBorder
 javax.swing.plaf.metal.MetalBorders$MenuBarBorder
 javax.swing.plaf.metal.MetalBorders$MenuItemBorder
+javax.swing.plaf.metal.MetalBorders$OptionDialogBorder
 javax.swing.plaf.metal.MetalBorders$PaletteBorder
 javax.swing.plaf.metal.MetalBorders$PopupMenuBorder
 javax.swing.plaf.metal.MetalBorders$RolloverButtonBorder
@@ -2496,6 +2504,7 @@ jdk.nashorn.api.tree.ModuleTree
 jdk.nashorn.api.tree.NewTree
 jdk.nashorn.api.tree.ObjectLiteralTree
 jdk.nashorn.api.tree.ParenthesizedTree
+jdk.nashorn.api.tree.Parser
 jdk.nashorn.api.tree.PropertyTree
 jdk.nashorn.api.tree.RegExpLiteralTree
 jdk.nashorn.api.tree.ReturnTree

@@ -17,25 +17,24 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.jasm.Promise;
 import org.objectweb.asm.Label;
 
 class LookupSwitchTarget {
 
     private final int key;
-    private final Promise<Label> labelPromise;
+    private final Label label;
 
-    LookupSwitchTarget(int key, Promise<Label> labelPromise) {
+    LookupSwitchTarget(int key, Label label) {
         this.key = key;
-        this.labelPromise = labelPromise;
+        this.label = label;
     }
 
     int getKey() {
         return key;
     }
 
-    Promise<Label> getLabelPromise() {
-        return labelPromise;
+    Label getLabel() {
+        return label;
     }
 
 }

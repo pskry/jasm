@@ -38,8 +38,15 @@ abstract class BaseDisassembler implements Disassembler {
 
         try {
 
-            var visitor = new DisassemblerClassVisitor();
             var reader = input.getInputReader();
+            var labelTrackerMap = new LabelTrackerMap();
+
+            var labelVisitor = new DisassemblerLabelClassVisitor(labelTrackerMap);
+            reader.accept(labelVisitor, 0);
+
+            labelTrackerMap.link();
+
+            var visitor = new DisassemblerClassVisitor(labelTrackerMap);
             reader.accept(visitor, 0);
 
             if (errorListener.getNumberOfErrors() > 0) {

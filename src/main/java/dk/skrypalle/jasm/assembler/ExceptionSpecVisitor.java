@@ -38,7 +38,7 @@ class ExceptionSpecVisitor extends JasmBaseVisitor<Object> {
         var handler = labelTracker.getLabel(ctx.handler.getText());
         var type = ctx.typ.getText();
 
-        method.visitTryCatchBlock(start.resolve(), end.resolve(), handler.resolve(), type);
+        method.visitTryCatchBlock(start, end, handler, type);
 
         return null;
     }
