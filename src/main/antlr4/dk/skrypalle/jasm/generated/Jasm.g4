@@ -59,12 +59,17 @@ memberSpec
 methodSpec
     : '.method' accessSpec* name=methodName descriptor EOL+
       (exceptionSpec? EOL)*
+      (localVarSpec? EOL)*
       instructionList?
       '.end method'
     ;
 
 exceptionSpec
     : '.exception' start=label end=label handler=label typ=fqcn
+    ;
+
+localVarSpec
+    : '.var' index=INTEGER name=IDENTIFIER ':' typ=typeDescriptor start=label end=label
     ;
 
 methodName
@@ -356,6 +361,7 @@ END_METHOD_DIRECTIVE  : '.end method'            ;
 FIELD_DIRECTIVE       : '.field'                 ;
 EXCEPTION_DIRECTIVE   : '.exception'             ;
 LINE_DIRECTIVE        : '.line'                  ;
+VAR_DIRECTIVE         : '.var'                   ;
 
  //                  //                         //    //
  //                  //                         //    //

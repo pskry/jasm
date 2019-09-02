@@ -31,10 +31,6 @@ class LabelTracker {
     }
 
     Label getLabel(String name) {
-        return resolveLabel(name);
-    }
-
-    private Label resolveLabel(String name) {
         var label = labelsByName.get(name);
         if (label == null) {
             label = new Label();

@@ -64,4 +64,16 @@ class DisassemblerLabelMethodVisitor extends MethodVisitor {
         labelTracker.recordLabelRef(handler);
     }
 
+    @Override
+    public void visitLocalVariable(
+            String name,
+            String descriptor,
+            String signature,
+            Label start,
+            Label end,
+            int index) {
+        labelTracker.recordLabelRef(start);
+        labelTracker.recordLabelRef(end);
+    }
+
 }

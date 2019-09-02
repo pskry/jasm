@@ -27,9 +27,11 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dk.skrypalle.jasm.it.util.TestAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JdsmIntegrationTest {
 
@@ -65,8 +67,31 @@ public class JdsmIntegrationTest {
                 "static_field",
                 "table_switch",
                 "try_catch_parse_int",
+                "var_directives_same_var",
+                "var_directives_two_vars",
                 "while_loop"
         );
+    }
+
+    @Test
+    public void provideTestFileNames_areDistinct_and_orderedAlphabetically() {
+        // arrange
+        // act
+        var original = Stream.of(provideTestFileNames())
+                .map(array -> (String) array[0])
+                .collect(Collectors.toList());
+        var ordered = original.stream()
+                .sorted()
+                .collect(Collectors.toList());
+        var distinct = ordered.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        // assert
+        assertThat(original)
+                .containsExactlyElementsOf(ordered);
+        assertThat(original)
+                .containsExactlyElementsOf(distinct);
     }
 
     @Test(dataProvider = "provideTestFileNames")

@@ -67,6 +67,8 @@ public class JasmIntegrationTest {
                 assembling("static_field").shouldPrint("2310"),
                 assembling("table_switch").shouldPrint("zero\none\ntwo\n"),
                 assembling("try_catch_parse_int").shouldPrint("1\nCannot parse 'bye' to int\n2310\nCannot parse 'hello' to int\n"),
+                assembling("var_directives_same_var").shouldPrint("2310\n1982\n"),
+                assembling("var_directives_two_vars").shouldPrint("2310\n1982\n"),
                 assembling("while_loop").shouldPrint("0\n1\n2\n3\n4\n"),
         };
         //checkstyle.on: LineLength

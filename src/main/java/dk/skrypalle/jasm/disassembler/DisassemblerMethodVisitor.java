@@ -580,4 +580,22 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         methodSpec.addInlineDirective(".line " + line);
     }
 
+    @Override
+    public void visitLocalVariable(
+            String name,
+            String descriptor,
+            String signature,
+            Label start,
+            Label end,
+            int index) {
+        methodSpec.addDirective(String.format(
+                ".var %d %s:%s %s %s",
+                index,
+                name,
+                descriptor,
+                labelTracker.refLabel(),
+                labelTracker.refLabel()
+        ));
+    }
+
 }
