@@ -578,4 +578,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         ));
     }
 
+    @Override
+    public void visitLineNumber(int line, Label start) {
+        methodSpec.addInstruction(() -> ".line " + line);
+    }
+
 }

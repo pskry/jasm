@@ -51,6 +51,7 @@ public class JdsmIntegrationTest {
                 "if_int_le",
                 "if_int_lt",
                 "integers",
+                "line_directives",
                 "local_vars",
                 "longs",
                 "lookup_switch_int",

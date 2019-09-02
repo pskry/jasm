@@ -125,6 +125,7 @@ import dk.skrypalle.jasm.generated.JasmParser.LcmpInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdcDecInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdcTypeInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdivInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LineDirectiveContext;
 import dk.skrypalle.jasm.generated.JasmParser.LloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LmulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LnegInstrContext;
@@ -1351,6 +1352,16 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var name = visitLabel(ctx.label());
         var promise = labelTracker.getLabel(name);
         methodVisitor.visitLabel(promise.resolve());
+        return null;
+    }
+
+    @Override
+    public Object visitLineDirective(LineDirectiveContext ctx) {
+        var line = Integer.decode(ctx.line.getText());
+
+        var label = new Label();
+        methodVisitor.visitLabel(label);
+        methodVisitor.visitLineNumber(line, label);
         return null;
     }
 

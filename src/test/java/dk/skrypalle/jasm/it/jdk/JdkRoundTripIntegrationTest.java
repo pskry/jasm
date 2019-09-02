@@ -72,14 +72,22 @@ public class JdkRoundTripIntegrationTest {
                 .sorted()
                 .collect(Collectors.toList());
 
+        var nowFailing = new ArrayList<String>();
         for (String previouslyWorkingJdkClass : previouslyWorkingJdkClasses) {
             if (!newWorkingJdkClasses.contains(previouslyWorkingJdkClass)) {
                 // we have broken something.
-                fail(
-                        "previously working jdk class %s is now broken",
-                        previouslyWorkingJdkClass
-                );
+                nowFailing.add(previouslyWorkingJdkClass);
             }
+        }
+
+        if (!nowFailing.isEmpty()) {
+            var brokenClasses = nowFailing.stream()
+                    .collect(Collectors.joining("\n    - ", "    - ", ""));
+            fail(
+                    "%d previously working jdk classes are now broken:\n%s",
+                    nowFailing.size(),
+                    brokenClasses
+            );
         }
 
         Files.write(

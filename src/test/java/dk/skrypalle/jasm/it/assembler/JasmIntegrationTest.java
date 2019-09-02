@@ -52,6 +52,7 @@ public class JasmIntegrationTest {
                 assembling("if_int_le").shouldPrint("0<=0\n0<=1\n1<=1\n"),
                 assembling("if_int_lt").shouldPrint("0<1\n"),
                 assembling("integers").shouldPrint("0\n1\n2\n3\n4\n5\n-1\n-128\n127\n-32768\n32767\n-2147483648\n2147483647\n"),
+                assembling("line_directives").shouldPrint("2310"),
                 assembling("local_vars").shouldPrint("2310"),
                 assembling("longs").shouldPrint("0\n1\n-9223372036854775808\n9223372036854775807\n"),
                 assembling("lookup_switch_int").shouldPrint("0\n100\n200\n"),

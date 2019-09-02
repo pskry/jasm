@@ -91,7 +91,7 @@ argList
     ;
 
 instructionList
-    : ((instruction|labelDef|lookupSwitch|tableSwitch)? EOL)+
+    : ((instruction|labelDef|lookupSwitch|tableSwitch|lineDirective)? EOL)+
     ;
 
 
@@ -285,6 +285,10 @@ tableSwitch
       'endswitch'
     ;
 
+lineDirective
+    : '.line' line=INTEGER
+    ;
+
 fieldSpec
     : '.field' accessSpec* name=IDENTIFIER typeDescriptor
     ;
@@ -351,6 +355,7 @@ METHOD_DIRECTIVE      : '.method'                ;
 END_METHOD_DIRECTIVE  : '.end method'            ;
 FIELD_DIRECTIVE       : '.field'                 ;
 EXCEPTION_DIRECTIVE   : '.exception'             ;
+LINE_DIRECTIVE        : '.line'                  ;
 
  //                  //                         //    //
  //                  //                         //    //

@@ -382,7 +382,6 @@ java.awt.RenderingHints$Key
 java.awt.SecondaryLoop
 java.awt.Shape
 java.awt.Stroke
-java.awt.SystemColor
 java.awt.Taskbar
 java.awt.TextArea
 java.awt.TexturePaint
@@ -491,7 +490,6 @@ java.awt.geom.Ellipse2D
 java.awt.geom.Ellipse2D$Double
 java.awt.geom.Ellipse2D$Float
 java.awt.geom.IllegalPathStateException
-java.awt.geom.Line2D
 java.awt.geom.Line2D$Double
 java.awt.geom.Line2D$Float
 java.awt.geom.NoninvertibleTransformException
@@ -599,7 +597,6 @@ java.io.IOError
 java.io.IOException
 java.io.InterruptedIOException
 java.io.InvalidObjectException
-java.io.LineNumberInputStream
 java.io.NotActiveException
 java.io.NotSerializableException
 java.io.ObjectInput
@@ -725,7 +722,6 @@ java.lang.management.PlatformManagedObject
 java.lang.management.ThreadMXBean
 java.lang.module.FindException
 java.lang.module.InvalidModuleDescriptorException
-java.lang.module.ModuleFinder
 java.lang.module.ModuleReader
 java.lang.module.ModuleReference
 java.lang.module.ResolutionException
@@ -1331,7 +1327,6 @@ java.util.prefs.PreferenceChangeListener
 java.util.prefs.Preferences
 java.util.prefs.PreferencesFactory
 java.util.regex.MatchResult
-java.util.regex.PatternSyntaxException
 java.util.spi.CalendarDataProvider
 java.util.spi.CalendarNameProvider
 java.util.spi.ResourceBundleControlProvider
@@ -1965,7 +1960,6 @@ javax.swing.border.AbstractBorder
 javax.swing.border.BevelBorder
 javax.swing.border.Border
 javax.swing.border.EmptyBorder
-javax.swing.border.LineBorder
 javax.swing.border.SoftBevelBorder
 javax.swing.colorchooser.ColorChooserComponentFactory
 javax.swing.colorchooser.ColorSelectionModel
@@ -2114,7 +2108,6 @@ javax.swing.plaf.metal.MetalSplitPaneUI
 javax.swing.plaf.metal.MetalTextFieldUI
 javax.swing.plaf.metal.MetalTheme
 javax.swing.plaf.metal.MetalToggleButtonUI
-javax.swing.plaf.metal.MetalTreeUI
 javax.swing.plaf.multi.MultiButtonUI
 javax.swing.plaf.multi.MultiColorChooserUI
 javax.swing.plaf.multi.MultiComboBoxUI
@@ -2697,6 +2690,5 @@ org.xml.sax.ext.EntityResolver2
 org.xml.sax.ext.LexicalHandler
 org.xml.sax.ext.Locator2
 org.xml.sax.ext.Locator2Impl
-org.xml.sax.helpers.LocatorImpl
 org.xml.sax.helpers.ParserFactory
 org.xml.sax.helpers.XMLReaderAdapter
