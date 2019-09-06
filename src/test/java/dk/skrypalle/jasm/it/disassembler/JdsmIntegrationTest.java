@@ -56,6 +56,7 @@ public class JdsmIntegrationTest {
                 "if_int_gt",
                 "if_int_le",
                 "if_int_lt",
+                "infinity_nan",
                 "integers",
                 "line_directives",
                 "local_vars",

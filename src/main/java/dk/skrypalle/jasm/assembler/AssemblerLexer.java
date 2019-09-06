@@ -134,6 +134,7 @@ class AssemblerLexer extends JasmLexer {
     private boolean isPrimitiveFollowedByClass(Token token) {
         return previous != null
                 && previous.getType() != SLASH
+                && (peek() == ';' || peek() == '/')
                 && PRIMITIVE_FOLLOWED_BY_CLASS_PATTERN.matcher(token.getText()).matches();
     }
 

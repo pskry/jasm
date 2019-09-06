@@ -132,6 +132,10 @@ instruction
     | 'ldc'    val=string                                               #LdcStringInstr
     | 'ldc'    val=type                                                 #LdcTypeInstr
     | 'ldc'    val='null'                                               #LdcNullInstr
+    | 'ldc'    val='NaN'                                                #LdcNaNInstr
+    | 'ldc'    val='NaNf'                                               #LdcNaNfInstr
+    | 'ldc'    neg='-'? val='Infinity'                                  #LdcInfinityInstr
+    | 'ldc'    neg='-'? val='Infinityf'                                 #LdcInfinityfInstr
 
     | 'newarray' typ=IDENTIFIER                                         #NewarrayInstr
 
@@ -148,9 +152,9 @@ instruction
     | 'ret'    val=INTEGER                                              #RetInstr
 
     | 'new'         typ=fqcn                                            #NewInstr
-    | 'anewarray'   typ=fqcn                                            #AnewarrayInstr
+    | 'anewarray'   typ=fqtn                                            #AnewarrayInstr
     | 'checkcast'   typ=fqtn                                            #CheckcastInstr
-    | 'instanceof'  typ=fqcn                                            #InstanceofInstr
+    | 'instanceof'  typ=fqtn                                            #InstanceofInstr
 
     | 'multianewarray' typ=typeDescriptor dim=INTEGER                   #MultianewarrayInstr
 
@@ -334,6 +338,7 @@ accessSpec
     | 'super'
     | 'interface'
     | 'abstract'
+    | 'strict'
     | 'annotation'
     | 'enum'
     | 'bridge'
@@ -391,6 +396,12 @@ string
 
 ANY                   : 'any'                    ;
 NULL                  : 'null'                   ;
+NAN                   : 'NaN'                    ;
+NAN_F                 : 'NaNf'                   ;
+INFINITY              : 'Infinity'               ;
+INFINITY_F            : 'Infinityf'              ;
+INIT                  : '<init>'                 ;
+STATIC_INIT           : '<clinit>'               ;
 
    //   //                         //    //
    //   //                         //    //
@@ -599,8 +610,6 @@ ASTERISK              : '*'                      ;
 // //  //     //     //        //     //  // //  //        //
  // /   ////   ////   ///   ////   ////    ///   //     ////
 
-INIT                  : '<init>'                 ;
-STATIC_INIT           : '<clinit>'               ;
 PUBLIC                : 'public'                 ;
 PRIVATE               : 'private'                ;
 PROTECTED             : 'protected'              ;
@@ -612,6 +621,7 @@ NATIVE                : 'native'                 ;
 SUPER                 : 'super'                  ;
 INTERFACE             : 'interface'              ;
 ABSTRACT              : 'abstract'               ;
+STRICT                : 'strict'                 ;
 ANNOTATION            : 'annotation'             ;
 ENUM                  : 'enum'                   ;
 BRIDGE                : 'bridge'                 ;
@@ -628,10 +638,10 @@ VARARGS               : 'varargs'                ;
  //   // //  ////   //     // //         //     // //   //   //        //
   //   ///   // //   ///   // //         //      // /  ////   ///   ////
 
-EOL                   : [\r\n] +                 ;
-INTEGER               : '-'?[0-9]+[l]?           ;
-DECIMAL               : '-'?[0-9]*'.'[0-9]+[f]?  ;
-IDENTIFIER            : [a-zA-Z$_][a-zA-Z0-9$_]* ;
-WHITESPACE            : [ \t]+        -> skip    ;
-COMMENT               : '#' ~[\r\n]*  -> skip    ;
-STRING                : '"' ~[\r\n]* '"'         ;
+EOL                   : [\r\n] +                                 ;
+INTEGER               : '-'?[0-9]+[l]?                           ;
+DECIMAL               : '-'?[0-9]*'.'[0-9]+([E][-]?[0-9]+)?[f]?  ;
+IDENTIFIER            : [a-zA-Z$_][a-zA-Z0-9$_]*                 ;
+WHITESPACE            : [ \t]+        -> skip                    ;
+COMMENT               : '#' ~[\r\n]*  -> skip                    ;
+STRING                : '"' ~[\r\n]* '"'                         ;

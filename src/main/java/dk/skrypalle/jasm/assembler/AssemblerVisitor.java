@@ -166,6 +166,10 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitSource(SourceContext ctx) {
+        if (ctx == null) {
+            return null;
+        }
+
         var sourceName = visitString(ctx.sourceFile);
         classVisitor.visitSource(sourceName, null);
         return null;
@@ -215,8 +219,8 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
                 return Opcodes.ACC_INTERFACE;
             case JasmLexer.ABSTRACT:
                 return Opcodes.ACC_ABSTRACT;
-            //            case JasmLexer.STRICT:
-            //                return Opcodes.ACC_STRICT;
+            case JasmLexer.STRICT:
+                return Opcodes.ACC_STRICT;
             case JasmLexer.SYNTHETIC:
                 return Opcodes.ACC_SYNTHETIC;
             case JasmLexer.ANNOTATION:
@@ -228,7 +232,7 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
             //            case JasmLexer.MODULE:
             //                return Opcodes.ACC_MODULE;
             default:
-                return null;
+                throw new IllegalArgumentException();
         }
     }
 

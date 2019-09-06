@@ -1,0 +1,59 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright © 2018 Peter Skrypalle
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+.bytecode 56.0
+.source "infinity_nan.jasm"
+.class public super dk/skrypalle/jasm/it/assembler/InfinityNan
+.super java/lang/Object
+
+# prints 'float: NaN\nfloat: Infinity\nfloat: -Infinity\ndouble: NaN\ndouble: Infinity\ndouble: -Infinity\n' to stdout
+.method public static main([Ljava/lang/String;)V
+  ldc NaNf
+  invokestatic dk/skrypalle/jasm/it/assembler/InfinityNan.print:(F)V
+  ldc Infinityf
+  invokestatic dk/skrypalle/jasm/it/assembler/InfinityNan.print:(F)V
+  ldc -Infinityf
+  invokestatic dk/skrypalle/jasm/it/assembler/InfinityNan.print:(F)V
+  ldc NaN
+  invokestatic dk/skrypalle/jasm/it/assembler/InfinityNan.print:(D)V
+  ldc Infinity
+  invokestatic dk/skrypalle/jasm/it/assembler/InfinityNan.print:(D)V
+  ldc -Infinity
+  invokestatic dk/skrypalle/jasm/it/assembler/InfinityNan.print:(D)V
+  return
+.end method
+
+.method private static print(F)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  ldc "float: "
+  invokevirtual java/io/PrintStream.print:(Ljava/lang/String;)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  fload 0
+  invokevirtual java/io/PrintStream.println:(F)V
+  return
+.end method
+
+.method private static print(D)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  ldc "double: "
+  invokevirtual java/io/PrintStream.print:(Ljava/lang/String;)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  dload 0
+  invokevirtual java/io/PrintStream.println:(D)V
+  return
+.end method

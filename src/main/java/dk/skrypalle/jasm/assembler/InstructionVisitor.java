@@ -123,6 +123,10 @@ import dk.skrypalle.jasm.generated.JasmParser.LandInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LastoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LcmpInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdcDecInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LdcInfinityInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LdcInfinityfInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LdcNaNInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LdcNaNfInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdcNullInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdcTypeInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdivInstrContext;
@@ -297,6 +301,36 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         return null;
     }
 
+    @Override
+    public Object visitLdcNaNInstr(LdcNaNInstrContext ctx) {
+        methodVisitor.visitLdcInsn(Double.NaN);
+        return null;
+    }
+
+    @Override
+    public Object visitLdcNaNfInstr(LdcNaNfInstrContext ctx) {
+        methodVisitor.visitLdcInsn(Float.NaN);
+        return null;
+    }
+
+    @Override
+    public Object visitLdcInfinityInstr(LdcInfinityInstrContext ctx) {
+        var value = ctx.neg == null
+                ? Double.POSITIVE_INFINITY
+                : Double.NEGATIVE_INFINITY;
+        methodVisitor.visitLdcInsn(value);
+        return null;
+    }
+
+    @Override
+    public Object visitLdcInfinityfInstr(LdcInfinityfInstrContext ctx) {
+        var value = ctx.neg == null
+                ? Float.POSITIVE_INFINITY
+                : Float.NEGATIVE_INFINITY;
+        methodVisitor.visitLdcInsn(value);
+        return null;
+    }
+
     //region int instructions
 
     @Override
@@ -312,7 +346,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
             case "I":
                 type = Opcodes.T_INT;
                 break;
-            case "L":
+            case "J":
                 type = Opcodes.T_LONG;
                 break;
             case "F":
@@ -423,7 +457,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitAnewarrayInstr(AnewarrayInstrContext ctx) {
-        var type = visitFqcn(ctx.typ);
+        var type = visitFqtn(ctx.typ);
         methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, type);
         return null;
     }
@@ -437,7 +471,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitInstanceofInstr(InstanceofInstrContext ctx) {
-        var type = visitFqcn(ctx.typ);
+        var type = visitFqtn(ctx.typ);
         methodVisitor.visitTypeInsn(Opcodes.INSTANCEOF, type);
         return null;
     }
