@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dk.skrypalle.jasm.it.assembler.Arranger.assembling;
 import static dk.skrypalle.jasm.it.util.TestAssertions.assertThat;
@@ -64,11 +66,13 @@ public class JasmIntegrationTest {
                 assembling("mixed_descriptor").shouldPrint("12OneTwo"),
                 assembling("nested_try_catch_parse_int").shouldPrint("1\nCannot parse '0xff' to int\n2310\n255\n"),
                 assembling("no_newline_at_end_of_file").shouldPrint("WorksWithoutNewlineAtTheEndOfTheFile"),
+                assembling("null").shouldPrint("null"),
                 assembling("odd_names").shouldPrint("23\n10\ntrue\n23101982\nHi\njavax.net.ssl.SSLException: Reason\n"),
                 assembling("overwrite_a0").withArgs("arg0", "arg1").shouldPrint("[arg0, arg1]\nclass [Ljava.lang.String;\noverwrite_a0\nclass java.lang.String\n"),
                 assembling("overwrite_i0").withArgs("arg0", "arg1").shouldPrint("[arg0, arg1]\nclass [Ljava.lang.String;\n2310\n2310\nclass java.lang.Integer\n"),
                 assembling("print_main_args").withArgs("a", "b", "c").shouldPrint("[a, b, c]"),
                 assembling("static_field").shouldPrint("2310"),
+                assembling("synchronized_block").shouldPrint("Hi"),
                 assembling("table_switch").shouldPrint("zero\none\ntwo\n"),
                 assembling("try_catch_parse_int").shouldPrint("1\nCannot parse 'bye' to int\n2310\nCannot parse 'hello' to int\n"),
                 assembling("var_directives_same_var").shouldPrint("2310\n1982\n"),
@@ -76,6 +80,27 @@ public class JasmIntegrationTest {
                 assembling("while_loop").shouldPrint("0\n1\n2\n3\n4\n"),
         };
         //checkstyle.on: LineLength
+    }
+
+    @Test
+    public void provideSourceFileAndExpectedResult_areDistinct_and_orderedAlphabetically() {
+        // arrange
+        // act
+        var original = Stream.of(provideSourceFileAndExpectedResult())
+                .map(array -> (String) array[0])
+                .collect(Collectors.toList());
+        var ordered = original.stream()
+                .sorted()
+                .collect(Collectors.toList());
+        var distinct = ordered.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        // assert
+        assertThat(original)
+                .containsExactlyElementsOf(ordered);
+        assertThat(original)
+                .containsExactlyElementsOf(distinct);
     }
 
     @Test(dataProvider = "provideSourceFileAndExpectedResult")

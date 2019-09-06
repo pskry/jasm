@@ -565,13 +565,16 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         var startName = labelTracker.refLabel();
         var endName = labelTracker.refLabel();
         var handlerName = labelTracker.refLabel();
+        var exceptionType = type == null
+                ? "any"
+                : type;
 
         methodSpec.addDirective(String.format(
                 ".exception %s %s %s %s",
                 startName,
                 endName,
                 handlerName,
-                type
+                exceptionType
         ));
     }
 

@@ -173,7 +173,9 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public String visitSuperSpec(SuperSpecContext ctx) {
-        return ctx.name.getText();
+        return ctx.name == null
+                ? null
+                : ctx.name.getText();
     }
 
     @Override

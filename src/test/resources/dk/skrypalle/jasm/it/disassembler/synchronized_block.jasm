@@ -1,0 +1,66 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright © 2018 Peter Skrypalle
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+.bytecode 56.0
+.source "synchronized_block.jasm"
+.class public super dk/skrypalle/jasm/it/disassembler/SynchronizedBlock
+.super java/lang/Object
+
+.field private final lock Ljava/lang/Object;
+
+.method public <init>()V
+.exception label_0 label_1 label_2 any
+.exception label_2 label_3 label_2 any
+  aload 0
+  invokespecial java/lang/Object.<init>:()V
+  aload 0
+  new java/lang/Object
+  dup
+  invokespecial java/lang/Object.<init>:()V
+  putfield dk/skrypalle/jasm/it/disassembler/SynchronizedBlock.lock:Ljava/lang/Object;
+  aload 0
+  getfield dk/skrypalle/jasm/it/disassembler/SynchronizedBlock.lock:Ljava/lang/Object;
+  dup
+  astore 1
+  monitorenter
+label_0:
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  ldc "Hi"
+  invokevirtual java/io/PrintStream.print:(Ljava/lang/String;)V
+  aload 1
+  monitorexit
+label_1:
+  goto label_4
+label_2:
+  astore 2
+  aload 1
+  monitorexit
+label_3:
+  aload 2
+  athrow
+label_4:
+  return
+.end method
+
+.method public static main([Ljava/lang/String;)V
+  new dk/skrypalle/jasm/it/disassembler/SynchronizedBlock
+  dup
+  invokespecial dk/skrypalle/jasm/it/disassembler/SynchronizedBlock.<init>:()V
+  pop
+  return
+.end method

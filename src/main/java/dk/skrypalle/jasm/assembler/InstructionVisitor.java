@@ -122,6 +122,7 @@ import dk.skrypalle.jasm.generated.JasmParser.LandInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LastoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LcmpInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdcDecInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.LdcNullInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdcTypeInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LdivInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.LineDirectiveContext;
@@ -286,6 +287,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
         var value = (String) new TypeVisitor(errorListener).visit(ctx.val);
         var type = Type.getType(value);
         methodVisitor.visitLdcInsn(type);
+        return null;
+    }
+
+    @Override
+    public Object visitLdcNullInstr(LdcNullInstrContext ctx) {
+        methodVisitor.visitInsn(Opcodes.ACONST_NULL);
         return null;
     }
 

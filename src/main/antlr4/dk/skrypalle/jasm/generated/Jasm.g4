@@ -49,7 +49,7 @@ genericSpec
     ;
 
 superSpec
-    : '.super' name=fqcn
+    : '.super' (name=fqcn|'null')
     ;
 
 implementsSpec
@@ -79,7 +79,7 @@ gen
     ;
 
 exceptionSpec
-    : '.exception' start=label end=label handler=label typ=fqcn
+    : '.exception' start=label end=label handler=label (typ=fqcn|'any')
     ;
 
 localVarSpec
@@ -131,6 +131,7 @@ instruction
     | 'ldc'    val=DECIMAL                                              #LdcDecInstr
     | 'ldc'    val=string                                               #LdcStringInstr
     | 'ldc'    val=type                                                 #LdcTypeInstr
+    | 'ldc'    val='null'                                               #LdcNullInstr
 
     | 'newarray' typ=IDENTIFIER                                         #NewarrayInstr
 
@@ -381,6 +382,9 @@ string
    //    //     // //   //  //       //   /// //    //
    //     ///////  //    // //////// //    //  //////
 
+
+ANY                   : 'any'                    ;
+NULL                  : 'null'                   ;
 
    //   //                         //    //
    //   //                         //    //
