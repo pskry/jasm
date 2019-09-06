@@ -217,8 +217,8 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
                 return Opcodes.ACC_ABSTRACT;
             //            case JasmLexer.STRICT:
             //                return Opcodes.ACC_STRICT;
-            //            case JasmLexer.SYNTHETIC:
-            //                return Opcodes.ACC_SYNTHETIC;
+            case JasmLexer.SYNTHETIC:
+                return Opcodes.ACC_SYNTHETIC;
             case JasmLexer.ANNOTATION:
                 return Opcodes.ACC_ANNOTATION;
             case JasmLexer.ENUM:

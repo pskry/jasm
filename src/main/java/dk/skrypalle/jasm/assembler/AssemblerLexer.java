@@ -98,7 +98,11 @@ class AssemblerLexer extends JasmLexer {
             previous = null;
         } else {
             if (isDirective(next)) {
-                next = splitDotAndStash(next);
+                if (peek() == ':') {
+                    next = splitDotAndStash(next);
+                } else {
+                    next = splitDotAndMerge(next);
+                }
             }
 
             if (isInstruction(next)) {
@@ -161,6 +165,20 @@ class AssemblerLexer extends JasmLexer {
         setCharPositionInLine(currentPosInLine);
         tokenStash.add(stash);
         return split;
+    }
+
+    private Token splitDotAndMerge(Token token) {
+        var currentPosInLine = getCharPositionInLine();
+        setCharPositionInLine(token.getCharPositionInLine());
+        final var dot = split(token, DOT, token.getStartIndex(), token.getStartIndex());
+        setCharPositionInLine(currentPosInLine);
+        var next = next();
+        currentPosInLine = getCharPositionInLine();
+        setCharPositionInLine(token.getCharPositionInLine() + 1);
+        var merge = split(token, IDENTIFIER, token.getStartIndex() + 1, next.getStopIndex());
+        setCharPositionInLine(currentPosInLine);
+        tokenStash.add(merge);
+        return dot;
     }
 
     private Token splitAndStash(Token token) {

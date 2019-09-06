@@ -65,6 +65,7 @@ import dk.skrypalle.jasm.generated.JasmParser.FdivInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FmulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FnegInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.FqtnContext;
 import dk.skrypalle.jasm.generated.JasmParser.FremInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FreturnInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FstoreInstrContext;
@@ -429,17 +430,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitCheckcastInstr(CheckcastInstrContext ctx) {
-        String type;
-        var fqcn = ctx.fqcn();
-        var arrayType = ctx.arrayType();
-        if (fqcn != null) {
-            type = visitFqcn(fqcn);
-        } else if (arrayType != null) {
-            type = new TypeVisitor(errorListener).visitArrayType(arrayType);
-        } else {
-            throw new IllegalStateException();
-        }
-
+        String type = visitFqtn(ctx.typ);
         methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, type);
         return null;
     }
@@ -1013,7 +1004,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitGetStaticInstr(GetStaticInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
@@ -1027,7 +1018,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitPutStaticInstr(PutStaticInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
@@ -1041,7 +1032,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitGetFieldInstr(GetFieldInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
@@ -1055,7 +1046,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitPutFieldInstr(PutFieldInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
@@ -1073,7 +1064,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitInvokeVirtualInstr(InvokeVirtualInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
@@ -1088,7 +1079,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitInvokeSpecialInstr(InvokeSpecialInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
@@ -1103,7 +1094,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitInvokeStaticInstr(InvokeStaticInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
@@ -1118,7 +1109,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitInvokeInterfaceInstr(InvokeInterfaceInstrContext ctx) {
-        var owner = ctx.owner.getText();
+        var owner = visitFqtn(ctx.owner);
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
@@ -1342,6 +1333,19 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
         return new TypeVisitor(errorListener).visitDescriptor(ctx);
+    }
+
+    @Override
+    public String visitFqtn(FqtnContext ctx) {
+        var fqcn = ctx.fqcn();
+        var arrayType = ctx.arrayType();
+        if (fqcn != null) {
+            return visitFqcn(fqcn);
+        } else if (arrayType != null) {
+            return new TypeVisitor(errorListener).visitArrayType(arrayType);
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
     @Override

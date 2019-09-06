@@ -149,7 +149,7 @@ instruction
 
     | 'new'         typ=fqcn                                            #NewInstr
     | 'anewarray'   typ=fqcn                                            #AnewarrayInstr
-    | 'checkcast'   (fqcn|arrayType)                                    #CheckcastInstr
+    | 'checkcast'   typ=fqtn                                            #CheckcastInstr
     | 'instanceof'  typ=fqcn                                            #InstanceofInstr
 
     | 'multianewarray' typ=typeDescriptor dim=INTEGER                   #MultianewarrayInstr
@@ -247,15 +247,15 @@ instruction
     | 'monitorenter'                                                    #MonitorenterInstr
     | 'monitorexit'                                                     #MonitorexitInstr
 
-    | 'getstatic'        owner=fqcn'.'name=methodName':'desc=descriptor #GetStaticInstr
-    | 'putstatic'        owner=fqcn'.'name=methodName':'desc=descriptor #PutStaticInstr
-    | 'getfield'         owner=fqcn'.'name=methodName':'desc=descriptor #GetFieldInstr
-    | 'putfield'         owner=fqcn'.'name=methodName':'desc=descriptor #PutFieldInstr
+    | 'getstatic'        owner=fqtn'.'name=methodName':'desc=descriptor #GetStaticInstr
+    | 'putstatic'        owner=fqtn'.'name=methodName':'desc=descriptor #PutStaticInstr
+    | 'getfield'         owner=fqtn'.'name=methodName':'desc=descriptor #GetFieldInstr
+    | 'putfield'         owner=fqtn'.'name=methodName':'desc=descriptor #PutFieldInstr
 
-    | 'invokevirtual'    owner=fqcn'.'name=methodName':'desc=descriptor #InvokeVirtualInstr
-    | 'invokespecial'    owner=fqcn'.'name=methodName':'desc=descriptor #InvokeSpecialInstr
-    | 'invokestatic'     owner=fqcn'.'name=methodName':'desc=descriptor #InvokeStaticInstr
-    | 'invokeinterface'  owner=fqcn'.'name=methodName':'desc=descriptor #InvokeInterfaceInstr
+    | 'invokevirtual'    owner=fqtn'.'name=methodName':'desc=descriptor #InvokeVirtualInstr
+    | 'invokespecial'    owner=fqtn'.'name=methodName':'desc=descriptor #InvokeSpecialInstr
+    | 'invokestatic'     owner=fqtn'.'name=methodName':'desc=descriptor #InvokeStaticInstr
+    | 'invokeinterface'  owner=fqtn'.'name=methodName':'desc=descriptor #InvokeInterfaceInstr
 
     | 'ifeq'             dst=label                                      #IfeqInstr
     | 'ifne'             dst=label                                      #IfneInstr
@@ -277,6 +277,11 @@ instruction
     | 'ifnonnull'        dst=label                                      #IfnonnullInstr
 
     | 'iinc'             var=INTEGER inc=INTEGER                        #IincInstr
+    ;
+
+fqtn
+    : fqcn
+    | arrayType
     ;
 
 label
@@ -324,6 +329,7 @@ accessSpec
     | 'static'
     | 'final'
     | 'synchronized'
+    | 'synthetic'
     | 'native'
     | 'super'
     | 'interface'
@@ -601,6 +607,7 @@ PROTECTED             : 'protected'              ;
 STATIC                : 'static'                 ;
 FINAL                 : 'final'                  ;
 SYNCHRONIZED          : 'synchronized'           ;
+SYNTHETIC             : 'synthetic'              ;
 NATIVE                : 'native'                 ;
 SUPER                 : 'super'                  ;
 INTERFACE             : 'interface'              ;

@@ -40,6 +40,7 @@ public class JasmIntegrationTest {
         //checkstyle.off: LineLength - exceeded due to readability of arranger DSL
         return new Object[][]{
                 assembling("abstract_method").shouldPrint("abstract"),
+                assembling("array_clone_int").shouldPrint("[23, 10, 19, 82]\n[23, 10, 19, 82]\n[100, 10, 19, 82]\n"),
                 assembling("array_loop_int").shouldPrint("4\n3\n2\n1\n0\n"),
                 assembling("array_loop_string").shouldPrint("e\nd\nc\nb\na\n"),
                 assembling("constructor").shouldPrint("\"Hello\""),
