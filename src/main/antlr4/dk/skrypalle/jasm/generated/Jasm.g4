@@ -25,8 +25,9 @@ jasmFile
 
 header
     : bytecodeVersion EOL+
-      (source EOL)?
+      (source EOL+)?
       classSpec EOL+
+      (genericSpec EOL+)?
       superSpec EOL+
       (implementsSpec EOL)*
     ;
@@ -43,6 +44,10 @@ classSpec
     : '.class' accessSpec* name=fqcn
     ;
 
+genericSpec
+    : '.generic' sig=genericSignature? ext=argList
+    ;
+
 superSpec
     : '.super' name=fqcn
     ;
@@ -57,11 +62,20 @@ memberSpec
     ;
 
 methodSpec
-    : '.method' accessSpec* name=methodName descriptor EOL+
+    : '.method' accessSpec* genericSignature? name=methodName descriptor EOL+
       (exceptionSpec? EOL)*
       (localVarSpec? EOL)*
       instructionList?
       '.end method'
+    ;
+
+genericSignature
+    : '<' gen+ '>'
+    ;
+
+gen
+    : name=IDENTIFIER ':' ext=type #TypeGen
+    | name=IDENTIFIER '::' ext=type #InterfaceGen
     ;
 
 exceptionSpec
@@ -84,7 +98,11 @@ descriptor
     ;
 
 methodDescriptor
-    : '(' args=argList? ')' returnType=type
+    : '(' args=argList? ')' returnType=type doesThrow=throwsSpec?
+    ;
+
+throwsSpec
+    : '^' typ=type
     ;
 
 typeDescriptor
@@ -130,7 +148,7 @@ instruction
 
     | 'new'         typ=fqcn                                            #NewInstr
     | 'anewarray'   typ=fqcn                                            #AnewarrayInstr
-    | 'checkcast'   typ=fqcn                                            #CheckcastInstr
+    | 'checkcast'   (fqcn|arrayType)                                    #CheckcastInstr
     | 'instanceof'  typ=fqcn                                            #InstanceofInstr
 
     | 'multianewarray' typ=typeDescriptor dim=INTEGER                   #MultianewarrayInstr
@@ -318,9 +336,31 @@ accessSpec
     ;
 
 type
-    : IDENTIFIER  #PrimitiveType
-    | fqcn ';'    #ClassType
-    | '['type     #ArrayType
+    : primitiveType
+    | classType
+    | arrayType
+    | genericType
+    ;
+
+primitiveType
+    : IDENTIFIER
+    ;
+
+classType
+    : fqcn ';'
+    ;
+
+genericType
+    : fqcn'<'genType+'>'';'
+    ;
+
+arrayType
+    : '['type
+    ;
+
+genType
+    : wildcard=('+'|'-')? typeToken=type #RegularGenericType
+    | '*'                          #WildcardGenericType
     ;
 
 fqcn
@@ -362,6 +402,7 @@ FIELD_DIRECTIVE       : '.field'                 ;
 EXCEPTION_DIRECTIVE   : '.exception'             ;
 LINE_DIRECTIVE        : '.line'                  ;
 VAR_DIRECTIVE         : '.var'                   ;
+GENErIC_DIRECTIVE     : '.generic'               ;
 
  //                  //                         //    //
  //                  //                         //    //
@@ -530,9 +571,17 @@ DOT                   : '.'                      ;
 L_PAREN               : '('                      ;
 R_PAREN               : ')'                      ;
 COLON                 : ':'                      ;
+DOUBLE_COLON          : '::'                     ;
 SEMICOLON             : ';'                      ;
 L_BRACKET             : '['                      ;
 SLASH                 : '/'                      ;
+LT                    : '<'                      ;
+GT                    : '>'                      ;
+CARET                 : '^'                      ;
+PLUS                  : '+'                      ;
+MINUS                 : '-'                      ;
+ASTERISK              : '*'                      ;
+
 
  ////   ////   ////   ///    ////   ////   ///   / ///   ////
 // //  //     //     // //  //     //     // //  ///    //

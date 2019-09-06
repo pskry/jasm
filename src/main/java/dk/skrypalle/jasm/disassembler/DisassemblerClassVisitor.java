@@ -50,6 +50,7 @@ public class DisassemblerClassVisitor extends ClassVisitor {
         var classSpec = classFile.getClassSpec();
         classSpec.setAccess(access);
         classSpec.setName(name);
+        classSpec.setSignature(signature);
         classSpec.setSuperName(superName);
         classSpec.addInterfaces(interfaces);
     }
@@ -78,6 +79,7 @@ public class DisassemblerClassVisitor extends ClassVisitor {
         methodSpec.setAccess(access);
         methodSpec.setName(name);
         methodSpec.setDescriptor(descriptor);
+        methodSpec.setSignature(signature);
         classFile.addMethodVisitor(methodVisitor);
         return methodVisitor;
     }

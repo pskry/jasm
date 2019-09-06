@@ -422,7 +422,17 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitCheckcastInstr(CheckcastInstrContext ctx) {
-        var type = visitFqcn(ctx.typ);
+        String type;
+        var fqcn = ctx.fqcn();
+        var arrayType = ctx.arrayType();
+        if (fqcn != null) {
+            type = visitFqcn(fqcn);
+        } else if (arrayType != null) {
+            type = new TypeVisitor(errorListener).visitArrayType(arrayType);
+        } else {
+            throw new IllegalStateException();
+        }
+
         methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, type);
         return null;
     }

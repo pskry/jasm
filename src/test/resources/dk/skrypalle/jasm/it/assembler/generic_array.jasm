@@ -1,0 +1,89 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright © 2018 Peter Skrypalle
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+.bytecode 56.0
+.source "generic_array.jasm"
+.class public super dk/skrypalle/jasm/it/assembler/GenericArray
+.generic <E:Ljava/lang/Object;>Ljava/lang/Object;
+.super java/lang/Object
+
+.field private elements [Ljava/lang/Object;
+.field private index I
+
+.method public <init>()V
+  aload 0
+  invokespecial java/lang/Object.<init>:()V
+  aload 0
+  ldc 2
+  anewarray java/lang/Object
+  putfield dk/skrypalle/jasm/it/assembler/GenericArray.elements:[Ljava/lang/Object;
+  aload 0
+  ldc 0
+  putfield dk/skrypalle/jasm/it/assembler/GenericArray.index:I
+  return
+.end method
+
+.method public add(TE;)V
+  aload 0
+  getfield dk/skrypalle/jasm/it/assembler/GenericArray.elements:[Ljava/lang/Object;
+  aload 0
+  dup
+  getfield dk/skrypalle/jasm/it/assembler/GenericArray.index:I
+  dup_x1
+  ldc 1
+  iadd
+  putfield dk/skrypalle/jasm/it/assembler/GenericArray.index:I
+  aload 1
+  aastore
+  return
+.end method
+
+.method public <T:Ljava/lang/Object;> toArray([TT;)[TT;
+  aload 0
+  getfield dk/skrypalle/jasm/it/assembler/GenericArray.elements:[Ljava/lang/Object;
+  ldc 2
+  aload 1
+  invokevirtual java/lang/Object.getClass:()Ljava/lang/Class;
+  invokestatic java/util/Arrays.copyOf:([Ljava/lang/Object;ILjava/lang/Class;)[Ljava/lang/Object;
+  areturn
+.end method
+
+# prints '[Hi, there]' to stdout
+.method public static main([Ljava/lang/String;)V
+  new dk/skrypalle/jasm/it/assembler/GenericArray
+  dup
+  invokespecial dk/skrypalle/jasm/it/assembler/GenericArray.<init>:()V
+  astore 1
+  aload 1
+  ldc "Hi"
+  invokevirtual dk/skrypalle/jasm/it/assembler/GenericArray.add:(Ljava/lang/Object;)V
+  aload 1
+  ldc "there"
+  invokevirtual dk/skrypalle/jasm/it/assembler/GenericArray.add:(Ljava/lang/Object;)V
+  aload 1
+  ldc 2
+  anewarray java/lang/String
+  invokevirtual dk/skrypalle/jasm/it/assembler/GenericArray.toArray:([Ljava/lang/Object;)[Ljava/lang/Object;
+  checkcast [Ljava/lang/String;
+  astore 2
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  aload 2
+  invokestatic java/util/Arrays.toString:([Ljava/lang/Object;)Ljava/lang/String;
+  invokevirtual java/io/PrintStream.print:(Ljava/lang/String;)V
+  return
+.end method

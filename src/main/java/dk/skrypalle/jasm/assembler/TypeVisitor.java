@@ -19,8 +19,13 @@ package dk.skrypalle.jasm.assembler;
 
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
+import dk.skrypalle.jasm.generated.JasmParser.GenericTypeContext;
+import dk.skrypalle.jasm.generated.JasmParser.RegularGenericTypeContext;
+import dk.skrypalle.jasm.generated.JasmParser.ThrowsSpecContext;
+import dk.skrypalle.jasm.generated.JasmParser.WildcardGenericTypeContext;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static dk.skrypalle.jasm.generated.JasmParser.ArgListContext;
 import static dk.skrypalle.jasm.generated.JasmParser.ArrayTypeContext;
@@ -55,7 +60,15 @@ class TypeVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public String visitMethodDescriptor(MethodDescriptorContext ctx) {
-        return "(" + visitArgList(ctx.args) + ")" + visit(ctx.returnType);
+        var throwsSpec = ctx.doesThrow == null
+                ? ""
+                : visitThrowsSpec(ctx.doesThrow);
+
+        return String.format("(%s)%s%s",
+                visitArgList(ctx.args),
+                visit(ctx.returnType),
+                throwsSpec
+        );
     }
 
     @Override
@@ -99,11 +112,45 @@ class TypeVisitor extends JasmBaseVisitor<Object> {
     public Object visitClassType(ClassTypeContext ctx) {
         var fqcnCtx = ctx.fqcn();
         var fqcn = visitFqcn(fqcnCtx);
-        if (!fqcn.matches("^L[^/]+(/[^/]+)*$")) {
+        if (!fqcn.matches("^L[^/]+(/[^/]+)*$") && !fqcn.matches("^T[a-zA-Z_$]+$")) {
             var start = fqcnCtx.start;
             errorListener.emitInvalidClassType(start, fqcn);
         }
         return fqcn + ";";
+    }
+
+    @Override
+    public Object visitGenericType(GenericTypeContext ctx) {
+        var fqcnCtx = ctx.fqcn();
+        var fqcn = visitFqcn(fqcnCtx);
+        if (!fqcn.matches("^L[^/]+(/[^/]+)*$")) {
+            var start = fqcnCtx.start;
+            errorListener.emitInvalidClassType(start, fqcn);
+        }
+
+        var genericTypeDef = ctx.genType().stream()
+                .map(c -> (String) visit(c))
+                .collect(Collectors.joining());
+
+        return fqcn + "<" + genericTypeDef + ">;";
+    }
+
+    @Override
+    public Object visitRegularGenericType(RegularGenericTypeContext ctx) {
+        if (ctx.wildcard != null) {
+            return ctx.wildcard.getText() + ctx.typeToken.getText();
+        }
+        return ctx.type().getText();
+    }
+
+    @Override
+    public Object visitWildcardGenericType(WildcardGenericTypeContext ctx) {
+        return "*";
+    }
+
+    @Override
+    public String visitThrowsSpec(ThrowsSpecContext ctx) {
+        return ctx.getText();
     }
 
     @Override

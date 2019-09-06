@@ -39,7 +39,10 @@ import java.util.stream.Stream;
 
 class AssemblerLexer extends JasmLexer {
 
-    private static final Pattern PRIMITIVE_CLASS_PATTERN = Pattern.compile("[BSIJFDZCV]+L.*$");
+    private static final Pattern PRIMITIVE_FOLLOWED_BY_CLASS_PATTERN
+            = Pattern.compile("[BSIJFDZCV]+L.*$");
+    private static final Pattern PRIMITIVE_FOLLOWED_BY_TYPE_TOKEN_PATTERN
+            = Pattern.compile("[BSIJFDZCV]+T.*$");
     private static final int FIRST_INSTR;
     private static final int LAST_INSTR;
     private static final int FIRST_DIRECTIVE;
@@ -78,6 +81,7 @@ class AssemblerLexer extends JasmLexer {
     private final Queue<Token> tokenStash = new ArrayDeque<>();
 
     private boolean isFirstTokenInLine = true;
+    private Token previous;
 
     AssemblerLexer(CharStream input, ErrorListener errorListener) {
         super(input);
@@ -89,7 +93,10 @@ class AssemblerLexer extends JasmLexer {
     @Override
     public Token nextToken() {
         var next = next();
-        if (!isFirstTokenInLine) {
+
+        if (isFirstTokenInLine) {
+            previous = null;
+        } else {
             if (isDirective(next)) {
                 next = splitDotAndStash(next);
             }
@@ -101,12 +108,13 @@ class AssemblerLexer extends JasmLexer {
         }
 
         isFirstTokenInLine = next.getType() == EOL;
+        previous = next;
         return next;
     }
 
     private Token next() {
         var next = pollOrNext();
-        if (PRIMITIVE_CLASS_PATTERN.matcher(next.getText()).matches()) {
+        if (isPrimitiveFollowedByClass(next) || isPrimitiveFollowedByTypeToken(next)) {
             return splitAndStash(next);
         }
         return next;
@@ -117,6 +125,23 @@ class AssemblerLexer extends JasmLexer {
         return next == null
                 ? super.nextToken()
                 : next;
+    }
+
+    private boolean isPrimitiveFollowedByClass(Token token) {
+        return previous != null
+                && previous.getType() != SLASH
+                && PRIMITIVE_FOLLOWED_BY_CLASS_PATTERN.matcher(token.getText()).matches();
+    }
+
+    private boolean isPrimitiveFollowedByTypeToken(Token token) {
+        return previous != null
+                && previous.getType() != SLASH
+                && peek() == ';'
+                && PRIMITIVE_FOLLOWED_BY_TYPE_TOKEN_PATTERN.matcher(token.getText()).matches();
+    }
+
+    private char peek() {
+        return (char) _input.LA(1);
     }
 
     private Token toIdentifier(Token token) {
@@ -174,8 +199,8 @@ class AssemblerLexer extends JasmLexer {
     private static int readStaticInt(Field field) {
         try {
             return (int) field.get(null);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(e);
+        } catch (Throwable t) {
+            throw new IllegalArgumentException(t);
         }
     }
 

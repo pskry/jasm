@@ -588,11 +588,15 @@ class DisassemblerMethodVisitor extends MethodVisitor {
             Label start,
             Label end,
             int index) {
+        var jasmDescriptor = signature == null
+                ? descriptor
+                : signature;
+
         methodSpec.addDirective(String.format(
                 ".var %d %s:%s %s %s",
                 index,
                 name,
-                descriptor,
+                jasmDescriptor,
                 labelTracker.refLabel(),
                 labelTracker.refLabel()
         ));

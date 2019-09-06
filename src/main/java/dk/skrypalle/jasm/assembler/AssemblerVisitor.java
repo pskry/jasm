@@ -22,6 +22,8 @@ import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmLexer;
 import dk.skrypalle.jasm.generated.JasmParser.ExceptionSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.FieldSpecContext;
+import dk.skrypalle.jasm.generated.JasmParser.GenericSignatureContext;
+import dk.skrypalle.jasm.generated.JasmParser.GenericSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.LocalVarSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.MemberSpecContext;
 import org.apache.commons.collections4.CollectionUtils;
@@ -32,6 +34,10 @@ import org.objectweb.asm.Opcodes;
 
 import java.util.List;
 
+import static dk.skrypalle.jasm.assembler.AssemblerUtils.hasTypeToken;
+import static dk.skrypalle.jasm.assembler.AssemblerUtils.isGenericDescriptor;
+import static dk.skrypalle.jasm.assembler.AssemblerUtils.toRawMethodDescriptor;
+import static dk.skrypalle.jasm.assembler.AssemblerUtils.toSignature;
 import static dk.skrypalle.jasm.generated.JasmParser.AccessSpecContext;
 import static dk.skrypalle.jasm.generated.JasmParser.BytecodeVersionContext;
 import static dk.skrypalle.jasm.generated.JasmParser.DescriptorContext;
@@ -47,12 +53,15 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
     private final ClassVisitor classVisitor;
+    private final TypeTokenMap typeTokenMap;
 
     private String className;
 
     AssemblerVisitor(ErrorListener errorListener, ClassVisitor classVisitor) {
         this.errorListener = errorListener;
         this.classVisitor = classVisitor;
+
+        typeTokenMap = new TypeTokenMap();
     }
 
     String getClassName() {
@@ -70,21 +79,28 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitHeader(HeaderContext ctx) {
-        var version = visitBytecodeVersion(ctx.bytecodeVersion());
         visitSource(ctx.source());
         var superName = visitSuperSpec(ctx.superSpec());
         var classSpec = ctx.classSpec();
+        var genericSpec = ctx.genericSpec();
+        String classSignature = null;
+        if (genericSpec != null) {
+            classSignature = visitGenericSpec(genericSpec);
+            typeTokenMap.mapClassSignature(classSignature);
+        }
         int access = visitAccessSpecs(classSpec.accessSpec());
         var interfaces = ctx.implementsSpec().stream()
                 .map(this::visitImplementsSpec)
                 .toArray(String[]::new);
+
+        var version = visitBytecodeVersion(ctx.bytecodeVersion());
 
         className = classSpec.name.getText();
         classVisitor.visit(
                 version,
                 access,
                 className,
-                null,
+                classSignature,
                 superName,
                 interfaces
         );
@@ -234,16 +250,21 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitMethodSpec(MethodSpecContext ctx) {
+        typeTokenMap.nextMethod();
+
         int access = visitAccessSpecs(ctx.accessSpec());
         var name = ctx.name.getText();
         var descriptor = visitDescriptor(ctx.descriptor());
+        var signature = getMethodSignature(descriptor, ctx.genericSignature());
+        var rawDescriptor = toRawMethodDescriptor(descriptor, typeTokenMap);
+        var ex = AssemblerUtils.toRawExceptions(descriptor, typeTokenMap);
 
         var method = classVisitor.visitMethod(
                 access,
                 name,
-                descriptor,
-                null,
-                null
+                rawDescriptor,
+                signature,
+                ex
         );
 
         var labelTracker = new LabelTracker();
@@ -264,7 +285,12 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
         var localVarSpecList = ctx.localVarSpec();
         if (CollectionUtils.isNotEmpty(localVarSpecList)) {
-            var localVarVisitor = new LocalVarSpecVisitor(errorListener, method, labelTracker);
+            var localVarVisitor = new LocalVarSpecVisitor(
+                    errorListener,
+                    method,
+                    labelTracker,
+                    typeTokenMap
+            );
             for (LocalVarSpecContext localVarSpec : localVarSpecList) {
                 localVarVisitor.visitLocalVarSpec(localVarSpec);
             }
@@ -275,9 +301,40 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         return null;
     }
 
+    private String getMethodSignature(
+            String descriptor,
+            GenericSignatureContext genericSignatureContext) {
+        String signature = null;
+        if (isGenericDescriptor(descriptor) || hasTypeToken(descriptor)) {
+            signature = descriptor;
+        }
+
+        if (genericSignatureContext != null) {
+            signature = toSignature(visitGenericSignature(genericSignatureContext), descriptor);
+            typeTokenMap.mapMethodSignature(signature);
+        }
+
+        return signature;
+    }
+
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
         return new TypeVisitor(errorListener).visitDescriptor(ctx);
+    }
+
+    @Override
+    public String visitGenericSignature(GenericSignatureContext ctx) {
+        return ctx.getText();
+    }
+
+    @Override
+    public String visitGenericSpec(GenericSpecContext ctx) {
+        String signature = "";
+        if (ctx.sig != null) {
+            signature = visitGenericSignature(ctx.sig);
+        }
+        var ext = new TypeVisitor(errorListener).visitArgList(ctx.ext);
+        return signature + ext;
     }
 
     @Override

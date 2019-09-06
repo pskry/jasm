@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ class MethodSpec {
     private List<String> accessList;
     private String name;
     private String descriptor;
+    private String signature;
     private List<String> directives;
     private List<String> instructions;
 
@@ -92,6 +94,10 @@ class MethodSpec {
         this.descriptor = descriptor;
     }
 
+    void setSignature(String signature) {
+        this.signature = signature;
+    }
+
     void addDirective(String directive) {
         if (directive == null) {
             return;
@@ -137,7 +143,19 @@ class MethodSpec {
                 buf.append(access).append(' ');
             }
         }
-        buf.append(name).append(descriptor).append('\n');
+
+        if (signature != null) {
+            var descriptorStart = signature.indexOf('(');
+            var descriptor = signature.substring(descriptorStart);
+            var genericDecl = signature.substring(0, descriptorStart);
+            if (StringUtils.isNotBlank(genericDecl)) {
+                buf.append(genericDecl).append(' ');
+            }
+            buf.append(name).append(descriptor);
+        } else {
+            buf.append(name).append(descriptor);
+        }
+        buf.append('\n');
 
         if (directives != null) {
             for (var directive : directives) {

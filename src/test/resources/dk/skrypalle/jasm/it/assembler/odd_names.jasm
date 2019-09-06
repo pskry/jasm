@@ -1,0 +1,68 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright © 2018 Peter Skrypalle
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+.bytecode 56.0
+.source "odd_names.jasm"
+.class public final dk/skrypalle/jasm/it/assembler/OddNames
+.super java/lang/Object
+
+.field private static final ITEM J
+
+.method public static <clinit>()V
+  ldc 23101982
+  i2l
+  putstatic dk/skrypalle/jasm/it/assembler/OddNames.ITEM:J
+  return
+.end method
+
+.method private static <E:Ljava/lang/Object;> oddParams(IBZJTE;Ljavax/net/ssl/SSLException;)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  iload 0
+  invokevirtual java/io/PrintStream.println:(I)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  iload 1
+  invokevirtual java/io/PrintStream.println:(I)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  iload 2
+  invokevirtual java/io/PrintStream.println:(Z)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  lload 3
+  invokevirtual java/io/PrintStream.println:(J)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  aload 5
+  invokevirtual java/io/PrintStream.println:(Ljava/lang/Object;)V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  aload 6
+  invokevirtual java/io/PrintStream.println:(Ljava/lang/Object;)V
+  return
+.end method
+
+# prints '23\n10\ntrue\n23101982\nHi\njavax.net.ssl.SSLException: Reason\n' to stdout
+.method public static main([Ljava/lang/String;)V
+  ldc 23
+  ldc 10
+  ldc 1
+  getstatic dk/skrypalle/jasm/it/assembler/OddNames.ITEM:J
+  ldc "Hi"
+  new javax/net/ssl/SSLException
+  dup
+  ldc "Reason"
+  invokespecial javax/net/ssl/SSLException.<init>:(Ljava/lang/String;)V
+  invokestatic dk/skrypalle/jasm/it/assembler/OddNames.oddParams:(IBZJLjava/lang/Object;Ljavax/net/ssl/SSLException;)V
+  return
+.end method

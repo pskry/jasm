@@ -180,6 +180,8 @@ com.sun.net.httpserver.HttpContext
 com.sun.net.httpserver.HttpExchange
 com.sun.net.httpserver.HttpHandler
 com.sun.net.httpserver.HttpPrincipal
+com.sun.net.httpserver.HttpsConfigurator
+com.sun.net.httpserver.HttpsExchange
 com.sun.nio.sctp.AbstractNotificationHandler
 com.sun.nio.sctp.Association
 com.sun.nio.sctp.AssociationChangeNotification
@@ -369,6 +371,7 @@ java.awt.LayoutManager2
 java.awt.LinearGradientPaint
 java.awt.MenuContainer
 java.awt.MenuShortcut
+java.awt.MultipleGradientPaint
 java.awt.Paint
 java.awt.PaintContext
 java.awt.Panel
@@ -379,6 +382,7 @@ java.awt.PrintJob
 java.awt.RadialGradientPaint
 java.awt.RenderingHints
 java.awt.RenderingHints$Key
+java.awt.ScrollPaneAdjustable
 java.awt.SecondaryLoop
 java.awt.Shape
 java.awt.Stroke
@@ -782,6 +786,7 @@ java.net.URISyntaxException
 java.net.URLStreamHandlerFactory
 java.net.UnknownHostException
 java.net.UnknownServiceException
+java.net.http.HttpClient
 java.net.http.HttpConnectTimeoutException
 java.net.http.HttpRequest
 java.net.http.HttpRequest$BodyPublisher
@@ -1181,6 +1186,7 @@ java.util.AbstractSequentialList
 java.util.AbstractSet
 java.util.Base64
 java.util.Base64$Decoder
+java.util.Collection
 java.util.ConcurrentModificationException
 java.util.Deque
 java.util.Dictionary
@@ -1227,6 +1233,7 @@ java.util.Set
 java.util.SortedMap
 java.util.SortedSet
 java.util.Spliterator
+java.util.Spliterators
 java.util.Stack
 java.util.StringTokenizer
 java.util.Timer
@@ -1534,6 +1541,7 @@ javax.management.openmbean.OpenMBeanInfo
 javax.management.openmbean.OpenMBeanOperationInfo
 javax.management.openmbean.OpenMBeanParameterInfo
 javax.management.openmbean.TabularData
+javax.management.openmbean.TabularDataSupport
 javax.management.relation.InvalidRelationIdException
 javax.management.relation.InvalidRelationServiceException
 javax.management.relation.InvalidRelationTypeException
@@ -1642,7 +1650,9 @@ javax.naming.spi.StateFactory
 javax.net.ServerSocketFactory
 javax.net.SocketFactory
 javax.net.ssl.CertPathTrustManagerParameters
+javax.net.ssl.ExtendedSSLSession
 javax.net.ssl.HandshakeCompletedListener
+javax.net.ssl.HostnameVerifier
 javax.net.ssl.KeyManager
 javax.net.ssl.KeyManagerFactory
 javax.net.ssl.KeyManagerFactorySpi
@@ -1650,10 +1660,25 @@ javax.net.ssl.KeyStoreBuilderParameters
 javax.net.ssl.ManagerFactoryParameters
 javax.net.ssl.SNIHostName
 javax.net.ssl.SNIMatcher
+javax.net.ssl.SSLContext
+javax.net.ssl.SSLContextSpi
+javax.net.ssl.SSLEngineResult
+javax.net.ssl.SSLHandshakeException
+javax.net.ssl.SSLKeyException
+javax.net.ssl.SSLPeerUnverifiedException
+javax.net.ssl.SSLPermission
+javax.net.ssl.SSLProtocolException
+javax.net.ssl.SSLServerSocket
+javax.net.ssl.SSLSession
+javax.net.ssl.SSLSessionBindingEvent
+javax.net.ssl.SSLSessionBindingListener
+javax.net.ssl.SSLSessionContext
+javax.net.ssl.SSLSocket
 javax.net.ssl.StandardConstants
 javax.net.ssl.TrustManager
 javax.net.ssl.TrustManagerFactory
 javax.net.ssl.TrustManagerFactorySpi
+javax.net.ssl.X509ExtendedTrustManager
 javax.net.ssl.X509KeyManager
 javax.net.ssl.X509TrustManager
 javax.print.AttributeException
@@ -1675,6 +1700,7 @@ javax.print.PrintException
 javax.print.PrintService
 javax.print.ServiceUIFactory
 javax.print.StreamPrintService
+javax.print.StreamPrintServiceFactory
 javax.print.URIException
 javax.print.attribute.Attribute
 javax.print.attribute.AttributeSet
@@ -1787,6 +1813,7 @@ javax.security.auth.callback.NameCallback
 javax.security.auth.callback.TextInputCallback
 javax.security.auth.callback.TextOutputCallback
 javax.security.auth.callback.UnsupportedCallbackException
+javax.security.auth.kerberos.EncryptionKey
 javax.security.auth.kerberos.ServicePermission
 javax.security.auth.login.AccountException
 javax.security.auth.login.AccountExpiredException
@@ -1802,6 +1829,7 @@ javax.security.auth.login.CredentialNotFoundException
 javax.security.auth.login.FailedLoginException
 javax.security.auth.login.LoginException
 javax.security.auth.spi.LoginModule
+javax.security.auth.x500.X500Principal
 javax.security.cert.Certificate
 javax.security.cert.CertificateEncodingException
 javax.security.cert.CertificateException
@@ -1927,6 +1955,7 @@ javax.swing.InputVerifier
 javax.swing.InternalFrameFocusTraversalPolicy
 javax.swing.JComboBox$KeySelectionManager
 javax.swing.JFormattedTextField$AbstractFormatterFactory
+javax.swing.JList$DropLocation
 javax.swing.JPopupMenu$Separator
 javax.swing.JSpinner$ListEditor
 javax.swing.JSpinner$NumberEditor
@@ -1936,12 +1965,14 @@ javax.swing.JTree$DropLocation
 javax.swing.JTree$EmptySelectionModel
 javax.swing.LayoutFocusTraversalPolicy
 javax.swing.LayoutStyle
+javax.swing.ListCellRenderer
 javax.swing.ListModel
 javax.swing.ListSelectionModel
 javax.swing.MenuElement
 javax.swing.MutableComboBoxModel
 javax.swing.Painter
 javax.swing.Renderer
+javax.swing.RootPaneContainer
 javax.swing.RowFilter
 javax.swing.RowFilter$Entry
 javax.swing.RowSorter
@@ -2037,6 +2068,8 @@ javax.swing.plaf.InputMapUIResource
 javax.swing.plaf.InsetsUIResource
 javax.swing.plaf.InternalFrameUI
 javax.swing.plaf.LabelUI
+javax.swing.plaf.LayerUI
+javax.swing.plaf.ListUI
 javax.swing.plaf.MenuBarUI
 javax.swing.plaf.MenuItemUI
 javax.swing.plaf.OptionPaneUI
@@ -2068,6 +2101,7 @@ javax.swing.plaf.basic.BasicBorders$ToggleButtonBorder
 javax.swing.plaf.basic.BasicCheckBoxMenuItemUI
 javax.swing.plaf.basic.BasicCheckBoxUI
 javax.swing.plaf.basic.BasicComboBoxEditor$UIResource
+javax.swing.plaf.basic.BasicComboBoxRenderer
 javax.swing.plaf.basic.BasicComboBoxRenderer$UIResource
 javax.swing.plaf.basic.BasicEditorPaneUI
 javax.swing.plaf.basic.BasicFormattedTextFieldUI
@@ -2082,6 +2116,7 @@ javax.swing.plaf.basic.BasicTextPaneUI
 javax.swing.plaf.basic.BasicTextUI$BasicCaret
 javax.swing.plaf.basic.BasicTextUI$BasicHighlighter
 javax.swing.plaf.basic.BasicViewportUI
+javax.swing.plaf.basic.ComboPopup
 javax.swing.plaf.basic.DefaultMenuLayout
 javax.swing.plaf.metal.MetalBorders
 javax.swing.plaf.metal.MetalBorders$ButtonBorder
@@ -2101,12 +2136,14 @@ javax.swing.plaf.metal.MetalBorders$ToolBarBorder
 javax.swing.plaf.metal.MetalButtonUI
 javax.swing.plaf.metal.MetalCheckBoxIcon
 javax.swing.plaf.metal.MetalCheckBoxUI
+javax.swing.plaf.metal.MetalComboBoxButton
 javax.swing.plaf.metal.MetalComboBoxEditor
 javax.swing.plaf.metal.MetalComboBoxEditor$UIResource
 javax.swing.plaf.metal.MetalComboBoxIcon
 javax.swing.plaf.metal.MetalIconFactory$PaletteCloseIcon
 javax.swing.plaf.metal.MetalIconFactory$TreeFolderIcon
 javax.swing.plaf.metal.MetalIconFactory$TreeLeafIcon
+javax.swing.plaf.metal.MetalLabelUI
 javax.swing.plaf.metal.MetalMenuBarUI
 javax.swing.plaf.metal.MetalPopupMenuSeparatorUI
 javax.swing.plaf.metal.MetalScrollBarUI
@@ -2124,6 +2161,7 @@ javax.swing.plaf.multi.MultiDesktopPaneUI
 javax.swing.plaf.multi.MultiFileChooserUI
 javax.swing.plaf.multi.MultiInternalFrameUI
 javax.swing.plaf.multi.MultiLabelUI
+javax.swing.plaf.multi.MultiListUI
 javax.swing.plaf.multi.MultiMenuBarUI
 javax.swing.plaf.multi.MultiMenuItemUI
 javax.swing.plaf.multi.MultiOptionPaneUI
@@ -2193,6 +2231,7 @@ javax.swing.text.Document
 javax.swing.text.DocumentFilter
 javax.swing.text.DocumentFilter$FilterBypass
 javax.swing.text.Element
+javax.swing.text.GapContent
 javax.swing.text.Highlighter
 javax.swing.text.Highlighter$Highlight
 javax.swing.text.Highlighter$HighlightPainter

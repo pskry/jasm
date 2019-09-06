@@ -28,14 +28,16 @@ class LocalVarSpecVisitor extends JasmBaseVisitor<Object> {
     private final ErrorListener errorListener;
     private final MethodVisitor methodVisitor;
     private final LabelTracker labelTracker;
+    private final TypeTokenMap typeTokenMap;
 
     LocalVarSpecVisitor(
             ErrorListener errorListener,
             MethodVisitor methodVisitor,
-            LabelTracker labelTracker) {
+            LabelTracker labelTracker, TypeTokenMap typeTokenMap) {
         this.errorListener = errorListener;
         this.methodVisitor = methodVisitor;
         this.labelTracker = labelTracker;
+        this.typeTokenMap = typeTokenMap;
     }
 
     @Override
@@ -43,13 +45,19 @@ class LocalVarSpecVisitor extends JasmBaseVisitor<Object> {
         var index = Integer.decode(ctx.index.getText());
         var name = ctx.name.getText();
         var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typ);
+        String signature = null;
+        if (AssemblerUtils.isGenericDescriptor(descriptor)) {
+            signature = descriptor;
+            descriptor = AssemblerUtils.toRawVarDescriptor(descriptor, typeTokenMap);
+        }
+
         var start = labelTracker.getLabel(visitLabel(ctx.start));
         var end = labelTracker.getLabel(visitLabel(ctx.end));
 
         methodVisitor.visitLocalVariable(
                 name,
                 descriptor,
-                null,
+                signature,
                 start,
                 end,
                 index

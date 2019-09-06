@@ -62,7 +62,11 @@ public class Jdsm implements Callable<Integer> {
             }
         }
 
-        var dsm = Disassemblers.fromFile(PWD.relativize(file), errorListener, verbose);
+        var dsm = Disassemblers.fromFile(
+                PWD.relativize(file.toAbsolutePath()).normalize(),
+                errorListener,
+                verbose
+        );
         var jasmSourceCode = dsm.disassemble();
 
         if (jasmSourceCode == null) {

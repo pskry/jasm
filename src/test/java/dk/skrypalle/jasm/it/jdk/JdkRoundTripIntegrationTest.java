@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,6 +51,7 @@ public class JdkRoundTripIntegrationTest {
                 .collect(Collectors.toList());
 
         var newWorkingJdkClasses = new ArrayList<String>();
+        var errors = new HashMap<String, String>();
         for (String jdkClass : allJdkClasses) {
             try {
 
@@ -57,7 +59,11 @@ public class JdkRoundTripIntegrationTest {
                 newWorkingJdkClasses.add(jdkClass);
 
             } catch (Throwable t) {
-                // ignore
+                var message = t.getMessage();
+                if (message.trim().startsWith("Expecting:")) {
+                    message = "RoundTrip discrepancy. Output length: " + message.length();
+                }
+                errors.put(jdkClass, message);
             }
         }
 
@@ -76,7 +82,11 @@ public class JdkRoundTripIntegrationTest {
         for (String previouslyWorkingJdkClass : previouslyWorkingJdkClasses) {
             if (!newWorkingJdkClasses.contains(previouslyWorkingJdkClass)) {
                 // we have broken something.
-                nowFailing.add(previouslyWorkingJdkClass);
+                var errorMessage = String.format("%s :: %s",
+                        previouslyWorkingJdkClass,
+                        errors.get(previouslyWorkingJdkClass)
+                );
+                nowFailing.add(errorMessage);
             }
         }
 

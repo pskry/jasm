@@ -29,6 +29,7 @@ class ClassSpec {
 
     private List<String> accessList;
     private String name;
+    private String signature;
     private String superName;
     private List<String> interfaceList;
 
@@ -78,6 +79,10 @@ class ClassSpec {
         this.name = name;
     }
 
+    void setSignature(String signature) {
+        this.signature = signature;
+    }
+
     void setSuperName(String superName) {
         this.superName = superName;
     }
@@ -104,6 +109,9 @@ class ClassSpec {
             }
         }
         buf.append(name).append('\n');
+        if (signature != null) {
+            buf.append(".generic ").append(signature).append('\n');
+        }
 
         buf.append(".super ").append(superName).append('\n');
         if (interfaceList != null) {
