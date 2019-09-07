@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.isSet;
+import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.quoteIfKeyword;
 
 class MethodSpec {
 
@@ -82,12 +83,8 @@ class MethodSpec {
                 : accessSpec;
     }
 
-    String getName() {
-        return name;
-    }
-
     void setName(String name) {
-        this.name = name;
+        this.name = quoteIfKeyword(name);
     }
 
     void setDescriptor(String descriptor) {

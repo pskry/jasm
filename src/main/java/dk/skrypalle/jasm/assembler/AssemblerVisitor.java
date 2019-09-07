@@ -28,7 +28,6 @@ import dk.skrypalle.jasm.generated.JasmParser.LocalVarSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.MemberSpecContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -46,7 +45,6 @@ import static dk.skrypalle.jasm.generated.JasmParser.ImplementsSpecContext;
 import static dk.skrypalle.jasm.generated.JasmParser.JasmFileContext;
 import static dk.skrypalle.jasm.generated.JasmParser.MethodSpecContext;
 import static dk.skrypalle.jasm.generated.JasmParser.SourceContext;
-import static dk.skrypalle.jasm.generated.JasmParser.StringContext;
 import static dk.skrypalle.jasm.generated.JasmParser.SuperSpecContext;
 
 class AssemblerVisitor extends JasmBaseVisitor<Object> {
@@ -54,6 +52,8 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
     private final ErrorListener errorListener;
     private final ClassVisitor classVisitor;
     private final TypeTokenMap typeTokenMap;
+    private final IdentifierVisitor identifierVisitor;
+    private final TypeVisitor typeVisitor;
 
     private String className;
 
@@ -62,6 +62,8 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         this.classVisitor = classVisitor;
 
         typeTokenMap = new TypeTokenMap();
+        identifierVisitor = new IdentifierVisitor(errorListener);
+        typeVisitor = new TypeVisitor(errorListener, identifierVisitor);
     }
 
     String getClassName() {
@@ -170,7 +172,7 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
             return null;
         }
 
-        var sourceName = visitString(ctx.sourceFile);
+        var sourceName = identifierVisitor.visitString(ctx.sourceFile);
         classVisitor.visitSource(sourceName, null);
         return null;
     }
@@ -259,7 +261,7 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         typeTokenMap.nextMethod();
 
         int access = visitAccessSpecs(ctx.accessSpec());
-        var name = ctx.name.getText();
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.descriptor());
         var signature = getMethodSignature(descriptor, ctx.genericSignature());
         var rawDescriptor = toRawMethodDescriptor(descriptor, typeTokenMap);
@@ -283,7 +285,12 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
             }
         }
 
-        var instrVisitor = new InstructionVisitor(errorListener, method, labelTracker);
+        var instrVisitor = new InstructionVisitor(
+                method,
+                labelTracker,
+                identifierVisitor,
+                typeVisitor
+        );
         var instructionList = ctx.instructionList();
         if (instructionList != null) {
             instrVisitor.visitInstructionList(ctx.instructionList());
@@ -292,10 +299,11 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         var localVarSpecList = ctx.localVarSpec();
         if (CollectionUtils.isNotEmpty(localVarSpecList)) {
             var localVarVisitor = new LocalVarSpecVisitor(
-                    errorListener,
                     method,
                     labelTracker,
-                    typeTokenMap
+                    typeTokenMap,
+                    identifierVisitor,
+                    typeVisitor
             );
             for (LocalVarSpecContext localVarSpec : localVarSpecList) {
                 localVarVisitor.visitLocalVarSpec(localVarSpec);
@@ -325,7 +333,7 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
-        return new TypeVisitor(errorListener).visitDescriptor(ctx);
+        return typeVisitor.visitDescriptor(ctx);
     }
 
     @Override
@@ -339,15 +347,15 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         if (ctx.sig != null) {
             signature = visitGenericSignature(ctx.sig);
         }
-        var ext = new TypeVisitor(errorListener).visitArgList(ctx.ext);
+        var ext = typeVisitor.visitArgList(ctx.ext);
         return signature + ext;
     }
 
     @Override
     public Object visitFieldSpec(FieldSpecContext ctx) {
         int access = visitAccessSpecs(ctx.accessSpec());
-        var name = ctx.name.getText();
-        var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typeDescriptor());
+        var name = identifierVisitor.visitIdentifier(ctx.name);
+        var descriptor = typeVisitor.visitTypeDescriptor(ctx.typeDescriptor());
 
         var field = classVisitor.visitField(
                 access,
@@ -359,12 +367,6 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
         field.visitEnd();
 
         return null;
-    }
-
-    @Override
-    public String visitString(StringContext ctx) {
-        var raw = ctx.getText();
-        return StringEscapeUtils.unescapeJava(raw.substring(1, raw.length() - 1));
     }
 
     @Override

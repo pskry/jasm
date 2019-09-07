@@ -898,6 +898,7 @@ java.lang.ClassValue
 java.lang.CloneNotSupportedException
 java.lang.Cloneable
 java.lang.Comparable
+java.lang.Compiler
 java.lang.Enum
 java.lang.Enum$EnumDesc
 java.lang.EnumConstantNotPresentException
@@ -995,6 +996,7 @@ java.lang.invoke.ConstantBootstraps
 java.lang.invoke.ConstantCallSite
 java.lang.invoke.LambdaConversionException
 java.lang.invoke.LambdaMetafactory
+java.lang.invoke.MethodHandle
 java.lang.invoke.MethodHandleInfo
 java.lang.invoke.MethodHandleProxies
 java.lang.invoke.MutableCallSite
@@ -1030,6 +1032,7 @@ java.lang.management.RuntimeMXBean
 java.lang.management.ThreadMXBean
 java.lang.module.FindException
 java.lang.module.InvalidModuleDescriptorException
+java.lang.module.ModuleDescriptor$Builder
 java.lang.module.ModuleDescriptor$Exports
 java.lang.module.ModuleDescriptor$Exports$Modifier
 java.lang.module.ModuleDescriptor$Modifier
@@ -1403,6 +1406,7 @@ java.security.AuthProvider
 java.security.BasicPermission
 java.security.Certificate
 java.security.CodeSigner
+java.security.CodeSource
 java.security.CryptoPrimitive
 java.security.DigestException
 java.security.DigestInputStream
@@ -1723,6 +1727,7 @@ java.time.format.DateTimeParseException
 java.time.format.DecimalStyle
 java.time.format.FormatStyle
 java.time.format.ResolverStyle
+java.time.format.SignStyle
 java.time.format.TextStyle
 java.time.temporal.ChronoField
 java.time.temporal.ChronoUnit
@@ -1763,6 +1768,7 @@ java.util.Base64$Encoder
 java.util.BitSet
 java.util.Calendar$Builder
 java.util.Collection
+java.util.Collections
 java.util.Comparator
 java.util.ConcurrentModificationException
 java.util.Date
@@ -1860,6 +1866,7 @@ java.util.TimeZone
 java.util.Timer
 java.util.TimerTask
 java.util.TooManyListenersException
+java.util.TreeMap
 java.util.TreeSet
 java.util.UUID
 java.util.UnknownFormatConversionException
@@ -2172,6 +2179,7 @@ javax.imageio.metadata.IIOInvalidTreeException
 javax.imageio.metadata.IIOMetadata
 javax.imageio.metadata.IIOMetadataController
 javax.imageio.metadata.IIOMetadataFormat
+javax.imageio.metadata.IIOMetadataFormatImpl
 javax.imageio.metadata.IIOMetadataNode
 javax.imageio.plugins.bmp.BMPImageWriteParam
 javax.imageio.plugins.jpeg.JPEGHuffmanTable
@@ -3892,6 +3900,7 @@ jdk.nashorn.api.scripting.JSObject
 jdk.nashorn.api.scripting.NashornException
 jdk.nashorn.api.scripting.NashornScriptEngine
 jdk.nashorn.api.scripting.NashornScriptEngineFactory
+jdk.nashorn.api.scripting.ScriptObjectMirror
 jdk.nashorn.api.scripting.ScriptUtils
 jdk.nashorn.api.scripting.URLReader
 jdk.nashorn.api.tree.ArrayAccessTree

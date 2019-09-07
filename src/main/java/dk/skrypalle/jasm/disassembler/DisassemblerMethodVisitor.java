@@ -23,6 +23,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.quoteIfKeyword;
+
 class DisassemblerMethodVisitor extends MethodVisitor {
 
     private final LabelTracker labelTracker;
@@ -365,7 +367,7 @@ class DisassemblerMethodVisitor extends MethodVisitor {
                 "%s %s.%s:%s",
                 parseMethodInsn(opcode),
                 owner,
-                name,
+                quoteIfKeyword(name),
                 descriptor
         );
         methodSpec.addInstruction(instruction);
@@ -470,7 +472,7 @@ class DisassemblerMethodVisitor extends MethodVisitor {
                 "%s %s.%s:%s",
                 parseFieldInsn(opcode),
                 owner,
-                name,
+                quoteIfKeyword(name),
                 descriptor
         );
         methodSpec.addInstruction(instruction);
@@ -598,7 +600,7 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         methodSpec.addDirective(String.format(
                 ".var %d %s:%s %s %s",
                 index,
-                name,
+                quoteIfKeyword(name),
                 jasmDescriptor,
                 labelTracker.refLabel(),
                 labelTracker.refLabel()

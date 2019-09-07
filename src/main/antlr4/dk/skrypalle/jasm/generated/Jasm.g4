@@ -74,8 +74,8 @@ genericSignature
     ;
 
 gen
-    : name=IDENTIFIER ':' ext=type #TypeGen
-    | name=IDENTIFIER '::' ext=type #InterfaceGen
+    : name=identifier? ':' ext=type #TypeGen
+    | name=identifier '::' ext=type #InterfaceGen
     ;
 
 exceptionSpec
@@ -83,11 +83,11 @@ exceptionSpec
     ;
 
 localVarSpec
-    : '.var' index=INTEGER name=IDENTIFIER ':' typ=typeDescriptor start=label end=label
+    : '.var' index=INTEGER name=identifier ':' typ=typeDescriptor start=label end=label
     ;
 
 methodName
-    : IDENTIFIER
+    : identifier
     | '<init>'
     | '<clinit>'
     ;
@@ -137,7 +137,7 @@ instruction
     | 'ldc'    neg='-'? val='Infinity'                                  #LdcInfinityInstr
     | 'ldc'    neg='-'? val='Infinityf'                                 #LdcInfinityfInstr
 
-    | 'newarray' typ=IDENTIFIER                                         #NewarrayInstr
+    | 'newarray' typ=identifier                                         #NewarrayInstr
 
     | 'iload'  val=INTEGER                                              #IloadInstr
     | 'lload'  val=INTEGER                                              #LloadInstr
@@ -289,7 +289,7 @@ fqtn
     ;
 
 label
-    : name=IDENTIFIER
+    : name=identifier
     ;
 
 labelDef
@@ -323,7 +323,7 @@ lineDirective
     ;
 
 fieldSpec
-    : '.field' accessSpec* name=IDENTIFIER typeDescriptor
+    : '.field' accessSpec* name=identifier typeDescriptor
     ;
 
 accessSpec
@@ -355,7 +355,7 @@ type
     ;
 
 primitiveType
-    : IDENTIFIER
+    : identifier
     ;
 
 classType
@@ -363,7 +363,7 @@ classType
     ;
 
 genericType
-    : fqcn'<'genType+'>'';'
+    : fqcn'<'genType+'>' ('.' inner=identifier)? ';'
     ;
 
 arrayType
@@ -376,12 +376,17 @@ genType
     ;
 
 fqcn
-    : IDENTIFIER
+    : identifier
     | fqcn '/' fqcn
     ;
 
 string
     : STRING
+    ;
+
+identifier
+    : IDENTIFIER
+    | string
     ;
 
 

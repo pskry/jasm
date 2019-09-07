@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmParser.AaloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.AastoreInstrContext;
@@ -65,7 +64,6 @@ import dk.skrypalle.jasm.generated.JasmParser.FdivInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FloadInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FmulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FnegInstrContext;
-import dk.skrypalle.jasm.generated.JasmParser.FqtnContext;
 import dk.skrypalle.jasm.generated.JasmParser.FremInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FreturnInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.FstoreInstrContext;
@@ -159,7 +157,6 @@ import dk.skrypalle.jasm.generated.JasmParser.SastoreInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.SwapInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.TableSwitchContext;
 import org.antlr.v4.runtime.Token;
-import org.apache.commons.text.StringEscapeUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -171,7 +168,6 @@ import java.util.stream.Collectors;
 import static dk.skrypalle.jasm.generated.JasmParser.AloadInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.DescriptorContext;
 import static dk.skrypalle.jasm.generated.JasmParser.DupInstrContext;
-import static dk.skrypalle.jasm.generated.JasmParser.FqcnContext;
 import static dk.skrypalle.jasm.generated.JasmParser.GetStaticInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.IaddInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.IloadInstrContext;
@@ -185,21 +181,23 @@ import static dk.skrypalle.jasm.generated.JasmParser.LdcStringInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.NewInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.PopInstrContext;
 import static dk.skrypalle.jasm.generated.JasmParser.ReturnInstrContext;
-import static dk.skrypalle.jasm.generated.JasmParser.StringContext;
 
 class InstructionVisitor extends JasmBaseVisitor<Object> {
 
-    private final ErrorListener errorListener;
     private final MethodVisitor methodVisitor;
     private final LabelTracker labelTracker;
+    private final IdentifierVisitor identifierVisitor;
+    private final TypeVisitor typeVisitor;
 
     InstructionVisitor(
-            ErrorListener errorListener,
             MethodVisitor methodVisitor,
-            LabelTracker labelTracker) {
-        this.errorListener = errorListener;
+            LabelTracker labelTracker,
+            IdentifierVisitor identifierVisitor,
+            TypeVisitor typeVisitor) {
         this.methodVisitor = methodVisitor;
         this.labelTracker = labelTracker;
+        this.identifierVisitor = identifierVisitor;
+        this.typeVisitor = typeVisitor;
     }
 
     @Override
@@ -282,14 +280,14 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitLdcStringInstr(LdcStringInstrContext ctx) {
-        var value = visitString(ctx.val);
+        var value = identifierVisitor.visitString(ctx.val);
         methodVisitor.visitLdcInsn(value);
         return null;
     }
 
     @Override
     public Object visitLdcTypeInstr(LdcTypeInstrContext ctx) {
-        var value = (String) new TypeVisitor(errorListener).visit(ctx.val);
+        var value = (String) typeVisitor.visit(ctx.val);
         var type = Type.getType(value);
         methodVisitor.visitLdcInsn(type);
         return null;
@@ -450,28 +448,28 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitNewInstr(NewInstrContext ctx) {
-        var type = visitFqcn(ctx.typ);
+        var type = identifierVisitor.visitFqcn(ctx.typ);
         methodVisitor.visitTypeInsn(Opcodes.NEW, type);
         return null;
     }
 
     @Override
     public Object visitAnewarrayInstr(AnewarrayInstrContext ctx) {
-        var type = visitFqtn(ctx.typ);
+        var type = identifierVisitor.visitFqtn(ctx.typ);
         methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, type);
         return null;
     }
 
     @Override
     public Object visitCheckcastInstr(CheckcastInstrContext ctx) {
-        String type = visitFqtn(ctx.typ);
+        String type = identifierVisitor.visitFqtn(ctx.typ);
         methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, type);
         return null;
     }
 
     @Override
     public Object visitInstanceofInstr(InstanceofInstrContext ctx) {
-        var type = visitFqtn(ctx.typ);
+        var type = identifierVisitor.visitFqtn(ctx.typ);
         methodVisitor.visitTypeInsn(Opcodes.INSTANCEOF, type);
         return null;
     }
@@ -1038,8 +1036,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitGetStaticInstr(GetStaticInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
                 Opcodes.GETSTATIC,
@@ -1052,8 +1050,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitPutStaticInstr(PutStaticInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
                 Opcodes.PUTSTATIC,
@@ -1066,8 +1064,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitGetFieldInstr(GetFieldInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
                 Opcodes.GETFIELD,
@@ -1080,8 +1078,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitPutFieldInstr(PutFieldInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitFieldInsn(
                 Opcodes.PUTFIELD,
@@ -1098,8 +1096,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitInvokeVirtualInstr(InvokeVirtualInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
                 Opcodes.INVOKEVIRTUAL,
@@ -1113,8 +1111,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitInvokeSpecialInstr(InvokeSpecialInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
                 Opcodes.INVOKESPECIAL,
@@ -1128,8 +1126,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Void visitInvokeStaticInstr(InvokeStaticInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
                 Opcodes.INVOKESTATIC,
@@ -1143,8 +1141,8 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitInvokeInterfaceInstr(InvokeInterfaceInstrContext ctx) {
-        var owner = visitFqtn(ctx.owner);
-        var name = ctx.name.getText();
+        var owner = identifierVisitor.visitFqtn(ctx.owner);
+        var name = identifierVisitor.visitMethodName(ctx.name);
         var descriptor = visitDescriptor(ctx.desc);
         methodVisitor.visitMethodInsn(
                 Opcodes.INVOKEINTERFACE,
@@ -1357,7 +1355,7 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public Object visitMultianewarrayInstr(MultianewarrayInstrContext ctx) {
-        var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typ);
+        var descriptor = typeVisitor.visitTypeDescriptor(ctx.typ);
         var dim = Integer.decode(ctx.dim.getText());
         methodVisitor.visitMultiANewArrayInsn(descriptor, dim);
 
@@ -1366,37 +1364,12 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public String visitDescriptor(DescriptorContext ctx) {
-        return new TypeVisitor(errorListener).visitDescriptor(ctx);
-    }
-
-    @Override
-    public String visitFqtn(FqtnContext ctx) {
-        var fqcn = ctx.fqcn();
-        var arrayType = ctx.arrayType();
-        if (fqcn != null) {
-            return visitFqcn(fqcn);
-        } else if (arrayType != null) {
-            return new TypeVisitor(errorListener).visitArrayType(arrayType);
-        } else {
-            throw new IllegalStateException();
-        }
-    }
-
-    @Override
-    public String visitFqcn(FqcnContext ctx) {
-        return ctx.getText();
-    }
-
-    @Override
-    public String visitString(StringContext ctx) {
-        var raw = ctx.getText();
-        var reduced = raw.substring(1, raw.length() - 1);
-        return StringEscapeUtils.unescapeJava(reduced);
+        return typeVisitor.visitDescriptor(ctx);
     }
 
     @Override
     public String visitLabel(LabelContext ctx) {
-        return ctx.name.getText();
+        return identifierVisitor.visitIdentifier(ctx.name);
     }
 
     @Override

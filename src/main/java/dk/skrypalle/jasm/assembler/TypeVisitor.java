@@ -39,9 +39,11 @@ import static dk.skrypalle.jasm.generated.JasmParser.TypeDescriptorContext;
 class TypeVisitor extends JasmBaseVisitor<Object> {
 
     private final ErrorListener errorListener;
+    private final IdentifierVisitor identifierVisitor;
 
-    TypeVisitor(ErrorListener errorListener) {
+    TypeVisitor(ErrorListener errorListener, IdentifierVisitor identifierVisitor) {
         this.errorListener = errorListener;
+        this.identifierVisitor = identifierVisitor;
     }
 
     @Override
@@ -132,7 +134,11 @@ class TypeVisitor extends JasmBaseVisitor<Object> {
                 .map(c -> (String) visit(c))
                 .collect(Collectors.joining());
 
-        return fqcn + "<" + genericTypeDef + ">;";
+        var genericInner = ctx.inner == null
+                ? ""
+                : "." + identifierVisitor.visitIdentifier(ctx.inner);
+
+        return fqcn + "<" + genericTypeDef + ">" + genericInner + ";";
     }
 
     @Override

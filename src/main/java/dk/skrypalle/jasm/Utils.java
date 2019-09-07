@@ -47,4 +47,27 @@ public final class Utils {
         return new String(out.toByteArray(), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Escapes special whitespace characters '\t', '\n' and '\r'.
+     *
+     * @param string the string to escape.
+     * @return the escaped string.
+     */
+    public static String escapeSpecialWhitespace(String string) {
+        var buf = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+            if (c == '\t') {
+                buf.append("\\t");
+            } else if (c == '\n') {
+                buf.append("\\n");
+            } else if (c == '\r') {
+                buf.append("\\r");
+            } else {
+                buf.append(c);
+            }
+        }
+        return buf.toString();
+    }
+
 }

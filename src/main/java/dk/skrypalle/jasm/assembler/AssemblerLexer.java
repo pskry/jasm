@@ -17,6 +17,7 @@
  */
 package dk.skrypalle.jasm.assembler;
 
+import dk.skrypalle.jasm.Utils;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmLexer;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -28,7 +29,6 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.misc.Utils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayDeque;
@@ -240,7 +240,8 @@ class AssemblerLexer extends JasmLexer {
                 String msg,
                 RecognitionException e) {
             if (e instanceof LexerNoViableAltException) {
-                emitSyntaxError(recognizer.getInputStream().getSourceName(),
+                emitSyntaxError(
+                        recognizer.getInputStream().getSourceName(),
                         line,
                         charPositionInLine + 1,
                         (LexerNoViableAltException) e
@@ -260,7 +261,7 @@ class AssemblerLexer extends JasmLexer {
             var inputStream = e.getInputStream();
             if (startIndex >= 0 && startIndex < inputStream.size()) {
                 symbol = inputStream.getText(Interval.of(startIndex, startIndex));
-                symbol = Utils.escapeWhitespace(symbol, false);
+                symbol = Utils.escapeSpecialWhitespace(symbol);
             }
             errorListener.emitUnknownSymbol(sourceName, line, column, symbol);
         }

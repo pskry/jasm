@@ -17,7 +17,6 @@
  */
 package dk.skrypalle.jasm.assembler;
 
-import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmParser.LabelContext;
 import dk.skrypalle.jasm.generated.JasmParser.LocalVarSpecContext;
@@ -25,26 +24,30 @@ import org.objectweb.asm.MethodVisitor;
 
 class LocalVarSpecVisitor extends JasmBaseVisitor<Object> {
 
-    private final ErrorListener errorListener;
     private final MethodVisitor methodVisitor;
     private final LabelTracker labelTracker;
     private final TypeTokenMap typeTokenMap;
+    private final IdentifierVisitor identifierVisitor;
+    private final TypeVisitor typeVisitor;
 
     LocalVarSpecVisitor(
-            ErrorListener errorListener,
             MethodVisitor methodVisitor,
-            LabelTracker labelTracker, TypeTokenMap typeTokenMap) {
-        this.errorListener = errorListener;
+            LabelTracker labelTracker,
+            TypeTokenMap typeTokenMap,
+            IdentifierVisitor identifierVisitor,
+            TypeVisitor typeVisitor) {
         this.methodVisitor = methodVisitor;
         this.labelTracker = labelTracker;
         this.typeTokenMap = typeTokenMap;
+        this.identifierVisitor = identifierVisitor;
+        this.typeVisitor = typeVisitor;
     }
 
     @Override
     public Object visitLocalVarSpec(LocalVarSpecContext ctx) {
         var index = Integer.decode(ctx.index.getText());
-        var name = ctx.name.getText();
-        var descriptor = new TypeVisitor(errorListener).visitTypeDescriptor(ctx.typ);
+        var name = identifierVisitor.visitIdentifier(ctx.name);
+        var descriptor = typeVisitor.visitTypeDescriptor(ctx.typ);
         String signature = null;
         if (AssemblerUtils.isGenericDescriptor(descriptor)) {
             signature = descriptor;
@@ -68,7 +71,7 @@ class LocalVarSpecVisitor extends JasmBaseVisitor<Object> {
 
     @Override
     public String visitLabel(LabelContext ctx) {
-        return ctx.name.getText();
+        return identifierVisitor.visitIdentifier(ctx.name);
     }
 
 }
