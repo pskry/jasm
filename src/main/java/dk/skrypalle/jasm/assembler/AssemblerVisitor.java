@@ -20,6 +20,7 @@ package dk.skrypalle.jasm.assembler;
 import dk.skrypalle.jasm.assembler.err.ErrorListener;
 import dk.skrypalle.jasm.generated.JasmBaseVisitor;
 import dk.skrypalle.jasm.generated.JasmLexer;
+import dk.skrypalle.jasm.generated.JasmParser.BootstrapSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.ExceptionSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.FieldSpecContext;
 import dk.skrypalle.jasm.generated.JasmParser.GenericSignatureContext;
@@ -285,9 +286,23 @@ class AssemblerVisitor extends JasmBaseVisitor<Object> {
             }
         }
 
+        var bootstrapTracker = new BootstrapTracker();
+        var bootstrapSpecList = ctx.bootstrapSpec();
+        if (CollectionUtils.isNotEmpty(bootstrapSpecList)) {
+            var bootstrapVisitor = new BootstrapSpecVisitor(
+                    identifierVisitor,
+                    typeVisitor,
+                    bootstrapTracker
+            );
+            for (BootstrapSpecContext bootstrapSpec : bootstrapSpecList) {
+                bootstrapVisitor.visitBootstrapSpec(bootstrapSpec);
+            }
+        }
+
         var instrVisitor = new InstructionVisitor(
                 method,
                 labelTracker,
+                bootstrapTracker,
                 identifierVisitor,
                 typeVisitor
         );

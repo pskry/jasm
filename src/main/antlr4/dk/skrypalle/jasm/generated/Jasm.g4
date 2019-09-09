@@ -64,6 +64,7 @@ memberSpec
 methodSpec
     : '.method' accessSpec* genericSignature? name=methodName descriptor EOL+
       (exceptionSpec? EOL)*
+      (bootstrapSpec? EOL)*
       (localVarSpec? EOL)*
       instructionList?
       '.end method'
@@ -80,6 +81,39 @@ gen
 
 exceptionSpec
     : '.exception' start=label end=label handler=label (typ=fqcn|'any')
+    ;
+
+bootstrapSpec
+    : '.bootstrap' id=label EOL+
+       bootstrapTarget EOL+
+       bootstrapArgs?
+    ;
+
+bootstrapTag
+    : 'h_getfield'
+    | 'h_getstatic'
+    | 'h_putfield'
+    | 'h_putstatic'
+    | 'h_invokevirtual'
+    | 'h_invokestatic'
+    | 'h_invokespecial'
+    | 'h_newinvokespecial'
+    | 'h_invokeinterface'
+    ;
+
+bootstrapTarget
+    : 'target' tag=bootstrapTag owner=fqtn'.'name=methodName':'desc=descriptor
+    ;
+
+bootstrapArgs
+    : 'args' bootstrapArg (',' bootstrapArg)*
+    ;
+
+bootstrapArg
+    : INTEGER                                                         #IntBootstrapArg
+    | string                                                          #StringBootstrapArg
+    | descriptor                                                      #DescriptorBootstrapArg
+    | tag=bootstrapTag owner=fqtn'.'name=methodName':'desc=descriptor #MethodHandleBootstrapArg
     ;
 
 localVarSpec
@@ -127,160 +161,162 @@ instructionList
 //// //    //  //////     //    //     //  ///////   //////     //    ////  ///////  //    //  //////
 
 instruction
-    : 'ldc'    val=INTEGER                                              #LdcIntInstr
-    | 'ldc'    val=DECIMAL                                              #LdcDecInstr
-    | 'ldc'    val=string                                               #LdcStringInstr
-    | 'ldc'    val=type                                                 #LdcTypeInstr
-    | 'ldc'    val='null'                                               #LdcNullInstr
-    | 'ldc'    val='NaN'                                                #LdcNaNInstr
-    | 'ldc'    val='NaNf'                                               #LdcNaNfInstr
-    | 'ldc'    neg='-'? val='Infinity'                                  #LdcInfinityInstr
-    | 'ldc'    neg='-'? val='Infinityf'                                 #LdcInfinityfInstr
+    : 'ldc'    val=INTEGER                                                #LdcIntInstr
+    | 'ldc'    val=DECIMAL                                                #LdcDecInstr
+    | 'ldc'    val=string                                                 #LdcStringInstr
+    | 'ldc'    val=type                                                   #LdcTypeInstr
+    | 'ldc'    val='null'                                                 #LdcNullInstr
+    | 'ldc'    val='NaN'                                                  #LdcNaNInstr
+    | 'ldc'    val='NaNf'                                                 #LdcNaNfInstr
+    | 'ldc'    neg='-'? val='Infinity'                                    #LdcInfinityInstr
+    | 'ldc'    neg='-'? val='Infinityf'                                   #LdcInfinityfInstr
 
-    | 'newarray' typ=identifier                                         #NewarrayInstr
+    | 'newarray' typ=identifier                                           #NewarrayInstr
 
-    | 'iload'  val=INTEGER                                              #IloadInstr
-    | 'lload'  val=INTEGER                                              #LloadInstr
-    | 'fload'  val=INTEGER                                              #FloadInstr
-    | 'dload'  val=INTEGER                                              #DloadInstr
-    | 'aload'  val=INTEGER                                              #AloadInstr
-    | 'istore' val=INTEGER                                              #IstoreInstr
-    | 'lstore' val=INTEGER                                              #LstoreInstr
-    | 'fstore' val=INTEGER                                              #FstoreInstr
-    | 'dstore' val=INTEGER                                              #DstoreInstr
-    | 'astore' val=INTEGER                                              #AstoreInstr
-    | 'ret'    val=INTEGER                                              #RetInstr
+    | 'iload'  val=INTEGER                                                #IloadInstr
+    | 'lload'  val=INTEGER                                                #LloadInstr
+    | 'fload'  val=INTEGER                                                #FloadInstr
+    | 'dload'  val=INTEGER                                                #DloadInstr
+    | 'aload'  val=INTEGER                                                #AloadInstr
+    | 'istore' val=INTEGER                                                #IstoreInstr
+    | 'lstore' val=INTEGER                                                #LstoreInstr
+    | 'fstore' val=INTEGER                                                #FstoreInstr
+    | 'dstore' val=INTEGER                                                #DstoreInstr
+    | 'astore' val=INTEGER                                                #AstoreInstr
+    | 'ret'    val=INTEGER                                                #RetInstr
 
-    | 'new'         typ=fqcn                                            #NewInstr
-    | 'anewarray'   typ=fqtn                                            #AnewarrayInstr
-    | 'checkcast'   typ=fqtn                                            #CheckcastInstr
-    | 'instanceof'  typ=fqtn                                            #InstanceofInstr
+    | 'new'         typ=fqcn                                              #NewInstr
+    | 'anewarray'   typ=fqtn                                              #AnewarrayInstr
+    | 'checkcast'   typ=fqtn                                              #CheckcastInstr
+    | 'instanceof'  typ=fqtn                                              #InstanceofInstr
 
-    | 'multianewarray' typ=typeDescriptor dim=INTEGER                   #MultianewarrayInstr
+    | 'multianewarray' typ=typeDescriptor dim=INTEGER                     #MultianewarrayInstr
 
-    | 'nop'                                                             #NopInstr
-    | 'iaload'                                                          #IaloadInstr
-    | 'laload'                                                          #LaloadInstr
-    | 'faload'                                                          #FaloadInstr
-    | 'daload'                                                          #DaloadInstr
-    | 'aaload'                                                          #AaloadInstr
-    | 'baload'                                                          #BaloadInstr
-    | 'caload'                                                          #CaloadInstr
-    | 'saload'                                                          #SaloadInstr
-    | 'iastore'                                                         #IastoreInstr
-    | 'lastore'                                                         #LastoreInstr
-    | 'fastore'                                                         #FastoreInstr
-    | 'dastore'                                                         #DastoreInstr
-    | 'aastore'                                                         #AastoreInstr
-    | 'bastore'                                                         #BastoreInstr
-    | 'castore'                                                         #CastoreInstr
-    | 'sastore'                                                         #SastoreInstr
-    | 'pop'                                                             #PopInstr
-    | 'pop2'                                                            #Pop2Instr
-    | 'dup'                                                             #DupInstr
-    | 'dup_x1'                                                          #DupX1Instr
-    | 'dup_x2'                                                          #DupX2Instr
-    | 'dup2'                                                            #Dup2Instr
-    | 'dup2_x1'                                                         #Dup2X1Instr
-    | 'dup2_x2'                                                         #Dup2X2Instr
-    | 'swap'                                                            #SwapInstr
-    | 'iadd'                                                            #IaddInstr
-    | 'ladd'                                                            #LaddInstr
-    | 'fadd'                                                            #FaddInstr
-    | 'dadd'                                                            #DaddInstr
-    | 'isub'                                                            #IsubInstr
-    | 'lsub'                                                            #LsubInstr
-    | 'fsub'                                                            #FsubInstr
-    | 'dsub'                                                            #DsubInstr
-    | 'imul'                                                            #ImulInstr
-    | 'lmul'                                                            #LmulInstr
-    | 'fmul'                                                            #FmulInstr
-    | 'dmul'                                                            #DmulInstr
-    | 'idiv'                                                            #IdivInstr
-    | 'ldiv'                                                            #LdivInstr
-    | 'fdiv'                                                            #FdivInstr
-    | 'ddiv'                                                            #DdivInstr
-    | 'irem'                                                            #IremInstr
-    | 'lrem'                                                            #LremInstr
-    | 'frem'                                                            #FremInstr
-    | 'drem'                                                            #DremInstr
-    | 'ineg'                                                            #InegInstr
-    | 'lneg'                                                            #LnegInstr
-    | 'fneg'                                                            #FnegInstr
-    | 'dneg'                                                            #DnegInstr
-    | 'ishl'                                                            #IshlInstr
-    | 'lshl'                                                            #LshlInstr
-    | 'ishr'                                                            #IshrInstr
-    | 'lshr'                                                            #LshrInstr
-    | 'iushr'                                                           #IushrInstr
-    | 'lushr'                                                           #LushrInstr
-    | 'iand'                                                            #IandInstr
-    | 'land'                                                            #LandInstr
-    | 'ior'                                                             #IorInstr
-    | 'lor'                                                             #LorInstr
-    | 'ixor'                                                            #IxorInstr
-    | 'lxor'                                                            #LxorInstr
-    | 'i2l'                                                             #I2lInstr
-    | 'i2f'                                                             #I2fInstr
-    | 'i2d'                                                             #I2dInstr
-    | 'l2i'                                                             #L2iInstr
-    | 'l2f'                                                             #L2fInstr
-    | 'l2d'                                                             #L2dInstr
-    | 'f2i'                                                             #F2iInstr
-    | 'f2l'                                                             #F2lInstr
-    | 'f2d'                                                             #F2dInstr
-    | 'd2i'                                                             #D2iInstr
-    | 'd2l'                                                             #D2lInstr
-    | 'd2f'                                                             #D2fInstr
-    | 'i2b'                                                             #I2bInstr
-    | 'i2c'                                                             #I2cInstr
-    | 'i2s'                                                             #I2sInstr
-    | 'lcmp'                                                            #LcmpInstr
-    | 'fcmpl'                                                           #FcmplInstr
-    | 'fcmpg'                                                           #FcmpgInstr
-    | 'dcmpl'                                                           #DcmplInstr
-    | 'dcmpg'                                                           #DcmpgInstr
-    | 'ireturn'                                                         #IreturnInstr
-    | 'lreturn'                                                         #LreturnInstr
-    | 'freturn'                                                         #FreturnInstr
-    | 'dreturn'                                                         #DreturnInstr
-    | 'areturn'                                                         #AreturnInstr
-    | 'return'                                                          #ReturnInstr
-    | 'arraylength'                                                     #ArrayLengthInstr
-    | 'athrow'                                                          #AthrowInstr
-    | 'monitorenter'                                                    #MonitorenterInstr
-    | 'monitorexit'                                                     #MonitorexitInstr
+    | 'nop'                                                               #NopInstr
+    | 'iaload'                                                            #IaloadInstr
+    | 'laload'                                                            #LaloadInstr
+    | 'faload'                                                            #FaloadInstr
+    | 'daload'                                                            #DaloadInstr
+    | 'aaload'                                                            #AaloadInstr
+    | 'baload'                                                            #BaloadInstr
+    | 'caload'                                                            #CaloadInstr
+    | 'saload'                                                            #SaloadInstr
+    | 'iastore'                                                           #IastoreInstr
+    | 'lastore'                                                           #LastoreInstr
+    | 'fastore'                                                           #FastoreInstr
+    | 'dastore'                                                           #DastoreInstr
+    | 'aastore'                                                           #AastoreInstr
+    | 'bastore'                                                           #BastoreInstr
+    | 'castore'                                                           #CastoreInstr
+    | 'sastore'                                                           #SastoreInstr
+    | 'pop'                                                               #PopInstr
+    | 'pop2'                                                              #Pop2Instr
+    | 'dup'                                                               #DupInstr
+    | 'dup_x1'                                                            #DupX1Instr
+    | 'dup_x2'                                                            #DupX2Instr
+    | 'dup2'                                                              #Dup2Instr
+    | 'dup2_x1'                                                           #Dup2X1Instr
+    | 'dup2_x2'                                                           #Dup2X2Instr
+    | 'swap'                                                              #SwapInstr
+    | 'iadd'                                                              #IaddInstr
+    | 'ladd'                                                              #LaddInstr
+    | 'fadd'                                                              #FaddInstr
+    | 'dadd'                                                              #DaddInstr
+    | 'isub'                                                              #IsubInstr
+    | 'lsub'                                                              #LsubInstr
+    | 'fsub'                                                              #FsubInstr
+    | 'dsub'                                                              #DsubInstr
+    | 'imul'                                                              #ImulInstr
+    | 'lmul'                                                              #LmulInstr
+    | 'fmul'                                                              #FmulInstr
+    | 'dmul'                                                              #DmulInstr
+    | 'idiv'                                                              #IdivInstr
+    | 'ldiv'                                                              #LdivInstr
+    | 'fdiv'                                                              #FdivInstr
+    | 'ddiv'                                                              #DdivInstr
+    | 'irem'                                                              #IremInstr
+    | 'lrem'                                                              #LremInstr
+    | 'frem'                                                              #FremInstr
+    | 'drem'                                                              #DremInstr
+    | 'ineg'                                                              #InegInstr
+    | 'lneg'                                                              #LnegInstr
+    | 'fneg'                                                              #FnegInstr
+    | 'dneg'                                                              #DnegInstr
+    | 'ishl'                                                              #IshlInstr
+    | 'lshl'                                                              #LshlInstr
+    | 'ishr'                                                              #IshrInstr
+    | 'lshr'                                                              #LshrInstr
+    | 'iushr'                                                             #IushrInstr
+    | 'lushr'                                                             #LushrInstr
+    | 'iand'                                                              #IandInstr
+    | 'land'                                                              #LandInstr
+    | 'ior'                                                               #IorInstr
+    | 'lor'                                                               #LorInstr
+    | 'ixor'                                                              #IxorInstr
+    | 'lxor'                                                              #LxorInstr
+    | 'i2l'                                                               #I2lInstr
+    | 'i2f'                                                               #I2fInstr
+    | 'i2d'                                                               #I2dInstr
+    | 'l2i'                                                               #L2iInstr
+    | 'l2f'                                                               #L2fInstr
+    | 'l2d'                                                               #L2dInstr
+    | 'f2i'                                                               #F2iInstr
+    | 'f2l'                                                               #F2lInstr
+    | 'f2d'                                                               #F2dInstr
+    | 'd2i'                                                               #D2iInstr
+    | 'd2l'                                                               #D2lInstr
+    | 'd2f'                                                               #D2fInstr
+    | 'i2b'                                                               #I2bInstr
+    | 'i2c'                                                               #I2cInstr
+    | 'i2s'                                                               #I2sInstr
+    | 'lcmp'                                                              #LcmpInstr
+    | 'fcmpl'                                                             #FcmplInstr
+    | 'fcmpg'                                                             #FcmpgInstr
+    | 'dcmpl'                                                             #DcmplInstr
+    | 'dcmpg'                                                             #DcmpgInstr
+    | 'ireturn'                                                           #IreturnInstr
+    | 'lreturn'                                                           #LreturnInstr
+    | 'freturn'                                                           #FreturnInstr
+    | 'dreturn'                                                           #DreturnInstr
+    | 'areturn'                                                           #AreturnInstr
+    | 'return'                                                            #ReturnInstr
+    | 'arraylength'                                                       #ArrayLengthInstr
+    | 'athrow'                                                            #AthrowInstr
+    | 'monitorenter'                                                      #MonitorenterInstr
+    | 'monitorexit'                                                       #MonitorexitInstr
 
-    | 'getstatic'        owner=fqtn'.'name=methodName':'desc=descriptor #GetStaticInstr
-    | 'putstatic'        owner=fqtn'.'name=methodName':'desc=descriptor #PutStaticInstr
-    | 'getfield'         owner=fqtn'.'name=methodName':'desc=descriptor #GetFieldInstr
-    | 'putfield'         owner=fqtn'.'name=methodName':'desc=descriptor #PutFieldInstr
+    | 'getstatic'        owner=fqtn'.'name=methodName':'desc=descriptor   #GetStaticInstr
+    | 'putstatic'        owner=fqtn'.'name=methodName':'desc=descriptor   #PutStaticInstr
+    | 'getfield'         owner=fqtn'.'name=methodName':'desc=descriptor   #GetFieldInstr
+    | 'putfield'         owner=fqtn'.'name=methodName':'desc=descriptor   #PutFieldInstr
 
-    | 'invokevirtual'    owner=fqtn'.'name=methodName':'desc=descriptor #InvokeVirtualInstr
-    | 'invokespecial'    owner=fqtn'.'name=methodName':'desc=descriptor #InvokeSpecialInstr
-    | 'invokestatic'     owner=fqtn'.'name=methodName':'desc=descriptor #InvokeStaticInstr
-    | 'invokeinterface'  owner=fqtn'.'name=methodName':'desc=descriptor #InvokeInterfaceInstr
+    | 'invokevirtual'    owner=fqtn'.'name=methodName':'desc=descriptor   #InvokeVirtualInstr
+    | 'invokespecial'    owner=fqtn'.'name=methodName':'desc=descriptor   #InvokeSpecialInstr
+    | 'invokestatic'     owner=fqtn'.'name=methodName':'desc=descriptor   #InvokeStaticInstr
+    | 'invokeinterface'  owner=fqtn'.'name=methodName':'desc=descriptor   #InvokeInterfaceInstr
 
-    | 'ifeq'             dst=label                                      #IfeqInstr
-    | 'ifne'             dst=label                                      #IfneInstr
-    | 'iflt'             dst=label                                      #IfltInstr
-    | 'ifge'             dst=label                                      #IfgeInstr
-    | 'ifgt'             dst=label                                      #IfgtInstr
-    | 'ifle'             dst=label                                      #IfleInstr
-    | 'if_icmpeq'        dst=label                                      #IfIcmpeqInstr
-    | 'if_icmpne'        dst=label                                      #IfIcmpneInstr
-    | 'if_icmplt'        dst=label                                      #IfIcmpltInstr
-    | 'if_icmpge'        dst=label                                      #IfIcmpgeInstr
-    | 'if_icmpgt'        dst=label                                      #IfIcmpgtInstr
-    | 'if_icmple'        dst=label                                      #IfIcmpleInstr
-    | 'if_acmpeq'        dst=label                                      #IfAcmpeqInstr
-    | 'if_acmpne'        dst=label                                      #IfAcmpneInstr
-    | 'goto'             dst=label                                      #GotoInstr
-    | 'jsr'              dst=label                                      #JsrInstr
-    | 'ifnull'           dst=label                                      #IfnullInstr
-    | 'ifnonnull'        dst=label                                      #IfnonnullInstr
+    | 'invokedynamic'    name=methodName':'desc=descriptor boostrap=label #InvokeDynamicInstr
 
-    | 'iinc'             var=INTEGER inc=INTEGER                        #IincInstr
+    | 'ifeq'             dst=label                                        #IfeqInstr
+    | 'ifne'             dst=label                                        #IfneInstr
+    | 'iflt'             dst=label                                        #IfltInstr
+    | 'ifge'             dst=label                                        #IfgeInstr
+    | 'ifgt'             dst=label                                        #IfgtInstr
+    | 'ifle'             dst=label                                        #IfleInstr
+    | 'if_icmpeq'        dst=label                                        #IfIcmpeqInstr
+    | 'if_icmpne'        dst=label                                        #IfIcmpneInstr
+    | 'if_icmplt'        dst=label                                        #IfIcmpltInstr
+    | 'if_icmpge'        dst=label                                        #IfIcmpgeInstr
+    | 'if_icmpgt'        dst=label                                        #IfIcmpgtInstr
+    | 'if_icmple'        dst=label                                        #IfIcmpleInstr
+    | 'if_acmpeq'        dst=label                                        #IfAcmpeqInstr
+    | 'if_acmpne'        dst=label                                        #IfAcmpneInstr
+    | 'goto'             dst=label                                        #GotoInstr
+    | 'jsr'              dst=label                                        #JsrInstr
+    | 'ifnull'           dst=label                                        #IfnullInstr
+    | 'ifnonnull'        dst=label                                        #IfnonnullInstr
+
+    | 'iinc'             var=INTEGER inc=INTEGER                          #IincInstr
     ;
 
 fqtn
@@ -372,7 +408,7 @@ arrayType
 
 genType
     : wildcard=('+'|'-')? typeToken=type #RegularGenericType
-    | '*'                          #WildcardGenericType
+    | '*'                                #WildcardGenericType
     ;
 
 fqcn
@@ -401,12 +437,24 @@ identifier
 
 ANY                   : 'any'                    ;
 NULL                  : 'null'                   ;
+TARGET                : 'target'                 ;
+ARGS                  : 'args'                   ;
+H_GETFIELD            : 'h_getfield'             ;
+H_GETSTATIC           : 'h_getstatic'            ;
+H_PUTFIELD            : 'h_putfield'             ;
+H_PUTSTATIC           : 'h_putstatic'            ;
+H_INVOKEVIRTUAL       : 'h_invokevirtual'        ;
+H_INVOKESTATIC        : 'h_invokestatic'         ;
+H_INVOKESPECIAL       : 'h_invokespecial'        ;
+H_NEWINVOKESPECIAL    : 'h_newinvokespecial'     ;
+H_INVOKEINTERFACE     : 'h_invokeinterface'      ;
 NAN                   : 'NaN'                    ;
 NAN_F                 : 'NaNf'                   ;
 INFINITY              : 'Infinity'               ;
 INFINITY_F            : 'Infinityf'              ;
 INIT                  : '<init>'                 ;
 STATIC_INIT           : '<clinit>'               ;
+
 
    //   //                         //    //
    //   //                         //    //
@@ -428,7 +476,9 @@ FIELD_DIRECTIVE       : '.field'                 ;
 EXCEPTION_DIRECTIVE   : '.exception'             ;
 LINE_DIRECTIVE        : '.line'                  ;
 VAR_DIRECTIVE         : '.var'                   ;
-GENErIC_DIRECTIVE     : '.generic'               ;
+GENERIC_DIRECTIVE     : '.generic'               ;
+BOOTSTRAP_DIRECTIVE   : '.bootstrap'             ;
+
 
  //                  //                         //    //
  //                  //                         //    //
@@ -557,6 +607,7 @@ INVOKEVIRTUAL_INSTR   : 'invokevirtual'          ;
 INVOKESPECIAL_INSTR   : 'invokespecial'          ;
 INVOKESTATIC_INSTR    : 'invokestatic'           ;
 INVOKEINTERFACE_INSTR : 'invokeinterface'        ;
+INVOKEDYNAMIC_INSTR   : 'invokedynamic'          ;
 IFEQ_INSTR            : 'ifeq'                   ;
 IFNE_INSTR            : 'ifne'                   ;
 IFLT_INSTR            : 'iflt'                   ;
@@ -581,6 +632,7 @@ LOOKUPSWITCH_INSTR    : 'lookupswitch'           ;
 TABLESWITCH_INSTR     : 'tableswitch'            ;
 ENDSWITCH_INSTR       : 'endswitch'              ;
 DEFAULT_INSTR         : 'default'                ;
+
 
                              //                  //    //
                              //                  //    //
@@ -607,6 +659,7 @@ CARET                 : '^'                      ;
 PLUS                  : '+'                      ;
 MINUS                 : '-'                      ;
 ASTERISK              : '*'                      ;
+COMMA                 : ','                      ;
 
 
  ////   ////   ////   ///    ////   ////   ///   / ///   ////
@@ -633,6 +686,7 @@ BRIDGE                : 'bridge'                 ;
 VOLATILE              : 'volatile'               ;
 TRANSIENT             : 'transient'              ;
 VARARGS               : 'varargs'                ;
+
 
  //          //                                        ///
  //          //                                         //

@@ -58,6 +58,8 @@ public class JdsmIntegrationTest {
                 "if_int_lt",
                 "infinity_nan",
                 "integers",
+                "lambda_capture_args",
+                "lambda_no_capture",
                 "line_directives",
                 "local_vars",
                 "longs",

@@ -19,21 +19,27 @@ package dk.skrypalle.jasm.disassembler;
 
 import dk.skrypalle.jasm.Utils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.quoteIfKeyword;
 
 class DisassemblerMethodVisitor extends MethodVisitor {
 
     private final LabelTracker labelTracker;
+    private final BootstrapTracker bootstrapTracker;
     private final MethodSpec methodSpec;
 
     DisassemblerMethodVisitor(LabelTracker labelTracker) {
         super(Utils.ASM_VERSION);
 
         this.labelTracker = labelTracker;
+        bootstrapTracker = new BootstrapTracker();
         methodSpec = new MethodSpec();
     }
 
@@ -389,6 +395,79 @@ class DisassemblerMethodVisitor extends MethodVisitor {
     }
 
     @Override
+    public void visitInvokeDynamicInsn(
+            String name,
+            String descriptor,
+            Handle bootstrapMethodHandle,
+            Object... bootstrapMethodArguments) {
+        var label = bootstrapTracker.nextLabel();
+        methodSpec.addBootstrapDirective(String.format(".bootstrap %s", label));
+        methodSpec.addBootstrapDirective(String.format(
+                "  target %s",
+                parseHandle(bootstrapMethodHandle)
+        ));
+        if (bootstrapMethodArguments.length > 0) {
+            var args = Stream.of(bootstrapMethodArguments)
+                    .map(this::parseArgument)
+                    .collect(Collectors.joining(", "));
+            methodSpec.addBootstrapDirective("  args " + args);
+        }
+
+        methodSpec.addInstruction(String.format(
+                "invokedynamic %s:%s %s",
+                name,
+                descriptor,
+                label
+        ));
+    }
+
+    private String parseTag(int tag) {
+        switch (tag) {
+            case Opcodes.H_GETFIELD:
+                return "h_getfield";
+            case Opcodes.H_GETSTATIC:
+                return "h_getstatic";
+            case Opcodes.H_PUTFIELD:
+                return "h_putfield";
+            case Opcodes.H_PUTSTATIC:
+                return "h_putstatic";
+            case Opcodes.H_INVOKEVIRTUAL:
+                return "h_invokevirtual";
+            case Opcodes.H_INVOKESTATIC:
+                return "h_invokestatic";
+            case Opcodes.H_INVOKESPECIAL:
+                return "h_invokespecial";
+            case Opcodes.H_NEWINVOKESPECIAL:
+                return "h_newinvokespecial";
+            case Opcodes.H_INVOKEINTERFACE:
+                return "h_invokeinterface";
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    private String parseHandle(Handle handle) {
+        return String.format(
+                "%s %s.%s:%s",
+                parseTag(handle.getTag()),
+                handle.getOwner(),
+                handle.getName(),
+                handle.getDesc()
+        );
+    }
+
+    private String parseArgument(Object arg) {
+        if (arg.getClass() == String.class) {
+            return "\"" + StringEscapeUtils.escapeJava((String) arg) + "\"";
+        }
+        if (arg instanceof Handle) {
+            var handle = (Handle) arg;
+            return parseHandle(handle);
+        }
+        return arg.toString();
+    }
+
+    @Override
     public void visitJumpInsn(int opcode, Label label) {
         var labelName = labelTracker.refLabel();
         var jump = parseJumpInsn(opcode);
@@ -571,7 +650,7 @@ class DisassemblerMethodVisitor extends MethodVisitor {
                 ? "any"
                 : type;
 
-        methodSpec.addDirective(String.format(
+        methodSpec.addExceptionDirective(String.format(
                 ".exception %s %s %s %s",
                 startName,
                 endName,
@@ -597,7 +676,7 @@ class DisassemblerMethodVisitor extends MethodVisitor {
                 ? descriptor
                 : signature;
 
-        methodSpec.addDirective(String.format(
+        methodSpec.addVarDirective(String.format(
                 ".var %d %s:%s %s %s",
                 index,
                 quoteIfKeyword(name),

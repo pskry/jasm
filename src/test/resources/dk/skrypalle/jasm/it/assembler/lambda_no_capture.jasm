@@ -1,0 +1,51 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright © 2018 Peter Skrypalle
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+.bytecode 56.0
+.source "lambda_no_capture.jasm"
+.class public super dk/skrypalle/jasm/it/assembler/LambdaNoCapture
+.super java/lang/Object
+
+# prints 'lambda' to stdout
+.method public static main([Ljava/lang/String;)V
+.bootstrap bootstrap_0
+  target h_invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  args ()V, h_invokestatic dk/skrypalle/jasm/it/assembler/LambdaNoCapture.lambda$main$0:()V, ()V
+.var 0 args:[Ljava/lang/String; label_0 label_1
+label_0:
+  invokedynamic run:()Ljava/lang/Runnable; bootstrap_0
+  invokestatic dk/skrypalle/jasm/it/assembler/LambdaNoCapture.run:(Ljava/lang/Runnable;)V
+  return
+label_1:
+.end method
+
+.method private static run(Ljava/lang/Runnable;)V
+.var 0 runnable:Ljava/lang/Runnable; label_0 label_1
+label_0:
+  aload 0
+  invokeinterface java/lang/Runnable.run:()V
+  return
+label_1:
+.end method
+
+.method private static synthetic lambda$main$0()V
+  getstatic java/lang/System.out:Ljava/io/PrintStream;
+  ldc "lambda"
+  invokevirtual java/io/PrintStream.print:(Ljava/lang/String;)V
+  return
+.end method

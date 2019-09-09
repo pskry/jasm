@@ -105,7 +105,7 @@ class AssemblerLexer extends JasmLexer {
                 }
             }
 
-            if (isInstruction(next)) {
+            if (isInstruction(next) || isTargetOrArgs(next)) {
                 // we'll allow this token to be an identifier
                 next = toIdentifier(next);
             }
@@ -208,6 +208,11 @@ class AssemblerLexer extends JasmLexer {
     private static boolean isInstruction(Token token) {
         var type = token.getType();
         return type >= FIRST_INSTR && type <= LAST_INSTR;
+    }
+
+    private static boolean isTargetOrArgs(Token token) {
+        var type = token.getType();
+        return type == TARGET || type == ARGS;
     }
 
     private static boolean isDirective(Token token) {

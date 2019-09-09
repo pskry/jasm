@@ -59,6 +59,8 @@ public class JasmIntegrationTest {
                 assembling("if_int_lt").shouldPrint("0<1\n"),
                 assembling("infinity_nan").shouldPrint("float: NaN\nfloat: Infinity\nfloat: -Infinity\ndouble: NaN\ndouble: Infinity\ndouble: -Infinity\n"),
                 assembling("integers").shouldPrint("0\n1\n2\n3\n4\n5\n-1\n-128\n127\n-32768\n32767\n-2147483648\n2147483647\n"),
+                assembling("lambda_capture_args").withArgs("Hello", "jASM!").shouldPrint("[Hello, jASM!]"),
+                assembling("lambda_no_capture").shouldPrint("lambda"),
                 assembling("line_directives").shouldPrint("2310"),
                 assembling("local_vars").shouldPrint("2310"),
                 assembling("longs").shouldPrint("0\n1\n-9223372036854775808\n9223372036854775807\n"),

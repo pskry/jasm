@@ -89,7 +89,7 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
         return super.isEqualTo(expected);
     }
 
-    private String removeComments(String jasmSource) {
+    private static String removeComments(String jasmSource) {
         var buf = new StringBuilder();
         var normalized = jasmSource.replace("\r\n", "\n");
 
@@ -100,12 +100,44 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
                 // no comment in line
                 toAppend = line;
             } else {
-                toAppend = line.substring(0, commentStart);
+                // comment in line
+                // need to check whether it lies inside a string literal
+                var literal = findStringLiteral(line);
+                if (literal == null) {
+                    toAppend = line.substring(0, commentStart);
+                } else {
+                    if (literal[0] < commentStart && literal[1] > commentStart) {
+                        // # inside string literal, keep as is
+                        toAppend = line;
+                    } else {
+                        toAppend = line.substring(0, commentStart);
+                    }
+                }
             }
 
             buf.append(StringUtils.stripEnd(toAppend, null)).append('\n');
         }
         return buf.toString();
+    }
+
+    private static int[] findStringLiteral(String line) {
+        var start = line.indexOf("\"");
+        if (start == -1) {
+            return null;
+        }
+
+        for (int i = start + 1; i < line.length(); i++) {
+            if (line.charAt(i) == '"') {
+                if (line.charAt(i - 1) != '\\') {
+                    return new int[]{start, i};
+                }
+                if (line.charAt(i - 1) == '\\' && line.charAt(i - 2) == '\\') {
+                    return new int[]{start, i};
+                }
+            }
+        }
+
+        return null;
     }
 
 }

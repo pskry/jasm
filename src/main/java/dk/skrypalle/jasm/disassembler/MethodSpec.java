@@ -32,7 +32,9 @@ class MethodSpec {
     private String name;
     private String descriptor;
     private String signature;
-    private List<String> directives;
+    private List<String> exceptionDirectives;
+    private List<String> varDirectives;
+    private List<String> bootstrapDirectives;
     private List<String> instructions;
 
     void setAccess(int access) {
@@ -95,16 +97,40 @@ class MethodSpec {
         this.signature = signature;
     }
 
-    void addDirective(String directive) {
+    void addVarDirective(String directive) {
         if (directive == null) {
             return;
         }
 
-        if (directives == null) {
-            directives = new ArrayList<>();
+        if (varDirectives == null) {
+            varDirectives = new ArrayList<>();
         }
 
-        directives.add(directive);
+        varDirectives.add(directive);
+    }
+
+    void addExceptionDirective(String directive) {
+        if (directive == null) {
+            return;
+        }
+
+        if (exceptionDirectives == null) {
+            exceptionDirectives = new ArrayList<>();
+        }
+
+        exceptionDirectives.add(directive);
+    }
+
+    void addBootstrapDirective(String directive) {
+        if (directive == null) {
+            return;
+        }
+
+        if (bootstrapDirectives == null) {
+            bootstrapDirectives = new ArrayList<>();
+        }
+
+        bootstrapDirectives.add(directive);
     }
 
     void addInlineDirective(String directive) {
@@ -154,8 +180,18 @@ class MethodSpec {
         }
         buf.append('\n');
 
-        if (directives != null) {
-            for (var directive : directives) {
+        if (exceptionDirectives != null) {
+            for (var directive : exceptionDirectives) {
+                buf.append(directive).append("\n");
+            }
+        }
+        if (bootstrapDirectives != null) {
+            for (var directive : bootstrapDirectives) {
+                buf.append(directive).append("\n");
+            }
+        }
+        if (varDirectives != null) {
+            for (var directive : varDirectives) {
                 buf.append(directive).append("\n");
             }
         }

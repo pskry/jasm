@@ -100,6 +100,7 @@ import dk.skrypalle.jasm.generated.JasmParser.IincInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.ImulInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.InegInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.InstanceofInstrContext;
+import dk.skrypalle.jasm.generated.JasmParser.InvokeDynamicInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.InvokeInterfaceInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IorInstrContext;
 import dk.skrypalle.jasm.generated.JasmParser.IremInstrContext;
@@ -186,16 +187,18 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
 
     private final MethodVisitor methodVisitor;
     private final LabelTracker labelTracker;
+    private final BootstrapTracker bootstrapTracker;
     private final IdentifierVisitor identifierVisitor;
     private final TypeVisitor typeVisitor;
 
     InstructionVisitor(
             MethodVisitor methodVisitor,
             LabelTracker labelTracker,
-            IdentifierVisitor identifierVisitor,
+            BootstrapTracker bootstrapTracker, IdentifierVisitor identifierVisitor,
             TypeVisitor typeVisitor) {
         this.methodVisitor = methodVisitor;
         this.labelTracker = labelTracker;
+        this.bootstrapTracker = bootstrapTracker;
         this.identifierVisitor = identifierVisitor;
         this.typeVisitor = typeVisitor;
     }
@@ -1150,6 +1153,22 @@ class InstructionVisitor extends JasmBaseVisitor<Object> {
                 name,
                 descriptor,
                 true
+        );
+        return null;
+    }
+
+    @Override
+    public Object visitInvokeDynamicInstr(InvokeDynamicInstrContext ctx) {
+        var id = visitLabel(ctx.boostrap);
+        var name = identifierVisitor.visitMethodName(ctx.name);
+        var descriptor = typeVisitor.visitDescriptor(ctx.desc);
+        var handle = bootstrapTracker.getHandleForId(id);
+        var args = bootstrapTracker.getArgsForId(id);
+        methodVisitor.visitInvokeDynamicInsn(
+                name,
+                descriptor,
+                handle,
+                args
         );
         return null;
     }
