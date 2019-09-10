@@ -17,27 +17,10 @@
  */
 package dk.skrypalle.jasm.disassembler;
 
-import org.apache.commons.lang3.StringUtils;
-
 final class DisassemblerUtils {
 
     static boolean isSet(int bitField, int checkBits) {
         return (bitField & checkBits) != 0;
-    }
-
-    static String quoteIfKeyword(String text) {
-        if (StringUtils.isBlank(text)) {
-            return text;
-        }
-
-        switch (text) {
-            case "any":
-            case "strict":
-            case "annotation":
-                return "\"" + text + "\"";
-            default:
-                return text;
-        }
     }
 
     private DisassemblerUtils() { /* static utility */ }

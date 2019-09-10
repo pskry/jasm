@@ -22,8 +22,8 @@ import org.objectweb.asm.Opcodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dk.skrypalle.jasm.Utils.quoteKeywords;
 import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.isSet;
-import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.quoteIfKeyword;
 
 class FieldSpec {
 
@@ -68,11 +68,11 @@ class FieldSpec {
     }
 
     void setName(String name) {
-        this.name = quoteIfKeyword(name);
+        this.name = quoteKeywords(name);
     }
 
     void setDescriptor(String descriptor) {
-        this.descriptor = descriptor;
+        this.descriptor = quoteKeywords(descriptor);
     }
 
     @Override

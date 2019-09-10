@@ -23,6 +23,7 @@ import org.assertj.core.api.AbstractAssert;
 
 import java.util.regex.Pattern;
 
+import static dk.skrypalle.jasm.Utils.quoteKeywords;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disassembly> {
@@ -81,7 +82,7 @@ public class DisassemblyAssert extends AbstractAssert<DisassemblyAssert, Disasse
     public DisassemblyAssert isEqualTo(Object expected) {
         if (expected.getClass() == Disassembly.class) {
             var expectedDisassembly = (Disassembly) expected;
-            hasJvmClassName(expectedDisassembly.getJvmClassName());
+            hasJvmClassName(quoteKeywords(expectedDisassembly.getJvmClassName()));
             hasSourceEquivalentTo(expectedDisassembly.getJasmSourceCode());
             return myself;
         }

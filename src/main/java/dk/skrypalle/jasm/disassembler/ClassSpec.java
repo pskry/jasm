@@ -20,9 +20,9 @@ package dk.skrypalle.jasm.disassembler;
 import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import static dk.skrypalle.jasm.Utils.quoteKeywords;
 import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.isSet;
 
 class ClassSpec {
@@ -76,11 +76,11 @@ class ClassSpec {
     }
 
     void setName(String name) {
-        this.name = name;
+        this.name = quoteKeywords(name);
     }
 
     void setSignature(String signature) {
-        this.signature = signature;
+        this.signature = quoteKeywords(signature);
     }
 
     void setSuperName(String superName) {
@@ -96,7 +96,9 @@ class ClassSpec {
             interfaceList = new ArrayList<>();
         }
 
-        interfaceList.addAll(Arrays.asList(interfaceNames));
+        for (String interfaceName : interfaceNames) {
+            interfaceList.add(quoteKeywords(interfaceName));
+        }
     }
 
     @Override

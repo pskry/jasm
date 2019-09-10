@@ -23,11 +23,12 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dk.skrypalle.jasm.disassembler.DisassemblerUtils.quoteIfKeyword;
+import static dk.skrypalle.jasm.Utils.quoteKeywords;
 
 class DisassemblerMethodVisitor extends MethodVisitor {
 
@@ -350,16 +351,20 @@ class DisassemblerMethodVisitor extends MethodVisitor {
     @Override
     public void visitLdcInsn(Object value) {
         Class<?> valueClass = value.getClass();
+        var sanitizedValue = value.toString();
         if (valueClass == String.class) {
-            value = "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
+            sanitizedValue = "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
         }
         if (valueClass == Float.class) {
-            value += "f";
+            sanitizedValue += "f";
         }
         if (valueClass == Long.class) {
-            value += "l";
+            sanitizedValue += "l";
         }
-        methodSpec.addInstruction("ldc " + value);
+        if (valueClass == Type.class) {
+            sanitizedValue = Utils.quoteKeywords(sanitizedValue);
+        }
+        methodSpec.addInstruction("ldc " + sanitizedValue);
     }
 
     @Override
@@ -372,9 +377,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         var instruction = String.format(
                 "%s %s.%s:%s",
                 parseMethodInsn(opcode),
-                owner,
-                quoteIfKeyword(name),
-                descriptor
+                quoteKeywords(owner),
+                quoteKeywords(name),
+                quoteKeywords(descriptor)
         );
         methodSpec.addInstruction(instruction);
     }
@@ -450,9 +455,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         return String.format(
                 "%s %s.%s:%s",
                 parseTag(handle.getTag()),
-                handle.getOwner(),
-                handle.getName(),
-                handle.getDesc()
+                quoteKeywords(handle.getOwner()),
+                quoteKeywords(handle.getName()),
+                quoteKeywords(handle.getDesc())
         );
     }
 
@@ -463,6 +468,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         if (arg instanceof Handle) {
             var handle = (Handle) arg;
             return parseHandle(handle);
+        }
+        if (arg instanceof Type) {
+            return quoteKeywords(arg.toString());
         }
         return arg.toString();
     }
@@ -527,7 +535,7 @@ class DisassemblerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitTypeInsn(int opcode, String type) {
-        methodSpec.addInstruction(parseTypeInsn(opcode) + " " + type);
+        methodSpec.addInstruction(parseTypeInsn(opcode) + " " + quoteKeywords(type));
     }
 
     private String parseTypeInsn(int opcode) {
@@ -550,9 +558,9 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         var instruction = String.format(
                 "%s %s.%s:%s",
                 parseFieldInsn(opcode),
-                owner,
-                quoteIfKeyword(name),
-                descriptor
+                quoteKeywords(owner),
+                quoteKeywords(name),
+                quoteKeywords(descriptor)
         );
         methodSpec.addInstruction(instruction);
     }
@@ -638,7 +646,11 @@ class DisassemblerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
-        methodSpec.addInstruction(String.format("multianewarray %s %d", descriptor, numDimensions));
+        methodSpec.addInstruction(String.format(
+                "multianewarray %s %d",
+                quoteKeywords(descriptor),
+                numDimensions
+        ));
     }
 
     @Override
@@ -679,8 +691,8 @@ class DisassemblerMethodVisitor extends MethodVisitor {
         methodSpec.addVarDirective(String.format(
                 ".var %d %s:%s %s %s",
                 index,
-                quoteIfKeyword(name),
-                jasmDescriptor,
+                quoteKeywords(name),
+                quoteKeywords(jasmDescriptor),
                 labelTracker.refLabel(),
                 labelTracker.refLabel()
         ));

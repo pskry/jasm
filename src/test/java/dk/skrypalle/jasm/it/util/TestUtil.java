@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static dk.skrypalle.jasm.Utils.quoteKeywords;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class TestUtil {
@@ -32,7 +33,7 @@ public final class TestUtil {
     }
 
     public static String escapeJvmClassNameForRegex(String jvmClassName) {
-        return jvmClassName.replace("$", "\\$");
+        return quoteKeywords(jvmClassName.replace("$", "\\$"));
     }
 
     public static Path getResourcePath(String resourceName) {

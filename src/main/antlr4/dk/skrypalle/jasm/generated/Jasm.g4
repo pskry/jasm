@@ -703,4 +703,7 @@ DECIMAL               : '-'?[0-9]*'.'[0-9]+([E][-]?[0-9]+)?[f]?  ;
 IDENTIFIER            : [a-zA-Z$_][a-zA-Z0-9$_]*                 ;
 WHITESPACE            : [ \t]+        -> skip                    ;
 COMMENT               : '#' ~[\r\n]*  -> skip                    ;
-STRING                : '"' ~[\r\n]* '"'                         ;
+STRING                : '"' (ESC|.)*? '"'                        ;
+
+fragment
+ESC                   : '\\"' | '\\\\'                           ;

@@ -18,11 +18,14 @@
 package dk.skrypalle.jasm;
 
 import org.apache.commons.io.HexDump;
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Opcodes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Utils {
 
@@ -68,6 +71,38 @@ public final class Utils {
             }
         }
         return buf.toString();
+    }
+
+    /**
+     * Quotes all keywords contained in the input string.
+     *
+     * @param input string to search and quote
+     * @return quoted string
+     */
+    public static String quoteKeywords(String input) {
+        if (StringUtils.isBlank(input)) {
+            return input;
+        }
+
+        if (!StringUtils.contains(input, '/')) {
+            return quoteIfKeyword(input);
+        }
+
+        return Stream.of(StringUtils.split(input, "/"))
+                .map(Utils::quoteIfKeyword)
+                .collect(Collectors.joining("/"));
+    }
+
+    private static String quoteIfKeyword(String input) {
+        switch (input) {
+            case "any":
+            case "strict":
+            case "annotation":
+            case "NaN":
+                return "\"" + input + "\"";
+            default:
+                return input;
+        }
     }
 
 }
