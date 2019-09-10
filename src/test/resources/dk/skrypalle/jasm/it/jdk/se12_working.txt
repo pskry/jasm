@@ -787,6 +787,7 @@ java.beans.Encoder
 java.beans.EventHandler
 java.beans.ExceptionListener
 java.beans.Expression
+java.beans.FeatureDescriptor
 java.beans.IndexedPropertyChangeEvent
 java.beans.IntrospectionException
 java.beans.MethodDescriptor

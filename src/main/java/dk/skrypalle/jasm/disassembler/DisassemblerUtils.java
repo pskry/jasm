@@ -33,6 +33,7 @@ final class DisassemblerUtils {
         switch (text) {
             case "any":
             case "strict":
+            case "annotation":
                 return "\"" + text + "\"";
             default:
                 return text;
